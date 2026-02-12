@@ -1,9 +1,7 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:17
-    container_name: finances-db
+    container_name: tank-db
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -12,7 +10,7 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - finances-data:/var/lib/postgresql/data
+      - tank-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
       interval: 10s
@@ -23,9 +21,9 @@ services:
 
   backend:
     build:
-      context: ./finances-backend
+      context: ./backend
       dockerfile: Dockerfile
-    container_name: finances-backend
+    container_name: tank-backend
     ports:
       - "3000:3000"
     environment:
@@ -46,9 +44,9 @@ services:
 
   frontend:
     build:
-      context: ./finances-ui
+      context: ./ui
       dockerfile: Dockerfile
-    container_name: finances-frontend
+    container_name: tank-frontend
     ports:
       - "80:80"
     depends_on:
@@ -59,7 +57,7 @@ services:
 
 
 volumes:
-  finances-data:
+  tank-data:
     driver: local
 
 networks:
