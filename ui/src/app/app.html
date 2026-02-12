@@ -1,0 +1,32 @@
+<h1>User Configuration</h1>
+@for (user of users(); track user.id) {
+  <div class="user" (click)="selectUser(user.id)">{{ user.name }} - {{ user.email }}</div>
+}
+
+<h3>
+  <span (click)="selectAddMode()" class="select-mode" [ngClass]="{'selected': editingMode() === 'add'}"
+  >Add User</span>
+  <span> / </span>
+  <span (click)="selectEditingMode()" class="select-mode"
+        [ngClass]="{'selected': editingMode() === 'edit'}">Edit User</span>
+</h3>
+
+<div class="form-control">
+  <div class="row">
+    <span>Name</span>
+    <input [formControl]="userFormGroup.controls.name" placeholder="name">
+  </div>
+  <div class="row">
+    <span>Email</span>
+    <input [formControl]="userFormGroup.controls.email" placeholder="email">
+  </div>
+</div>
+
+@if (editingMode() === 'edit') {
+  <button (click)="updateUser()">Save Changes</button>
+}
+@if (editingMode() === 'add') {
+  <button (click)="createUser()">Create User</button>
+}
+
+
