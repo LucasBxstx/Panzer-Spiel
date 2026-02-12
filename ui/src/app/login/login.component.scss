@@ -1,0 +1,9 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+
+:host {
+  @include page-centered
+}
+
+@include dialogue-sizing
