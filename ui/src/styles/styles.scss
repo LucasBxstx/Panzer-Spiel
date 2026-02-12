@@ -1,5 +1,9 @@
 @use 'variables' as *;
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --primary-color: #{$primary-color};
   --secondary-color: #{$secondary-color};
@@ -22,7 +26,46 @@ body, {
   width: 100%;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: $primary-color;
-  color: $primary-text-color;
+  color: $secondary-text-color;
   line-height: 1.5;
   font-size: 16px;
 }
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 20px;
+}
+
+.input-description {
+  font-size: 14px;
+  color: $secondary-text-color;
+  margin-top: -5px;
+  margin-left: 10px;
+}
+
+input {
+  background-color: $overlay-color;
+  box-sizing: border-box;
+  border: 1px solid $border-color;
+  border-radius: 3px;
+  font-size: 16px;
+  color: $primary-text-color;
+  padding: 3px 10px;
+}
+
+button {
+  background-color: $tertiary-color;
+  padding: 7px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  min-width: 200px;
+  color: $primary-text-color;
+}
+
+input:focus-visible {
+  outline: none;
+}
+
+

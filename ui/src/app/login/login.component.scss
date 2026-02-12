@@ -3,7 +3,11 @@
 
 
 :host {
-  @include page-centered
+  @include page-centered;
 }
 
-@include dialogue-sizing
+@include dialogue-sizing;
+
+.title {
+  color: $primary-text-color;
+}

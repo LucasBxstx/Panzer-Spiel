@@ -1,9 +1,27 @@
 <div class="dialogue-sizing">
   <app-card>
     <app-card-wrapper>
-      <div top>Title</div>
-      <div content>Content</div>
-      <div bottom> Bottom</div>
+      <div top class="font-bold text-3xl title">Das Panzer Spiel</div>
+      <div content>
+        <div class="text-center">Willkommen beim dem legendären Panzer Spiel! Logge dich ein, oder erstelle einen
+          Account, wenn du noch keinen hast, und starte ins Spiel!
+        </div>
+        <div class="mt-4">
+          <div class="input-container">
+            <div class="input-description">Email</div>
+            <input type="email" [formControl]="loginFormGroup.controls.email">
+          </div>
+
+          <div class="input-container">
+            <div class="input-description" [formControl]="loginFormGroup.controls.password">Password</div>
+            <input type="password">
+          </div>
+        </div>
+
+      </div>
+      <div bottom>
+        <button (click)="login()">Login</button>
+      </div>
     </app-card-wrapper>
   </app-card>
 </div>
