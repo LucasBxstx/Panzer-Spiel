@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "finances-ui": {
+    "tank-ui": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -30,7 +30,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles/styles.scss"
             ]
           },
           "configurations": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "finances-ui:build:production"
+              "buildTarget": "tank-ui:build:production"
             },
             "development": {
-              "buildTarget": "finances-ui:build:development"
+              "buildTarget": "tank-ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -88,7 +88,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles/styles.scss"
             ]
           }
         }
