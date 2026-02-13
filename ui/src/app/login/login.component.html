@@ -1,7 +1,10 @@
 <div class="dialogue-sizing">
   <app-card>
     <app-card-wrapper>
-      <div top class="font-bold text-3xl title">Das Panzer Spiel</div>
+      <div top>
+        <img ngSrc="assets/pictures/tank-game-heading.png" alt="title" width="400"
+             height="146" priority>
+      </div>
       <div content>
         <div class="flex flex-wrap justify-center">
           <div>Willkommen beim dem legendären Panzer Spiel! Logge dich ein, oder</div>
@@ -21,9 +24,15 @@
 
           <div class="input-container">
             <div class="input-description">Password</div>
-            <input type="password" [formControl]="loginFormGroup.controls.password">
+            <input type="password" [formControl]="loginFormGroup.controls.password" (keyup.enter)="login()">
           </div>
         </div>
+
+        @if (error(); as error) {
+          <div class="text-center text-red-500">
+            {{ error }}
+          </div>
+        }
 
       </div>
       <div bottom>

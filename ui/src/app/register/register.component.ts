@@ -13,10 +13,18 @@ import { AuthService } from '../shared/services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-register',
-  imports: [CardComponent, CardWrapperComponent, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    CardComponent,
+    CardWrapperComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterLink,
+    NgOptimizedImage,
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -42,7 +50,7 @@ export class RegisterComponent {
     }),
   });
 
-  public login(): void {
+  public register(): void {
     if (this.registerFormGroup.invalid) {
       return;
     }
@@ -61,7 +69,7 @@ export class RegisterComponent {
         }),
       )
       .subscribe(() => {
-        this.router.navigate(['/menu']);
+        this.router.navigate(['/gamemode']);
       });
   }
 }

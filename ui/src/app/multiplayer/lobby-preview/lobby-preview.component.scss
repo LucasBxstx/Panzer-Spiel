@@ -1,0 +1,24 @@
+@use '../../../styles/variables' as *;
+
+:host {
+  display: flex;
+  align-items: center;
+  background-color: rgba(208, 192, 192, 0.32);
+  border: solid 1px $border-color;
+  border-radius: 3px;
+  padding: 5px 20px;
+  transition: background-color 0.2s ease-in-out;
+  color: beige;
+
+  &:hover {
+    background-color: rgba(208, 192, 192, 0.45);
+  }
+}
+
+button {
+  background-color: $button-color-dark;
+
+  &:hover {
+    background-color: $button-color-dark-hover;
+  }
+}

@@ -7,8 +7,9 @@
   @include tank-bg-picture;
 }
 
-@include dialogue-sizing;
+@include page-sizing;
 
 app-card {
   backdrop-filter: blur(2px);
 }
+

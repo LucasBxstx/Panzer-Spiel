@@ -37,6 +37,14 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
+    const existingUserName = await this.userRepository.findOne({
+      name: registerDto.name,
+    });
+
+    if (existingUserName) {
+      throw new ConflictException('Username already taken');
+    }
+
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
     const user = this.userRepository.create({
