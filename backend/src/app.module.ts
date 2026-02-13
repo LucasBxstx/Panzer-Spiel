@@ -4,6 +4,7 @@ import mikroOrmConfig from './mikro-orm.config';
 import { UserModule } from './app/api/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { HealthModule } from './app/api/health/health.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -11,6 +12,12 @@ import { HealthModule } from './app/api/health/health.module';
       isGlobal: true,
       ignoreEnvFile: false,
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     MikroOrmModule.forRoot(mikroOrmConfig),
     UserModule,
     HealthModule,

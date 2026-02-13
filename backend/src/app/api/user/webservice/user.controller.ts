@@ -5,11 +5,10 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post,
 } from '@nestjs/common';
 import { UserService } from '../user.service';
 import { UserResponseDto } from './dto/user-response.dto';
-import { CreateUserDto } from './dto/user.dto';
+import { UpdateUserDto } from './dto/user.dto';
 
 @Controller('user')
 export class UserController {
@@ -25,16 +24,11 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.create(createUserDto);
-  }
-
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() createUserDto: CreateUserDto,
+    @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.userService.update(id, createUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 }
