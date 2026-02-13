@@ -3,6 +3,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import mikroOrmConfig from './mikro-orm.config';
 import { UserModule } from './app/api/user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { HealthModule } from './app/api/health/health.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     MikroOrmModule.forRoot(mikroOrmConfig),
     UserModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],
