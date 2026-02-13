@@ -7,11 +7,18 @@ import {
 import { User } from './app/api/user/user.entity'; // all docker container
 
 // setting for prod and development
-const user = process.env.DB_USERNAME;
-const port = parseInt(process.env.DB_PORT ?? '5432');
-const password = process.env.DB_PASSWORD;
-const dbName = process.env.DB_NAME;
-const host = process.env.DB_HOST ?? 'db';
+// const user = process.env.DB_USERNAME;
+// const port = parseInt(process.env.DB_PORT ?? '5432');
+// const password = process.env.DB_PASSWORD;
+// const dbName = process.env.DB_NAME;
+// const host = process.env.DB_HOST ?? 'db';
+
+// local development for creating migrations
+const user = 'postgres';
+const port = 5432;
+const password = 'xXLucas3Xx';
+const dbName = 'panzerSpielDBLocal';
+const host = '127.0.0.1';
 
 export default defineConfig({
   driver: PostgreSqlDriver,
@@ -30,10 +37,11 @@ export default defineConfig({
   },
   loadStrategy: LoadStrategy.JOINED,
   populateWhere: PopulateHint.INFER,
-  preferTs: true,
+  preferTs: process.env.NODE_ENV !== 'production',
   migrations: {
     snapshot: false,
     path: './dist/migrations',
+    pathTs: './src/migrations',
   },
   autoJoinRefsForFilters: false,
   allowGlobalContext: true,

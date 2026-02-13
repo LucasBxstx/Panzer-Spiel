@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CardComponent } from '../shared/components/card/card.component';
 import { CardWrapperComponent } from '../shared/components/card-wrapper/card-wrapper.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../shared/services/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +14,8 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class LoginComponent {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   public readonly loginFormGroup = new FormGroup({
     email: new FormControl('', {
@@ -28,5 +32,15 @@ export class LoginComponent {
     if (this.loginFormGroup.invalid) {
       return;
     }
+
+    this.authService
+      .login({
+        email: this.loginFormGroup.controls.email.value,
+        password: this.loginFormGroup.controls.password.value,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.router.navigate(['/menu']);
+      });
   }
 }

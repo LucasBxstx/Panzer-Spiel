@@ -30,6 +30,11 @@
           </div>
         </div>
 
+        @if (error(); as error) {
+          <div class="text-center text-red-500">
+            {{ error }}
+          </div>
+        }
       </div>
       <div bottom>
         <button (click)="login()" [disabled]="registerFormGroup.invalid">Register</button>

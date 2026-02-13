@@ -5,6 +5,7 @@ import { UserModule } from './app/api/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { HealthModule } from './app/api/health/health.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './app/api/auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     MikroOrmModule.forRoot(mikroOrmConfig),
     UserModule,
     HealthModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
