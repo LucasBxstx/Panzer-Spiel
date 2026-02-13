@@ -1,0 +1,28 @@
+<div class="page-sizing">
+  <app-card>
+    <app-page-wrapper [navigateTo]="'/gamemode'" [backLabel]="'Hauptmenu'"
+                      [headingLabel]="'Multiplayer'">
+      <div content>
+        <div>Im Multiplayer Modus kannst du mit anderen Spielern zusammen spielen. Du kannst dein
+          eigenes Spiel starten, indem du eine Lobby erstellt, und andere Spieler beitreten. Oder du kannst den Lobbys
+          anderer Spieler beitreten.
+        </div>
+
+
+        <div class="flex gap-10 my-5">
+          <div class="font-bold text-2xl">Offene Lobbys</div>
+          <button>Lobby eröffnen</button>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          @for (preview of lobbyPreviews; track preview.id) {
+            <app-lobby-preview [lobbyPreview]="preview"></app-lobby-preview>
+          }
+        </div>
+
+
+      </div>
+
+    </app-page-wrapper>
+  </app-card>
+</div>

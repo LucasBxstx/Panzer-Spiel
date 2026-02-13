@@ -13,10 +13,12 @@
   --border-color: #{$border-color};
   --overlay-color: #{$overlay-color};
   --button-hover-color: #{$button-hover-color};
+  --button-color-dark: #{$button-color-dark};
+  --button-color-dark-hover: #{$button-color-dark-hover};
 }
 
 html {
-  //background-color: $primary-color;
+  background-color: $primary-color;
   margin: 0;
   padding: 0;
 }
@@ -26,10 +28,11 @@ body, {
   padding: 0;
   width: 100%;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  //background-color: $primary-color;
+  background-color: $primary-color;
   color: $secondary-text-color;
   line-height: 1.5;
   font-size: 16px;
+  user-select: none;
 }
 
 .input-container {
