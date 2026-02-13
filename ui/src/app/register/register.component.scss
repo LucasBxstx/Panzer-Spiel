@@ -1,0 +1,18 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+
+:host {
+  @include page-centered;
+  @include tank-bg-picture;
+}
+
+@include dialogue-sizing;
+
+.title {
+  color: $primary-text-color;
+}
+
+app-card {
+  backdrop-filter: blur(2px);
+}

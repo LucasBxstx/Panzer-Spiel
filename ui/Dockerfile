@@ -10,6 +10,6 @@ ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build -- --configuration production
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=build /app/dist/finances-ui/browser /usr/share/nginx/html
+COPY --from=build /app/dist/tank-ui/browser /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

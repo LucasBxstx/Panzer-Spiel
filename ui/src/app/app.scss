@@ -1,32 +1,3 @@
 :host {
   display: block;
-  padding: 20px 50px;
-}
-
-.select-mode {
-  &.selected {
-    text-decoration: underline;
-  }
-}
-
-.select-mode:hover {
-  cursor: pointer;
-}
-
-.user:hover {
-  border: 1px solid grey;
-  cursor: pointer;
-}
-
-
-.row {
-  display: flex;
-
-  span {
-    margin-right: 10px;
-  }
-}
-
-.form-control {
-  margin-bottom: 15px;
 }
