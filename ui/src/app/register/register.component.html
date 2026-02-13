@@ -1,0 +1,40 @@
+<div class="dialogue-sizing">
+  <app-card>
+    <app-card-wrapper>
+      <div top class="font-bold text-3xl title">Das Panzer Spiel</div>
+      <div content>
+
+        <div class="text-center">Willkommen beim dem legendären Panzer Spiel! Erstelle dir einen Account, um
+          loszulegen! Du hast schon einen Account, dann kannst du dich hier <a
+            routerLink="/login"
+            class="underline cursor-pointer">
+            anmelden
+          </a>
+        </div>
+
+
+        <div class="mt-4">
+          <div class="input-container">
+            <div class="input-description">Name</div>
+            <input type="email" [formControl]="registerFormGroup.controls.name">
+          </div>
+
+          <div class="input-container">
+            <div class="input-description">Email</div>
+            <input type="email" [formControl]="registerFormGroup.controls.email">
+          </div>
+
+          <div class="input-container">
+            <div class="input-description">Password</div>
+            <input type="password" [formControl]="registerFormGroup.controls.password">
+          </div>
+        </div>
+
+      </div>
+      <div bottom>
+        <button (click)="login()" [disabled]="registerFormGroup.invalid">Register</button>
+      </div>
+    </app-card-wrapper>
+  </app-card>
+</div>
+

@@ -7,15 +7,16 @@
 :root {
   --primary-color: #{$primary-color};
   --secondary-color: #{$secondary-color};
-  --tertiary-color: #{$tertiary-color};
+  --button-color: #{$button-color};
   --primary-text-color: #{$primary-text-color};
   --secondary-text-color: #{$secondary-text-color};
   --border-color: #{$border-color};
   --overlay-color: #{$overlay-color};
+  --button-hover-color: #{$button-hover-color};
 }
 
 html {
-  background-color: $primary-color;
+  //background-color: $primary-color;
   margin: 0;
   padding: 0;
 }
@@ -25,7 +26,7 @@ body, {
   padding: 0;
   width: 100%;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: $primary-color;
+  //background-color: $primary-color;
   color: $secondary-text-color;
   line-height: 1.5;
   font-size: 16px;
@@ -52,17 +53,32 @@ input {
   font-size: 16px;
   color: $primary-text-color;
   padding: 3px 10px;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: rgba(76, 73, 64, 0.55);
+  }
 }
 
 button {
-  background-color: $tertiary-color;
+  background-color: $button-color;
   padding: 7px 20px;
   cursor: pointer;
   border-radius: 5px;
   font-weight: bold;
   min-width: 200px;
   color: $primary-text-color;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: $button-hover-color;
+  }
+
+  &:disabled {
+    background-color: rgba(41, 40, 35, 0.55);
+  }
 }
+
 
 input:focus-visible {
   outline: none;

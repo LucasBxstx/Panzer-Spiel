@@ -19,3 +19,11 @@
     }
   }
 }
+
+@mixin tank-bg-picture {
+  background-image: url("/assets/pictures/tank-game-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}

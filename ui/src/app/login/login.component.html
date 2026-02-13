@@ -3,9 +3,16 @@
     <app-card-wrapper>
       <div top class="font-bold text-3xl title">Das Panzer Spiel</div>
       <div content>
-        <div class="text-center">Willkommen beim dem legendären Panzer Spiel! Logge dich ein, oder erstelle einen
-          Account, wenn du noch keinen hast, und starte ins Spiel!
+        <div class="flex flex-wrap justify-center">
+          <div>Willkommen beim dem legendären Panzer Spiel! Logge dich ein, oder</div>
+          <a
+            routerLink="/register"
+            class="underline cursor-pointer">
+            Erstelle einen Account
+          </a>
+          <div>, wenn du noch keinen hast, und starte ins Spiel!</div>
         </div>
+
         <div class="mt-4">
           <div class="input-container">
             <div class="input-description">Email</div>
@@ -13,14 +20,14 @@
           </div>
 
           <div class="input-container">
-            <div class="input-description" [formControl]="loginFormGroup.controls.password">Password</div>
-            <input type="password">
+            <div class="input-description">Password</div>
+            <input type="password" [formControl]="loginFormGroup.controls.password">
           </div>
         </div>
 
       </div>
       <div bottom>
-        <button (click)="login()">Login</button>
+        <button (click)="login()" [disabled]="loginFormGroup.invalid">Login</button>
       </div>
     </app-card-wrapper>
   </app-card>
