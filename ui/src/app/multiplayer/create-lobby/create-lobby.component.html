@@ -1,0 +1,24 @@
+<div class="page-sizing">
+  <app-card>
+    <app-page-wrapper [navigateTo]="'/multiplayer'" [backLabel]="'Multiplayer'"
+                      [headingLabel]="'Lobby erstellen'">
+      <div content>
+        <div>Hier kannst du deine eigene Lobby erstellen, um mit Freunden oder anderen Spielern zu spielen. Sobald du
+          eine Lobby erstellt hast, kannst warten, bis andere Spieler beitreten. Hier kannst du einstellen, auf Welcher
+          Map, mit welchem Modus, und mit wie vielen Spielern du spielen möchtest
+        </div>
+
+        <div class="font-bold mt-3 ">Map:</div>
+
+        <div class="flex flex-row gap-5 align-center">
+          @for (map of availableMaps(); track map.id) {
+            <app-map-preview [map]="map" [isSelected]="selectedMapId() === map.id"
+                             (click)="selectedMapId.set(map.id)"></app-map-preview>
+          }
+        </div>
+
+      </div>
+
+    </app-page-wrapper>
+  </app-card>
+</div>

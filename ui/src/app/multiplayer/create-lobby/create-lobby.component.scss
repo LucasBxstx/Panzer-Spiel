@@ -1,0 +1,15 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+
+:host {
+  @include page-centered;
+  @include tank-bg-picture;
+}
+
+@include page-sizing;
+
+app-card {
+  backdrop-filter: blur(2px);
+}
+

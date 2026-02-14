@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CardComponent } from '../shared/components/card/card.component';
 import { PageWrapperComponent } from '../shared/components/page-wrapper/page-wrapper.component';
 import { GameMode, LobbyPreview } from '../shared/models/lobby-preview.model';
 import { LobbyPreviewComponent } from './lobby-preview/lobby-preview.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-multiplayer',
@@ -11,6 +12,8 @@ import { LobbyPreviewComponent } from './lobby-preview/lobby-preview.component';
   styleUrl: './multiplayer.component.scss',
 })
 export class MultiplayerComponent {
+  private readonly router = inject(Router);
+
   public readonly lobbyPreviews: LobbyPreview[] = [
     {
       id: '1',
@@ -23,7 +26,7 @@ export class MultiplayerComponent {
     {
       id: '2',
       hostUserName: 'Sofie',
-      mapName: 'Temple',
+      mapName: 'Jungle',
       gameMode: GameMode.TeamVsBots,
       maxPlayersCount: 3,
       playersCount: 1,
@@ -31,10 +34,14 @@ export class MultiplayerComponent {
     {
       id: '3',
       hostUserName: 'Flo',
-      mapName: 'Desert',
+      mapName: 'Temple',
       gameMode: GameMode.TeamVsTeam,
       maxPlayersCount: 4,
       playersCount: 2,
     },
   ];
+
+  public createLobby(): void {
+    this.router.navigate(['create-lobby']);
+  }
 }

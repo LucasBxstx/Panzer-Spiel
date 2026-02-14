@@ -1,0 +1,32 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+:host {
+  display: block;
+}
+
+.map-preview {
+  position: relative;
+  border-radius: 5px;
+  border: 3px solid transparent;
+
+  img {
+    border-radius: 3px;
+  }
+
+  .description {
+    position: absolute;
+    width: 100%;
+    background-color: $overlay-color;
+    padding-left: 10px;
+    bottom: 0;
+    left: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: $primary-text-color;
+  }
+
+  &.selected {
+    border: 3px solid rgba(80, 198, 227, 0.89);
+  }
+}
