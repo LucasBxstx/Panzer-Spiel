@@ -1,0 +1,61 @@
+<div class="page-sizing">
+  <app-card>
+    <app-page-wrapper [navigateTo]="'/multiplayer'" [backLabel]="'Multiplayer'"
+                      [headingLabel]="'Lobby erstellen'">
+      <div content>
+        <div>Hier kannst du deine eigene Lobby erstellen, um mit Freunden oder anderen Spielern zu spielen. Sobald du
+          eine Lobby erstellt hast, kannst warten, bis andere Spieler beitreten. Hier kannst du einstellen, auf Welcher
+          Map, mit welchem Modus, und mit wie vielen Spielern du spielen möchtest
+        </div>
+
+        <div class="font-bold mt-3">Map:</div>
+
+        <div class="flex flex-row gap-5 align-center">
+          @for (map of availableMaps(); track map.id) {
+            <app-map-preview [map]="map" [isSelected]="selectedMapId() === map.id"
+                             (click)="selectedMapId.set(map.id)"></app-map-preview>
+          }
+        </div>
+
+        <div class="font-bold mt-3">Mode:</div>
+
+        <div class="flex flex-row gap-5 align-center">
+          @for (mode of availableModes(); track mode.name) {
+            <app-chip [value]="mode.name" [class]="{selected: mode.value === selectedMode()}"
+                      (click)="selectedMode.set(mode.value)"></app-chip>
+          }
+        </div>
+
+        <div class="mt-3 flex gap-5  ">
+          @if (selectedMode() === GameMode.OneVsOne) {
+            <div>
+              <div class="font-bold mt-3">Number of Players:</div>
+              <input type="number" [formControl]="formGroup.controls.numberOfPlayers">
+            </div>
+          }
+
+          @if (selectedMode() !== GameMode.OneVsOne) {
+            <div>
+              <div class="font-bold mt-3">Number of Teams:</div>
+              <input type="number" [formControl]="formGroup.controls.numberOfTeams">
+            </div>
+          }
+
+          @if (selectedMode() !== GameMode.OneVsOne) {
+            <div>
+              <div class="font-bold mt-3">Team Size:</div>
+              <input type="number" [formControl]="formGroup.controls.teamSize">
+            </div>
+          }
+        </div>
+
+        <div class="mt-10 flex justify-center">
+
+          <button class="w-[80%]" (click)="createLobby()" [disabled]="formGroup.invalid">Create Lobby</button>
+        </div>
+
+      </div>
+
+    </app-page-wrapper>
+  </app-card>
+</div>

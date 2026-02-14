@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 
@@ -14,8 +14,10 @@ export class PageWrapperComponent {
   public readonly navigateTo = input.required<string>();
   public readonly headingLabel = input.required<string>();
   public readonly backLabel = input.required<string>();
+  public readonly leavePage = output<void>();
 
   public navigate(): void {
+    this.leavePage.emit();
     this.router.navigate([this.navigateTo()]);
   }
 }

@@ -23,7 +23,12 @@ export class UserService {
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
-    const user = await this.userRepository.findOneOrFail({ id });
+    console.log('Finding user with id:', id);
+    const user = await this.userRepository.findOne({ id });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
 
     return UserResponseDto.fromEntity(user);
   }
