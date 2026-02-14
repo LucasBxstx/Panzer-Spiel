@@ -5,9 +5,9 @@
 </div>
 
 <div class="flex gap-4">
-  <button (click)="navigate()" class="flex justify-center align-center gap-2 flex-[25%]">
+  <button (click)="navigate()" class="flex justify-center align-center gap-2 flex-[25%] ">
     <img ngSrc="assets/icons/arrow-left.svg" alt="back" width="24" height="24">
-    <div>{{ backLabel() }}</div>
+    <div class="hidden md:block">{{ backLabel() }}</div>
   </button>
 
   <div class="flex-[60%] text-center font-bold text-3xl">
