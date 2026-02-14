@@ -1,11 +1,17 @@
-import { Component, effect, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { PageWrapperComponent } from '../../shared/components/page-wrapper/page-wrapper.component';
-import { MapPreviewResponse } from '../../shared/models/lobby.model';
+import {
+  CreateLobbyRequest,
+  GameModeOption,
+  MapPreviewResponse,
+} from '../../shared/models/lobby.model';
 import { MapPreviewComponent } from '../../shared/components/map-preview/map-preview.component';
 import { GameMode } from '../../shared/models/lobby-preview.model';
 import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../shared/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-lobby',
@@ -21,6 +27,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 })
 export class CreateLobbyComponent {
   protected readonly GameMode = GameMode;
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   public readonly selectedMapId = signal<string>('1');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
   public readonly availableMaps = signal<MapPreviewResponse[]>([
@@ -35,12 +43,7 @@ export class CreateLobbyComponent {
       pictureUrl: 'assets/pictures/map-jungle.png',
     },
   ]);
-  public readonly availableModes = signal<
-    {
-      name: string;
-      value: GameMode;
-    }[]
-  >([
+  public readonly availableModes = signal<GameModeOption[]>([
     {
       name: '1 vs 1',
       value: GameMode.OneVsOne,
@@ -81,5 +84,15 @@ export class CreateLobbyComponent {
     if (this.formGroup.invalid) {
       return;
     }
+
+    const request: CreateLobbyRequest = {
+      mapId: this.selectedMapId(),
+      gameMode: this.selectedMode(),
+      maxPlayersCount: this.formGroup.controls.numberOfPlayers.getRawValue(),
+      numberOfTeams: this.formGroup.controls.numberOfTeams.getRawValue(),
+      teamSize: this.formGroup.controls.teamSize.getRawValue(),
+    };
+
+    this.router.navigate(['/lobby/1']);
   }
 }

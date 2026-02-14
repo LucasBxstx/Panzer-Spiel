@@ -37,4 +37,9 @@ export const routes: Routes = [
         (m) => m.CreateLobbyComponent,
       ),
   },
+  {
+    path: 'lobby/:id',
+    loadComponent: () =>
+      import('./multiplayer/lobby/lobby.component').then((m) => m.LobbyComponent),
+  },
 ];

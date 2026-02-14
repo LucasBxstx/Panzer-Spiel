@@ -7,5 +7,5 @@ import { Component, input } from '@angular/core';
   styleUrl: './chip.component.scss',
 })
 export class ChipComponent {
-  public readonly value = input.required<string>();
+  public readonly value = input<string>();
 }
