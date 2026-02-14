@@ -3,7 +3,7 @@
 :host {
   display: flex;
   align-items: center;
-  background-color: rgba(208, 192, 192, 0.32);
+  background-color: $light-card-color;
   border: solid 1px $border-color;
   border-radius: 3px;
   padding: 5px 20px;
@@ -11,7 +11,7 @@
   color: beige;
 
   &:hover {
-    background-color: rgba(208, 192, 192, 0.45);
+    background-color: $light-card-hover-color;
   }
 }
 
