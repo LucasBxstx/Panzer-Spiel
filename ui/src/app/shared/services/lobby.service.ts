@@ -23,11 +23,9 @@ export class LobbyService {
   }
 
   connect() {
-    if (this.socket?.connected) return;
-
     const token = this.authService.getToken();
 
-    if (!token) {
+    if (this.socket?.connected || !token) {
       return;
     }
 
@@ -38,7 +36,7 @@ export class LobbyService {
     });
 
     this.socket.on('connect', () => {
-      console.log('Connected to lobby');
+      console.log('Websocket connected');
       this.connected.set(true);
     });
 
@@ -64,6 +62,7 @@ export class LobbyService {
     });
 
     this.socket.on('lobbyUpdated', (lobby: LobbyResponse) => {
+      console.log('Lobby updated:', lobby);
       this.currentLobby.set(lobby);
     });
   }
@@ -74,12 +73,7 @@ export class LobbyService {
     }
 
     return new Observable<LobbyResponse>((observer) => {
-      console.log('Emitting createLobby:', dto);
-
       this.socket?.emit('createLobby', dto, (response: any) => {
-        console.log('Raw response from server:', response);
-
-        // Response ist direkt das Lobby-Objekt
         if (response && response.id) {
           console.log('Lobby created successfully:', response);
           this.currentLobby.set(response);
@@ -97,7 +91,6 @@ export class LobbyService {
       }, 10000);
 
       return () => {
-        console.log('Observable cleanup');
         clearTimeout(timeout);
       };
     });
@@ -109,11 +102,7 @@ export class LobbyService {
     }
 
     return new Observable<LobbyResponse>((observer) => {
-      console.log('Emitting joinLobby:', lobbyId);
-
       this.socket?.emit('joinLobby', { lobbyId }, (response: any) => {
-        console.log('Raw response from joinLobby:', response);
-
         if (response && response.id) {
           console.log('Joined lobby successfully:', response);
           this.currentLobby.set(response);
@@ -131,19 +120,14 @@ export class LobbyService {
       }, 10000);
 
       return () => {
-        console.log('JoinLobby Observable cleanup');
         clearTimeout(timeout);
       };
     });
   }
 
-  leaveLobby(lobbyId: string): Observable<void> {
+  leaveLobby(): Observable<void> {
     return new Observable<void>((observer) => {
-      console.log('Emitting leaveLobby:', lobbyId);
-
       this.socket?.emit('leaveLobby', null, (response: any) => {
-        console.log('Raw response from leaveLobby:', response);
-
         if (response?.error) {
           console.error('Error leaving lobby:', response.error);
           observer.error(new Error(response.error));
@@ -162,7 +146,6 @@ export class LobbyService {
       }, 10000);
 
       return () => {
-        console.log('LeaveLobby Observable cleanup');
         clearTimeout(timeout);
       };
     });

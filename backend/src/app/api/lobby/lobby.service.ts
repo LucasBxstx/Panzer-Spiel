@@ -174,6 +174,12 @@ export class LobbyService {
       throw new WsException('Lobby not found');
     }
 
+    if (userId === lobby.hostUserId && lobby.players.length > 1) {
+      const nextPlayer = lobby.players.find((p) => p.userId !== userId)!;
+      lobby.hostUserId = nextPlayer.userId;
+      lobby.hostUserName = nextPlayer.name;
+    }
+
     const playerIndex = lobby.players.findIndex((p) => p.userId === userId);
     if (playerIndex >= 0) {
       lobby.players.splice(playerIndex, 1);

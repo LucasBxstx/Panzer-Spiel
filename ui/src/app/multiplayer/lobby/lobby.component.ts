@@ -43,10 +43,8 @@ export class LobbyComponent implements OnInit {
     const connected = this.lobbyService.connected();
 
     if (connected && currentLobby?.id === lobbyId) {
-      console.log('Already in lobby:', lobbyId);
       this.isLoading.set(false);
     } else {
-      console.log('Rejoining lobby after reload:', lobbyId);
       this.rejoinLobby(lobbyId);
     }
   }
@@ -63,8 +61,7 @@ export class LobbyComponent implements OnInit {
           console.log('Rejoined lobby:', lobby);
           this.isLoading.set(false);
         },
-        error: (err) => {
-          console.error('Error rejoining lobby:', err);
+        error: () => {
           this.error.set('Lobby konnte nicht beigetreten werden');
           this.isLoading.set(false);
 
@@ -83,10 +80,9 @@ export class LobbyComponent implements OnInit {
     }
 
     this.lobbyService
-      .leaveLobby(lobby.id)
+      .leaveLobby()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        console.log('left lobby!!!');
         this.router.navigate(['/multiplayer']);
       });
   }

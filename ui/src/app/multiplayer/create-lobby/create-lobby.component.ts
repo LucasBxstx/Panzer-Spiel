@@ -63,10 +63,6 @@ export class CreateLobbyComponent {
   ]);
 
   public readonly formGroup = new FormGroup({
-    numberOfPlayers: new FormControl<number>(2, {
-      validators: [Validators.required, Validators.min(2)],
-      nonNullable: true,
-    }),
     numberOfTeams: new FormControl<number>(2, {
       validators: [Validators.min(2), Validators.max(4)],
       nonNullable: true,
@@ -89,12 +85,14 @@ export class CreateLobbyComponent {
       return;
     }
 
+    const { numberOfTeams, teamSize } = this.formGroup.getRawValue();
+
     const request: CreateLobbyRequest = {
       mapId: this.selectedMapId(),
       gameMode: this.selectedMode(),
-      maxPlayersCount: this.formGroup.controls.numberOfPlayers.getRawValue(),
-      numberOfTeams: this.formGroup.controls.numberOfTeams.getRawValue(),
-      teamSize: this.formGroup.controls.teamSize.getRawValue(),
+      teamSize,
+      numberOfTeams,
+      maxPlayersCount: numberOfTeams * teamSize,
     };
 
     this.lobbyService
