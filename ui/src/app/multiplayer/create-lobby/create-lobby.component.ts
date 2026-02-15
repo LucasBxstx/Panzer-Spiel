@@ -101,6 +101,7 @@ export class CreateLobbyComponent {
       .createLobby(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((lobby) => {
+        console.log(lobby);
         this.router.navigate([`/lobby/${lobby.id}`]);
       });
   }

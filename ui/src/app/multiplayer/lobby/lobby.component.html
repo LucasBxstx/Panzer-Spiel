@@ -2,6 +2,7 @@
   <app-card>
     <app-page-wrapper [backLabel]="'Lobby verlassen'"
                       [headingLabel]="'Lobby erstellen'" (leavePage)="leaveLobby()">
+
       @if (lobbyService.currentLobby(); as lobby) {
         <div content class="mt-[-20px]">
 
@@ -60,7 +61,7 @@
               <div class="font-bold mt-3">Spieler:</div>
               <div class="flex flex-col">
                 @for (player of lobby.joinedPlayers; track player.name) {
-                  <app-chip class="my-2" [value]="player.name"></app-chip>
+                  <app-chip class="my-1" [value]="player.name"></app-chip>
                 }
               </div>
               @if (lobby.joinedPlayers.length < lobby.gameSettings.maxPlayersCount) {
@@ -73,6 +74,15 @@
         </div>
 
 
+      }
+
+      @if (isLoading()) {
+
+        <div content>isLoading</div>
+      }
+
+      @if (error()) {
+        <div content> {{ error() }}</div>
       }
 
     </app-page-wrapper>

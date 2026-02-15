@@ -1,9 +1,4 @@
-import {
-  Inject,
-  NotFoundException,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -12,6 +7,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from '../lobby.service';
@@ -23,6 +19,7 @@ import { UserRepository } from '../../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../../user/user.entity';
 import { LobbyResponseDto } from './dto/lobby-response.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
   cors: true,
@@ -36,25 +33,54 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private playerLobbyMap: Map<string, string> = new Map();
 
   constructor(
-    private lobbyService: LobbyService,
+    private readonly lobbyService: LobbyService,
+    private readonly jwtService: JwtService,
 
     @Inject(UserRepository)
     private readonly userRepository: EntityRepository<User>,
   ) {}
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     try {
-      const userId = client.data.userId;
+      // Token extrahieren
+      const token = this.extractTokenFromHandshake(client);
+
+      if (!token) {
+        console.log('No token provided');
+        client.disconnect();
+        return;
+      }
+
+      // Token validieren und userId extrahieren
+      const payload = await this.jwtService.verifyAsync(token);
+      const userId = payload.userId; // oder payload.sub, je nach deinem JWT
+
+      // UserId dem Socket zuweisen
+      client.data.userId = userId;
+
       console.log(`User ${userId} connected with socket ${client.id}`);
     } catch (err) {
+      console.error('Connection error:', err.message);
       client.disconnect();
     }
+  }
+
+  private extractTokenFromHandshake(client: Socket): string | null {
+    const token = client.handshake?.auth?.token;
+    if (token) return token;
+
+    const authHeader = client.handshake?.headers?.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      return authHeader.substring(7);
+    }
+
+    return client.handshake?.query?.token as string;
   }
 
   async handleDisconnect(client: Socket) {
     const userId = client.data.userId;
     console.log(`User ${userId} disconnected`);
-    await this.handleLeaveLobby(client);
+    await this.handleLeaveLobby(client, userId);
   }
 
   @SubscribeMessage('createLobby')
@@ -62,12 +88,24 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() dto: CreateLobbyDto,
     @ConnectedSocket() client: Socket,
     @WsCurrentUserId() userId: string,
-  ) {
-    const lobby = await this.lobbyService.createLobby(userId, dto);
-    await client.join(lobby.id);
-    this.playerLobbyMap.set(client.id, lobby.id);
+  ): Promise<LobbyResponseDto> {
+    const user = await this.userRepository.findOne({ id: userId });
 
-    return { event: 'lobbyCreated', data: lobby };
+    if (!user) {
+      throw new WsException('Unauthorized');
+    }
+
+    const player: Player = {
+      userId,
+      socketId: client.id,
+      name: user.name,
+    };
+
+    const lobby = await this.lobbyService.createLobby(userId, dto, player);
+    await client.join(lobby.id);
+    this.playerLobbyMap.set(userId, lobby.id);
+    console.log(`User ${userId} created a new Lobby:  ${lobby.id}`);
+    return lobby;
   }
 
   @SubscribeMessage('joinLobby')
@@ -75,11 +113,11 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() dto: JoinLobbyDto,
     @ConnectedSocket() client: Socket,
     @WsCurrentUserId() userId: string,
-  ): Promise<{ event: string; data: LobbyResponseDto }> {
+  ): Promise<LobbyResponseDto> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new WsException('Unauthorized');
     }
 
     const player: Player = {
@@ -95,32 +133,37 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     await client.join(dto.lobbyId);
-    this.playerLobbyMap.set(client.id, dto.lobbyId);
+    this.playerLobbyMap.set(userId, dto.lobbyId);
 
     this.server.to(dto.lobbyId).emit('lobbyUpdated', lobby);
     this.server.to(dto.lobbyId).emit('playerJoined', player);
 
-    return {
-      event: 'joinedLobby',
-      data: lobby,
-    };
+    console.log(`User ${userId} joined lobby ${lobby.id}`);
+    return lobby;
   }
 
   @SubscribeMessage('leaveLobby')
-  async handleLeaveLobby(@ConnectedSocket() client: Socket) {
-    const lobbyId = this.playerLobbyMap.get(client.id);
-
-    if (!lobbyId) {
-      throw new NotFoundException('Lobby not found');
+  async handleLeaveLobby(
+    @ConnectedSocket() client: Socket,
+    @WsCurrentUserId() userId: string,
+  ): Promise<{ success: boolean }> {
+    const user = await this.userRepository.findOne({ id: userId });
+    const lobbyId = this.playerLobbyMap.get(userId);
+    if (!user || !lobbyId) {
+      return { success: false };
     }
 
-    const lobby = await this.lobbyService.leaveLobby(client.id, lobbyId);
+    const lobby = await this.lobbyService.leaveLobby(userId, lobbyId);
     await client.leave(lobbyId);
-    this.playerLobbyMap.delete(client.id);
+    this.playerLobbyMap.delete(userId);
 
     if (lobby) {
       this.server.to(lobbyId).emit('lobbyUpdated', lobby);
       this.server.to(lobbyId).emit('playerLeft', client.data.userId);
+
+      console.log(`User ${userId} left the lobby ${lobby.id}`);
     }
+
+    return { success: true };
   }
 }

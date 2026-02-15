@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
@@ -20,6 +15,7 @@ import {
   LobbyPreviewResponseDto,
   LobbyResponseDto,
 } from './webservice/dto/lobby-response.dto';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class LobbyService {
@@ -36,11 +32,12 @@ export class LobbyService {
   async createLobby(
     userId: string,
     dto: CreateLobbyDto,
+    player: Player,
   ): Promise<LobbyResponseDto> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
-      throw new UnauthorizedException('User does not exist');
+      throw new WsException('Unauthorized');
     }
 
     // const map = await this.mapRepository...
@@ -85,7 +82,7 @@ export class LobbyService {
     };
 
     if (!map) {
-      throw new NotFoundException('Map not found');
+      throw new WsException('Map not found');
     }
 
     const gameSettings: GameSettings = {
@@ -100,7 +97,7 @@ export class LobbyService {
       id: uuidv4(),
       hostUserId: userId,
       hostUserName: user.name,
-      players: [],
+      players: [player],
       gameSettings,
       createdAt: new Date(),
     };
@@ -131,7 +128,7 @@ export class LobbyService {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
-      throw new UnauthorizedException('User does not exist');
+      throw new WsException('Unauthorized');
     }
 
     const lobby = Array.from(this.lobbies.values()).find(
@@ -139,7 +136,15 @@ export class LobbyService {
     );
 
     if (!lobby) {
-      throw new NotFoundException('Lobby does not exist');
+      throw new WsException('Lobb not found');
+    }
+
+    if (lobby.players.length >= lobby.gameSettings.maxPlayersCount) {
+      throw new WsException('Too many players. Cannot join');
+    }
+
+    if (lobby.players.find((p) => p.userId === player.userId)) {
+      throw new WsException('Player already joined');
     }
 
     lobby.players.push(player);
@@ -158,7 +163,7 @@ export class LobbyService {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
-      throw new UnauthorizedException('User does not exist');
+      throw new WsException('Unauthorized');
     }
 
     const lobby = Array.from(this.lobbies.values()).find(
@@ -166,7 +171,7 @@ export class LobbyService {
     );
 
     if (!lobby) {
-      throw new NotFoundException('Lobby does not exist');
+      throw new WsException('Lobby not found');
     }
 
     const playerIndex = lobby.players.findIndex((p) => p.userId === userId);

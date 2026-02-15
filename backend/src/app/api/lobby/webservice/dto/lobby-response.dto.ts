@@ -7,94 +7,6 @@ import {
   Player,
 } from '../../../../common/interfaces/game.interfaces';
 
-export class LobbyPreviewResponseDto {
-  @Expose()
-  id: string;
-
-  @Expose()
-  hostUserName: string;
-
-  @Expose()
-  playersCount: number;
-
-  @Expose()
-  mapName: string;
-
-  @Expose()
-  @Type(() => GameModeOptionResponseDto)
-  gameMode: GameModeOptionResponseDto;
-
-  static mapFromEntity(lobby: Lobby): LobbyPreviewResponseDto {
-    return {
-      id: lobby.id,
-      hostUserName: lobby.hostUserName,
-      mapName: lobby.gameSettings.map.name,
-      gameMode: GameModeOptionResponseDto.mapFromEntity(
-        lobby.gameSettings.gameMode,
-      ),
-      playersCount: lobby.players.length,
-    };
-  }
-}
-
-export class LobbyResponseDto {
-  @Expose()
-  id: string;
-
-  @Expose()
-  hostUserName: string;
-
-  @Expose()
-  @Type(() => GameSettingsResponseDto)
-  gameSettings: GameSettingsResponseDto;
-
-  @Expose()
-  @Type(() => PlayerPreviewResponseDto)
-  joinedPlayers: PlayerPreviewResponseDto[];
-
-  static mapFromEntity(lobby: Lobby): LobbyResponseDto {
-    return {
-      id: lobby.id,
-      hostUserName: lobby.hostUserName,
-      gameSettings: GameSettingsResponseDto.mapFromEntity(lobby.gameSettings),
-      joinedPlayers: lobby.players.map((p) =>
-        PlayerPreviewResponseDto.mapFromEntity(p),
-      ),
-    };
-  }
-}
-
-export class GameSettingsResponseDto {
-  @Expose()
-  @Type(() => GameModeOptionResponseDto)
-  gameModeOption: GameModeOptionResponseDto;
-
-  @Expose()
-  @Type(() => MapPreviewResponseDto)
-  mapPreview: MapPreviewResponseDto;
-
-  @Expose()
-  maxPlayersCount: number;
-
-  @Expose()
-  numberOfTeams: number;
-
-  @Expose()
-  teamSize: number;
-
-  static mapFromEntity(settings: GameSettings): GameSettingsResponseDto {
-    return {
-      gameModeOption: GameModeOptionResponseDto.mapFromEntity(
-        settings.gameMode,
-      ),
-      mapPreview: MapPreviewResponseDto.mapFromEntity(settings.map),
-      maxPlayersCount: settings.maxPlayersCount,
-      teamSize: settings.teamSize,
-      numberOfTeams: settings.numberOfTeams,
-    };
-  }
-}
-
 export class MapPreviewResponseDto {
   @Expose()
   id: string;
@@ -153,6 +65,98 @@ export class PlayerPreviewResponseDto {
     return {
       userId: player.userId,
       name: player.name,
+    };
+  }
+}
+
+export class GameSettingsResponseDto {
+  @Expose()
+  @Type(() => GameModeOptionResponseDto)
+  gameModeOption: GameModeOptionResponseDto;
+
+  @Expose()
+  @Type(() => MapPreviewResponseDto)
+  mapPreview: MapPreviewResponseDto;
+
+  @Expose()
+  maxPlayersCount: number;
+
+  @Expose()
+  numberOfTeams: number;
+
+  @Expose()
+  teamSize: number;
+
+  static mapFromEntity(settings: GameSettings): GameSettingsResponseDto {
+    return {
+      gameModeOption: GameModeOptionResponseDto.mapFromEntity(
+        settings.gameMode,
+      ),
+      mapPreview: MapPreviewResponseDto.mapFromEntity(settings.map),
+      maxPlayersCount: settings.maxPlayersCount,
+      teamSize: settings.teamSize,
+      numberOfTeams: settings.numberOfTeams,
+    };
+  }
+}
+
+export class LobbyPreviewResponseDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  hostUserName: string;
+
+  @Expose()
+  playersCount: number;
+
+  @Expose()
+  maxPlayersCount: number;
+
+  @Expose()
+  mapName: string;
+
+  @Expose()
+  @Type(() => GameModeOptionResponseDto)
+  gameMode: GameModeOptionResponseDto;
+
+  static mapFromEntity(lobby: Lobby): LobbyPreviewResponseDto {
+    return {
+      id: lobby.id,
+      hostUserName: lobby.hostUserName,
+      mapName: lobby.gameSettings.map.name,
+      gameMode: GameModeOptionResponseDto.mapFromEntity(
+        lobby.gameSettings.gameMode,
+      ),
+      playersCount: lobby.players.length,
+      maxPlayersCount: lobby.gameSettings.maxPlayersCount,
+    };
+  }
+}
+
+export class LobbyResponseDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  hostUserName: string;
+
+  @Expose()
+  @Type(() => GameSettingsResponseDto)
+  gameSettings: GameSettingsResponseDto;
+
+  @Expose()
+  @Type(() => PlayerPreviewResponseDto)
+  joinedPlayers: PlayerPreviewResponseDto[];
+
+  static mapFromEntity(lobby: Lobby): LobbyResponseDto {
+    return {
+      id: lobby.id,
+      hostUserName: lobby.hostUserName,
+      gameSettings: GameSettingsResponseDto.mapFromEntity(lobby.gameSettings),
+      joinedPlayers: lobby.players.map((p) =>
+        PlayerPreviewResponseDto.mapFromEntity(p),
+      ),
     };
   }
 }

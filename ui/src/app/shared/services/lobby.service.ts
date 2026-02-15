@@ -58,13 +58,13 @@ export class LobbyService {
       this.connected.set(false);
     });
 
-    this.socket.on('lobbyCreated', (response: { event: string; data: LobbyResponse }) => {
-      console.log('Lobby created:', response.data);
-      this.currentLobby.set(response.data);
+    this.socket.on('lobbyCreated', (lobby: LobbyResponse) => {
+      console.log('Lobby created:', lobby);
+      this.currentLobby.set(lobby);
     });
 
-    this.socket.on('lobbyUpdated', (response: { event: string; data: LobbyResponse }) => {
-      this.currentLobby.set(response.data);
+    this.socket.on('lobbyUpdated', (lobby: LobbyResponse) => {
+      this.currentLobby.set(lobby);
     });
   }
 
@@ -74,20 +74,30 @@ export class LobbyService {
     }
 
     return new Observable<LobbyResponse>((observer) => {
-      this.socket?.emit('createLobby', dto, (response: { event: string; data: LobbyResponse }) => {
-        if (response && response.data) {
-          observer.next(response.data);
+      console.log('Emitting createLobby:', dto);
+
+      this.socket?.emit('createLobby', dto, (response: any) => {
+        console.log('Raw response from server:', response);
+
+        // Response ist direkt das Lobby-Objekt
+        if (response && response.id) {
+          console.log('Lobby created successfully:', response);
+          this.currentLobby.set(response);
+          observer.next(response);
           observer.complete();
         } else {
-          observer.error(new Error('Keine Antwort vom Server erhalten'));
+          console.error('Invalid response:', response);
+          observer.error(new Error('Ungültige Server-Antwort'));
         }
       });
 
       const timeout = setTimeout(() => {
+        console.error('Timeout waiting for server response');
         observer.error(new Error('Timeout: Server antwortet nicht'));
       }, 10000);
 
       return () => {
+        console.log('Observable cleanup');
         clearTimeout(timeout);
       };
     });
@@ -99,34 +109,47 @@ export class LobbyService {
     }
 
     return new Observable<LobbyResponse>((observer) => {
-      this.socket?.emit(
-        'joinLobby',
-        { lobbyId },
-        (response: { event: string; data: LobbyResponse }) => {
-          if (response?.data) {
-            this.currentLobby.set(response.data);
-            observer.next(response.data);
-            observer.complete();
-          } else {
-            observer.error(new Error('Ungültige Server-Antwort'));
-          }
-        },
-      );
+      console.log('Emitting joinLobby:', lobbyId);
+
+      this.socket?.emit('joinLobby', { lobbyId }, (response: any) => {
+        console.log('Raw response from joinLobby:', response);
+
+        if (response && response.id) {
+          console.log('Joined lobby successfully:', response);
+          this.currentLobby.set(response);
+          observer.next(response);
+          observer.complete();
+        } else {
+          console.error('Invalid join response:', response);
+          observer.error(new Error('Ungültige Server-Antwort'));
+        }
+      });
 
       const timeout = setTimeout(() => {
+        console.error('Timeout waiting for joinLobby response');
         observer.error(new Error('Timeout: Server antwortet nicht'));
       }, 10000);
 
-      return () => clearTimeout(timeout);
+      return () => {
+        console.log('JoinLobby Observable cleanup');
+        clearTimeout(timeout);
+      };
     });
   }
 
   leaveLobby(lobbyId: string): Observable<void> {
     return new Observable<void>((observer) => {
-      this.socket?.emit('leaveLobby', { lobbyId }, (response: any) => {
+      console.log('Emitting leaveLobby:', lobbyId);
+
+      this.socket?.emit('leaveLobby', null, (response: any) => {
+        console.log('Raw response from leaveLobby:', response);
+
         if (response?.error) {
+          console.error('Error leaving lobby:', response.error);
           observer.error(new Error(response.error));
         } else {
+          console.log('Left lobby successfully');
+          this.currentLobby.set(null);
           this.disconnect();
           observer.next();
           observer.complete();
@@ -134,10 +157,14 @@ export class LobbyService {
       });
 
       const timeout = setTimeout(() => {
+        console.error('Timeout waiting for leaveLobby response');
         observer.error(new Error('Timeout: Server antwortet nicht'));
       }, 10000);
 
-      return () => clearTimeout(timeout);
+      return () => {
+        console.log('LeaveLobby Observable cleanup');
+        clearTimeout(timeout);
+      };
     });
   }
 
