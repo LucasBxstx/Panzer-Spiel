@@ -11,13 +11,15 @@ import { NgOptimizedImage } from '@angular/common';
 export class PageWrapperComponent {
   private readonly router = inject(Router);
 
-  public readonly navigateTo = input.required<string>();
+  public readonly navigateTo = input<string>();
   public readonly headingLabel = input.required<string>();
   public readonly backLabel = input.required<string>();
   public readonly leavePage = output<void>();
 
   public navigate(): void {
     this.leavePage.emit();
-    this.router.navigate([this.navigateTo()]);
+    if (this.navigateTo()) {
+      this.router.navigate([this.navigateTo()]);
+    }
   }
 }

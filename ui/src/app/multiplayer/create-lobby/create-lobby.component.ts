@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { PageWrapperComponent } from '../../shared/components/page-wrapper/page-wrapper.component';
 import {
@@ -10,8 +10,9 @@ import { MapPreviewComponent } from '../../shared/components/map-preview/map-pre
 import { GameMode } from '../../shared/models/lobby-preview.model';
 import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
+import { LobbyService } from '../../shared/services/lobby.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-create-lobby',
@@ -27,8 +28,10 @@ import { Router } from '@angular/router';
 })
 export class CreateLobbyComponent {
   protected readonly GameMode = GameMode;
-  private readonly authService = inject(AuthService);
+  private readonly lobbyService = inject(LobbyService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+
   public readonly selectedMapId = signal<string>('1');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
   public readonly availableMaps = signal<MapPreviewResponse[]>([
@@ -40,6 +43,7 @@ export class CreateLobbyComponent {
     {
       id: '2',
       name: 'Jungle',
+
       pictureUrl: 'assets/pictures/map-jungle.png',
     },
   ]);
@@ -59,10 +63,6 @@ export class CreateLobbyComponent {
   ]);
 
   public readonly formGroup = new FormGroup({
-    numberOfPlayers: new FormControl<number>(2, {
-      validators: [Validators.required, Validators.min(2)],
-      nonNullable: true,
-    }),
     numberOfTeams: new FormControl<number>(2, {
       validators: [Validators.min(2), Validators.max(4)],
       nonNullable: true,
@@ -85,14 +85,21 @@ export class CreateLobbyComponent {
       return;
     }
 
+    const { numberOfTeams, teamSize } = this.formGroup.getRawValue();
+
     const request: CreateLobbyRequest = {
       mapId: this.selectedMapId(),
       gameMode: this.selectedMode(),
-      maxPlayersCount: this.formGroup.controls.numberOfPlayers.getRawValue(),
-      numberOfTeams: this.formGroup.controls.numberOfTeams.getRawValue(),
-      teamSize: this.formGroup.controls.teamSize.getRawValue(),
+      teamSize,
+      numberOfTeams,
+      maxPlayersCount: numberOfTeams * teamSize,
     };
 
-    this.router.navigate(['/lobby/1']);
+    this.lobbyService
+      .createLobby(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((lobby) => {
+        this.router.navigate([`/lobby/${lobby.id}`]);
+      });
   }
 }

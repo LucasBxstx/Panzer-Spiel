@@ -55,6 +55,10 @@ export class AuthService {
     localStorage.setItem('userId', tokenResponse.user.id);
   }
 
+  public getToken(): string | null {
+    return localStorage.getItem('loginToken');
+  }
+
   public clearTokens(): void {
     this.user.set(null);
     localStorage.removeItem('loginToken');

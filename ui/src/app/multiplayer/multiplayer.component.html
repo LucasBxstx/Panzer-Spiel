@@ -8,21 +8,17 @@
           anderer Spieler beitreten.
         </div>
 
-
         <div class="flex gap-10 my-5">
           <div class="font-bold text-2xl">Offene Lobbys</div>
           <button (click)="createLobby()">Lobby eröffnen</button>
         </div>
 
         <div class="flex flex-col gap-2">
-          @for (preview of lobbyPreviews; track preview.id) {
+          @for (preview of lobbyPreviews(); track preview.id) {
             <app-lobby-preview [lobbyPreview]="preview"></app-lobby-preview>
           }
         </div>
-
-
       </div>
-
     </app-page-wrapper>
   </app-card>
 </div>

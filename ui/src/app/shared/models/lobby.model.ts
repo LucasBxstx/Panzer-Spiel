@@ -17,12 +17,16 @@ export interface MapPreviewResponse {
 export interface LobbyResponse {
   id: string;
   hostUserName: string;
-  map: MapPreviewResponse;
-  gameMode: GameModeOption;
-  maxPlayersCount: number;
-  teamSize: number;
-  numberOfTeams: number;
+  gameSettings: GameSettingsResponse;
   joinedPlayers: PlayerPreviewResponse[];
+}
+
+export interface GameSettingsResponse {
+  gameModeOption: GameModeOption;
+  mapPreview: MapPreviewResponse;
+  maxPlayersCount: number;
+  numberOfTeams: number;
+  teamSize: number;
 }
 
 export interface PlayerPreviewResponse {

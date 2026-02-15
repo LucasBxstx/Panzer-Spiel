@@ -1,10 +1,12 @@
-export interface LobbyPreview {
+import { GameModeOption } from './lobby.model';
+
+export interface LobbyPreviewResponse {
   id: string;
   hostUserName: string;
   playersCount: number;
   maxPlayersCount: number;
   mapName: string;
-  gameMode: GameMode;
+  gameMode: GameModeOption;
 }
 
 export enum GameMode {

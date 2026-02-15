@@ -27,13 +27,6 @@
         </div>
 
         <div class="mt-3 flex gap-5  ">
-          @if (selectedMode() === GameMode.OneVsOne) {
-            <div>
-              <div class="font-bold mt-3">Number of Players:</div>
-              <input type="number" [formControl]="formGroup.controls.numberOfPlayers">
-            </div>
-          }
-
           @if (selectedMode() !== GameMode.OneVsOne) {
             <div>
               <div class="font-bold mt-3">Number of Teams:</div>

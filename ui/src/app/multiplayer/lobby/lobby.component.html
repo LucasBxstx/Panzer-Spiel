@@ -1,11 +1,10 @@
 <div class="page-sizing">
   <app-card>
-    <app-page-wrapper [navigateTo]="'/multiplayer'" [backLabel]="'Lobby verlassen'"
-                      [headingLabel]="'Lobby erstellen'" (leavePage)="onLeavePage()">
-      @if (lobby(); as lobby) {
+    <app-page-wrapper [backLabel]="'Lobby verlassen'"
+                      [headingLabel]="'Match Lobby'" (leavePage)="leaveLobby()">
+
+      @if (lobbyService.currentLobby(); as lobby) {
         <div content class="mt-[-20px]">
-
-
           <div class="flex gap-10 mt-10">
             <div class="flex-[50%] flex flex-col gap-5">
               <div class=" mr-10">
@@ -19,7 +18,7 @@
               <div class="font-bold mt-3">Map:</div>
 
               <div class="flex flex-row gap-5 align-center">
-                <app-map-preview [map]="lobby.map"
+                <app-map-preview [map]="lobby.gameSettings.mapPreview"
                 ></app-map-preview>
 
               </div>
@@ -28,7 +27,7 @@
 
               <div class="flex flex-row gap-5 align-center">
 
-                <app-chip [value]="lobby.gameMode.name"></app-chip>
+                <app-chip [value]="lobby.gameSettings.gameModeOption.name"></app-chip>
 
               </div>
             </div>
@@ -39,40 +38,49 @@
                 <div class="flex justify-between mx-5">
                   <div>
                     <div class="font-bold text-center">Players:</div>
-                    <div class="text-center">{{ lobby.joinedPlayers.length }} / {{ lobby.maxPlayersCount }}</div>
+                    <div class="text-center">{{ lobby.joinedPlayers.length }}
+                      / {{ lobby.gameSettings.maxPlayersCount }}
+                    </div>
                   </div>
 
+                  <div>
+                    <div class="font-bold text-center">Teams:</div>
+                    <div class="text-center">{{ lobby.gameSettings.numberOfTeams }}</div>
+                  </div>
 
-                  @if (lobby.gameMode.value === GameMode.OneVsOne) {
-                    <div>
-                      <div class="font-bold text-center">Teams:</div>
-                      <div class="text-center">{{ lobby.numberOfTeams }}</div>
-                    </div>
-                  }
-
-                  @if (lobby.gameMode.value === GameMode.OneVsOne) {
-                    <div>
-                      <div class="font-bold text-center">Team Size:</div>
-                      <div class="text-center">{{ lobby.teamSize }}</div>
-                    </div>
-                  }
+                  <div>
+                    <div class="font-bold text-center">Team Size:</div>
+                    <div class="text-center">{{ lobby.gameSettings.teamSize }}</div>
+                  </div>
                 </div>
 
 
               </app-chip>
-              <div class="font-bold mt-3">Joined Players:</div>
+              <div class="font-bold mt-3">Spieler:</div>
               <div class="flex flex-col">
                 @for (player of lobby.joinedPlayers; track player.name) {
-                  <app-chip class="my-2" [value]="player.name"></app-chip>
-                  <app-chip [value]="player.name"></app-chip>
+                  <app-chip class="my-1" [value]="player.name"></app-chip>
                 }
               </div>
-              <div class="text-center mt-5">Warte auf weitere Spieler...</div>
+              @if (lobby.joinedPlayers.length < lobby.gameSettings.maxPlayersCount) {
+                <div class="text-center mt-5">Warte auf weitere Spieler...</div>
+              } @else {
+                <div class="text-center mt-5">Bereit zum Starten!</div>
+              }
             </div>
           </div>
         </div>
 
 
+      }
+
+      @if (isLoading()) {
+
+        <div content>isLoading</div>
+      }
+
+      @if (error()) {
+        <div content> {{ error() }}</div>
       }
 
     </app-page-wrapper>

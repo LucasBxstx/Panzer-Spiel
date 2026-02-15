@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { HealthModule } from './app/api/health/health.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './app/api/auth/auth.module';
+import { LobbyModule } from './app/api/lobby/lobby.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AuthModule } from './app/api/auth/auth.module';
     UserModule,
     HealthModule,
     AuthModule,
+    LobbyModule,
   ],
   controllers: [],
   providers: [],
