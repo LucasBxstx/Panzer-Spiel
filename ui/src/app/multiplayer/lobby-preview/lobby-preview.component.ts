@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, input } from '@angular/core';
-import { LobbyPreview } from '../../shared/models/lobby-preview.model';
+import { LobbyPreviewResponse } from '../../shared/models/lobby-preview.model';
 import { LobbyService } from '../../shared/services/lobby.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -14,7 +14,7 @@ export class LobbyPreviewComponent {
   private readonly lobbyService = inject(LobbyService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
-  public readonly lobbyPreview = input.required<LobbyPreview>();
+  public readonly lobbyPreview = input.required<LobbyPreviewResponse>();
 
   public joinLobby(): void {
     this.lobbyService

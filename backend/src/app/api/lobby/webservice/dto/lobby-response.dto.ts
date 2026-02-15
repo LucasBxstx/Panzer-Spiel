@@ -7,6 +7,36 @@ import {
   Player,
 } from '../../../../common/interfaces/game.interfaces';
 
+export class LobbyPreviewResponseDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  hostUserName: string;
+
+  @Expose()
+  playersCount: number;
+
+  @Expose()
+  mapName: string;
+
+  @Expose()
+  @Type(() => GameModeOptionResponseDto)
+  gameMode: GameModeOptionResponseDto;
+
+  static mapFromEntity(lobby: Lobby): LobbyPreviewResponseDto {
+    return {
+      id: lobby.id,
+      hostUserName: lobby.hostUserName,
+      mapName: lobby.gameSettings.map.name,
+      gameMode: GameModeOptionResponseDto.mapFromEntity(
+        lobby.gameSettings.gameMode,
+      ),
+      playersCount: lobby.players.length,
+    };
+  }
+}
+
 export class LobbyResponseDto {
   @Expose()
   id: string;

@@ -16,7 +16,10 @@ import {
 } from '../../common/interfaces/game.interfaces';
 import { CreateLobbyDto } from './webservice/dto/lobby.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { LobbyResponseDto } from './webservice/dto/lobby-response.dto';
+import {
+  LobbyPreviewResponseDto,
+  LobbyResponseDto,
+} from './webservice/dto/lobby-response.dto';
 
 @Injectable()
 export class LobbyService {
@@ -107,7 +110,7 @@ export class LobbyService {
     return LobbyResponseDto.mapFromEntity(lobby);
   }
 
-  async findAll(userId: string): Promise<LobbyResponseDto[]> {
+  async findAll(userId: string): Promise<LobbyPreviewResponseDto[]> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
@@ -117,7 +120,7 @@ export class LobbyService {
       (l) => l.players.length < l.gameSettings.maxPlayersCount,
     );
 
-    return lobbies.map((l) => LobbyResponseDto.mapFromEntity(l));
+    return lobbies.map((l) => LobbyPreviewResponseDto.mapFromEntity(l));
   }
 
   async joinLobby(

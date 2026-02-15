@@ -1,8 +1,8 @@
 <div class="page-sizing">
   <app-card>
-    <app-page-wrapper [navigateTo]="'/multiplayer'" [backLabel]="'Lobby verlassen'"
+    <app-page-wrapper [backLabel]="'Lobby verlassen'"
                       [headingLabel]="'Lobby erstellen'" (leavePage)="leaveLobby()">
-      @if (lobby(); as lobby) {
+      @if (lobbyService.currentLobby(); as lobby) {
         <div content class="mt-[-20px]">
 
 

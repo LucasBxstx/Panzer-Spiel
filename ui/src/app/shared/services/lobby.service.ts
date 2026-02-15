@@ -4,15 +4,23 @@ import { io, Socket } from 'socket.io-client';
 import { CreateLobbyRequest, LobbyResponse } from '../models/lobby.model';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { LobbyPreviewResponse } from '../models/lobby-preview.model';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LobbyService {
   private readonly authService = inject(AuthService);
+  private readonly httpClient = inject(HttpClient);
+
   private socket: Socket | null = null;
   public readonly currentLobby = signal<LobbyResponse | null>(null);
   public readonly connected = signal(false);
+
+  public getAllOpenLobbies(): Observable<LobbyPreviewResponse[]> {
+    return this.httpClient.get<LobbyPreviewResponse[]>(`${environment.apiUrl}/lobby`);
+  }
 
   connect() {
     if (this.socket?.connected) return;
