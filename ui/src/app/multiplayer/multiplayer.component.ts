@@ -18,36 +18,9 @@ export class MultiplayerComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   public readonly lobbyPreviews = toSignal(
-    this.lobbyService.getAllOpenLobbies().pipe(takeUntilDestroyed(this.destroyRef)),
+    this.lobbyService.pollOpenLobbies().pipe(takeUntilDestroyed(this.destroyRef)),
     { initialValue: [] },
   );
-
-  // public readonly lobbyPreviews: LobbyPreview[] = [
-  //   {
-  //     id: '1',
-  //     hostUserName: 'Lucas',
-  //     mapName: 'Desert',
-  //     gameMode: GameMode.OneVsOne,
-  //     maxPlayersCount: 2,
-  //     playersCount: 1,
-  //   },
-  //   {
-  //     id: '2',
-  //     hostUserName: 'Sofie',
-  //     mapName: 'Jungle',
-  //     gameMode: GameMode.TeamVsBots,
-  //     maxPlayersCount: 3,
-  //     playersCount: 1,
-  //   },
-  //   {
-  //     id: '3',
-  //     hostUserName: 'Flo',
-  //     mapName: 'Temple',
-  //     gameMode: GameMode.TeamVsTeam,
-  //     maxPlayersCount: 4,
-  //     playersCount: 2,
-  //   },
-  // ];
 
   public createLobby(): void {
     this.router.navigate(['create-lobby']);

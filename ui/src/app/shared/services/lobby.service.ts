@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { io, Socket } from 'socket.io-client';
 import { CreateLobbyRequest, LobbyResponse } from '../models/lobby.model';
 import { environment } from '../../../environments/environment';
-import { Observable } from 'rxjs';
+import { interval, Observable, startWith, switchMap } from 'rxjs';
 import { LobbyPreviewResponse } from '../models/lobby-preview.model';
 import { HttpClient } from '@angular/common/http';
 
@@ -18,8 +18,11 @@ export class LobbyService {
   public readonly currentLobby = signal<LobbyResponse | null>(null);
   public readonly connected = signal(false);
 
-  public getAllOpenLobbies(): Observable<LobbyPreviewResponse[]> {
-    return this.httpClient.get<LobbyPreviewResponse[]>(`${environment.apiUrl}/lobby`);
+  public pollOpenLobbies(): Observable<LobbyPreviewResponse[]> {
+    return interval(5000).pipe(
+      startWith(0),
+      switchMap(() => this.httpClient.get<LobbyPreviewResponse[]>(`${environment.apiUrl}/lobby`)),
+    );
   }
 
   connect() {
