@@ -124,20 +124,27 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       name: user.name,
     };
 
-    const lobby = await this.lobbyService.joinLobby(
-      userId,
-      dto.lobbyId,
-      player,
-    );
+    try {
+      const lobby = await this.lobbyService.joinLobby(
+        userId,
+        dto.lobbyId,
+        player,
+      );
 
-    await client.join(dto.lobbyId);
-    this.playerLobbyMap.set(userId, dto.lobbyId);
+      await client.join(dto.lobbyId);
+      this.playerLobbyMap.set(userId, dto.lobbyId);
 
-    this.server.to(dto.lobbyId).emit('lobbyUpdated', lobby);
-    this.server.to(dto.lobbyId).emit('playerJoined', player);
+      this.server.to(dto.lobbyId).emit('lobbyUpdated', lobby);
+      this.server.to(dto.lobbyId).emit('playerJoined', player);
 
-    this.logger.log(`User ${userId} joined lobby ${lobby.id}`);
-    return lobby;
+      this.logger.log(`User ${userId} joined lobby ${lobby.id}`);
+
+      return lobby;
+    } catch (error) {
+      this.logger.log(`User ${userId} disconnected`);
+      client.disconnect();
+      throw new WsException('Cannot join');
+    }
   }
 
   @SubscribeMessage('leaveLobby')
