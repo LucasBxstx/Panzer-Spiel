@@ -1,7 +1,7 @@
 <div class="page-sizing">
   <app-card>
     <app-page-wrapper [backLabel]="'Lobby verlassen'"
-                      [headingLabel]="'Lobby erstellen'" (leavePage)="leaveLobby()">
+                      [headingLabel]="'Match Lobby'" (leavePage)="leaveLobby()">
 
       @if (lobbyService.currentLobby(); as lobby) {
         <div content class="mt-[-20px]">

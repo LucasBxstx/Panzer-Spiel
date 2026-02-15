@@ -1,4 +1,4 @@
-import { Inject, UseGuards } from '@nestjs/common';
+import { Inject, Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -31,6 +31,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   private playerLobbyMap: Map<string, string> = new Map();
+  private readonly logger = new Logger(LobbyGateway.name);
 
   constructor(
     private readonly lobbyService: LobbyService,
@@ -42,25 +43,21 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     try {
-      // Token extrahieren
       const token = this.extractTokenFromHandshake(client);
 
       if (!token) {
-        console.log('No token provided');
         client.disconnect();
         return;
       }
 
-      // Token validieren und userId extrahieren
       const payload = await this.jwtService.verifyAsync(token);
-      const userId = payload.userId; // oder payload.sub, je nach deinem JWT
+      const userId = payload.userId;
 
-      // UserId dem Socket zuweisen
       client.data.userId = userId;
 
-      console.log(`User ${userId} connected with socket ${client.id}`);
+      this.logger.log(`User ${userId} connected with socket ${client.id}`);
     } catch (err) {
-      console.error('Connection error:', err.message);
+      this.logger.error('Connection error:', err.message);
       client.disconnect();
     }
   }
@@ -79,7 +76,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(client: Socket) {
     const userId = client.data.userId;
-    console.log(`User ${userId} disconnected`);
+    this.logger.log(`User ${userId} disconnected`);
     await this.handleLeaveLobby(client, userId);
   }
 
@@ -104,7 +101,8 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const lobby = await this.lobbyService.createLobby(userId, dto, player);
     await client.join(lobby.id);
     this.playerLobbyMap.set(userId, lobby.id);
-    console.log(`User ${userId} created a new Lobby:  ${lobby.id}`);
+    this.logger.log(`User ${userId} created a new Lobby:  ${lobby.id}`);
+
     return lobby;
   }
 
@@ -138,7 +136,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(dto.lobbyId).emit('lobbyUpdated', lobby);
     this.server.to(dto.lobbyId).emit('playerJoined', player);
 
-    console.log(`User ${userId} joined lobby ${lobby.id}`);
+    this.logger.log(`User ${userId} joined lobby ${lobby.id}`);
     return lobby;
   }
 
@@ -149,6 +147,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): Promise<{ success: boolean }> {
     const user = await this.userRepository.findOne({ id: userId });
     const lobbyId = this.playerLobbyMap.get(userId);
+
     if (!user || !lobbyId) {
       return { success: false };
     }
@@ -160,8 +159,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (lobby) {
       this.server.to(lobbyId).emit('lobbyUpdated', lobby);
       this.server.to(lobbyId).emit('playerLeft', client.data.userId);
-
-      console.log(`User ${userId} left the lobby ${lobby.id}`);
+      this.logger.log(`User ${userId} left the lobby ${lobby.id}`);
     }
 
     return { success: true };
