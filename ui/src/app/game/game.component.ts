@@ -100,6 +100,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.scene.add(backLight);
 
     this.createDesertGround();
+    this.createObstacle();
 
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
@@ -183,6 +184,39 @@ export class GameComponent implements OnInit, OnDestroy {
     this.groundPlane.rotation.x = -Math.PI / 2;
     this.groundPlane.receiveShadow = true;
     this.scene.add(this.groundPlane);
+  }
+
+  private createObstacle(): void {
+    const textureLoader = new THREE.TextureLoader();
+
+    const brickDiffuse = textureLoader.load('assets/textures/broken_brick_wall_diff_1k.jpg');
+    const brickNormal = textureLoader.load('assets/textures/broken_brick_wall_nor_gl_1k.png');
+    const brickRoughness = textureLoader.load('assets/textures/broken_brick_wall_rough_1k.jpg');
+
+    brickDiffuse.colorSpace = THREE.SRGBColorSpace;
+
+    // Texturen anpassen
+    [brickDiffuse, brickNormal, brickRoughness].forEach((texture) => {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(10, 1); // 2 Ziegel breit, 1 hoch
+    });
+
+    const geometry = new THREE.BoxGeometry(100, 10, 10);
+
+    const material = new THREE.MeshStandardMaterial({
+      map: brickDiffuse,
+      normalMap: brickNormal,
+      roughnessMap: brickRoughness,
+      roughness: 1.0,
+      metalness: 0.0,
+    });
+
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.set(0, 5, -50); // Höhe = Box-Höhe / 2, damit sie auf dem Boden steht
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+    this.scene.add(cube);
   }
 
   ngOnDestroy(): void {
