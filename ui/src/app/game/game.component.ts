@@ -30,9 +30,13 @@ export class GameComponent implements OnInit, OnDestroy {
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
-  private tank!: THREE.Group;
-  private animationId?: number;
 
+  // Panzer-Komponenten
+  private tankGroup!: THREE.Group; // entire tank
+  private tankBody!: THREE.Object3D;
+  private tankTurret!: THREE.Object3D;
+
+  private animationId?: number;
   private tankSpeed = 0.1;
 
   private readonly position = signal<{ x: number; y: number }>({ x: 20, y: 20 });
@@ -53,7 +57,6 @@ export class GameComponent implements OnInit, OnDestroy {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
 
-    // Normalisierte Maus-Koordinaten (-1 bis +1)
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   }
@@ -61,11 +64,9 @@ export class GameComponent implements OnInit, OnDestroy {
   private initThreeJS(): void {
     const canvas = this.canvasRef.nativeElement;
 
-    // Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffdea6);
 
-    // Camera
     this.camera = new THREE.PerspectiveCamera(
       50,
       canvas.clientWidth / canvas.clientHeight,
@@ -76,7 +77,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.camera.position.set(0, 70, 85);
     this.camera.lookAt(0, 0, 0);
 
-    // Renderer mit Tone Mapping
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -84,12 +84,9 @@ export class GameComponent implements OnInit, OnDestroy {
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.shadowMap.enabled = true;
-
-    // WICHTIG: Tone Mapping für hellere Darstellung
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.5; // Helligkeit erhöhen
+    this.renderer.toneMappingExposure = 1.5;
 
-    // Helleres Licht
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     this.scene.add(ambientLight);
 
@@ -98,15 +95,12 @@ export class GameComponent implements OnInit, OnDestroy {
     directionalLight.castShadow = true;
     this.scene.add(directionalLight);
 
-    // Zusätzliches Gegenlicht (optional)
     const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
     backLight.position.set(-10, 10, -10);
     this.scene.add(backLight);
 
-    // Ground
     this.createDesertGround();
 
-    // Handle window resize
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
 
@@ -114,22 +108,26 @@ export class GameComponent implements OnInit, OnDestroy {
     const loader = new GLTFLoader();
 
     loader.load(
-      'assets/models/tank-panther.glb',
+      'assets/models/tank-panther-split.glb',
       (gltf: any) => {
-        this.tank = gltf.scene;
+        this.tankGroup = gltf.scene;
 
-        this.tank.scale.set(0.4, 0.4, 0.4);
-        this.tank.rotation.set(0, Math.PI, 0);
-        this.tank.position.set(this.position().x, 0, this.position().y);
+        this.tankGroup.scale.set(0.4, 0.4, 0.4);
+        this.tankGroup.rotation.set(0, Math.PI, 0);
+        this.tankGroup.position.set(this.position().x, 0, this.position().y);
 
-        this.tank.traverse((child) => {
+        // Schatten für alle Meshes
+        this.tankGroup.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.castShadow = true;
             child.receiveShadow = true;
           }
         });
 
-        this.scene.add(this.tank);
+        this.tankBody = this.tankGroup.getObjectByName('tank')!;
+        this.tankTurret = this.tankGroup.getObjectByName('turret')!;
+
+        this.scene.add(this.tankGroup);
         console.log('Tank model loaded successfully');
       },
       (progress) => {
@@ -144,7 +142,8 @@ export class GameComponent implements OnInit, OnDestroy {
   private animate(): void {
     this.animationId = requestAnimationFrame(() => this.animate());
 
-    this.update();
+    this.updateTankPosition();
+    this.updateTurretRotation();
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -162,10 +161,8 @@ export class GameComponent implements OnInit, OnDestroy {
     const sandNormal = textureLoader.load('assets/textures/sandstone_cracks_nor_gl_1k.png');
     const sandRoughness = textureLoader.load('assets/textures/sandstone_cracks_rough_1k.jpg');
 
-    // WICHTIG: Color Space für Diffuse Map setzen!
     sandDiffuse.colorSpace = THREE.SRGBColorSpace;
 
-    // Texturen wiederholen
     [sandDiffuse, sandNormal, sandRoughness].forEach((texture) => {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
@@ -187,6 +184,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.groundPlane.receiveShadow = true;
     this.scene.add(this.groundPlane);
   }
+
   ngOnDestroy(): void {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
@@ -198,8 +196,8 @@ export class GameComponent implements OnInit, OnDestroy {
     window.removeEventListener('resize', this.onWindowResize.bind(this));
   }
 
-  update() {
-    if (!this.tank) return;
+  updateTankPosition() {
+    if (!this.tankGroup) return;
 
     const moveDirection = new THREE.Vector3();
     let targetRotation: number | null = null;
@@ -207,70 +205,95 @@ export class GameComponent implements OnInit, OnDestroy {
     // W - Vorwärts
     if (this.keyboard.isKeyPressed('KeyW')) {
       moveDirection.z -= 1;
-
-      // Wenn Panzer ca. nach hinten schaut (0°), fährt er rückwärts
-      if (!this.isRotationNear(this.tank.rotation.y, 0)) {
-        targetRotation = Math.PI; // Dreht sich nach vorne
+      if (!this.isRotationNear(this.tankGroup.rotation.y, 0)) {
+        targetRotation = Math.PI;
       }
     }
 
     // S - Rückwärts
     if (this.keyboard.isKeyPressed('KeyS')) {
       moveDirection.z += 1;
-
-      // Wenn Panzer ca. nach vorne schaut (180°), fährt er rückwärts
-      if (!this.isRotationNear(this.tank.rotation.y, Math.PI)) {
-        targetRotation = 0; // Dreht sich nach hinten
+      if (!this.isRotationNear(this.tankGroup.rotation.y, Math.PI)) {
+        targetRotation = 0;
       }
     }
 
     // A - Links
     if (this.keyboard.isKeyPressed('KeyA')) {
       moveDirection.x -= 1;
-
-      // Wenn Panzer ca. nach rechts schaut (90°), fährt er rückwärts/seitwärts
-      if (!this.isRotationNear(this.tank.rotation.y, Math.PI / 2)) {
-        targetRotation = Math.PI * 1.5; // Dreht sich nach links (270°)
+      if (!this.isRotationNear(this.tankGroup.rotation.y, Math.PI / 2)) {
+        targetRotation = Math.PI * 1.5;
       }
     }
 
     // D - Rechts
     if (this.keyboard.isKeyPressed('KeyD')) {
       moveDirection.x += 1;
-
-      // Wenn Panzer ca. nach links schaut (270°), fährt er rückwärts/seitwärts
-      if (!this.isRotationNear(this.tank.rotation.y, Math.PI * 1.5)) {
-        targetRotation = Math.PI / 2; // Dreht sich nach rechts (90°)
+      if (!this.isRotationNear(this.tankGroup.rotation.y, Math.PI * 1.5)) {
+        targetRotation = Math.PI / 2;
       }
     }
 
     // Diagonale Richtungen
     if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyA')) {
-      targetRotation = Math.PI * 1.25; // Nach vorne-links (225°)
+      targetRotation = Math.PI * 1.25;
     } else if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyD')) {
-      targetRotation = Math.PI * 0.75; // Nach vorne-rechts (135°)
+      targetRotation = Math.PI * 0.75;
     } else if (this.keyboard.isKeyPressed('KeyS') && this.keyboard.isKeyPressed('KeyA')) {
-      targetRotation = Math.PI * 1.75; // Nach hinten-links (315°)
+      targetRotation = Math.PI * 1.75;
     } else if (this.keyboard.isKeyPressed('KeyS') && this.keyboard.isKeyPressed('KeyD')) {
-      targetRotation = Math.PI * 0.25; // Nach hinten-rechts (45°)
+      targetRotation = Math.PI * 0.25;
     }
 
-    // Rotation
+    // Rotation des GESAMTEN Panzers (tankGroup)
     if (targetRotation !== null) {
       const rotationSpeed = 0.15;
-      const diff = this.shortestRotation(this.tank.rotation.y, targetRotation);
-      this.tank.rotation.y += diff * rotationSpeed;
+      const diff = this.shortestRotation(this.tankGroup.rotation.y, targetRotation);
+      this.tankGroup.rotation.y += diff * rotationSpeed;
     }
 
-    // Bewegung
+    // Bewegung des GESAMTEN Panzers
     if (moveDirection.length() > 0) {
       moveDirection.normalize();
-      this.tank.position.x += moveDirection.x * this.tankSpeed;
-      this.tank.position.z += moveDirection.z * this.tankSpeed;
+      this.tankGroup.position.x += moveDirection.x * this.tankSpeed;
+      this.tankGroup.position.z += moveDirection.z * this.tankSpeed;
     }
   }
 
-  // Hilfsfunktion: Prüft ob Rotation nahe am Ziel ist
+  // Turret rotiert zur Maus (unabhängig vom Tank-Körper)
+  private updateTurretRotation(): void {
+    if (!this.tankTurret || !this.groundPlane) return;
+
+    // Raycaster zur Mausposition
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObject(this.groundPlane);
+
+    if (intersects.length > 0) {
+      const intersectPoint = intersects[0].point;
+
+      // Weltposition des Turrets
+      const turretWorldPos = new THREE.Vector3();
+      this.tankTurret.getWorldPosition(turretWorldPos);
+
+      // Richtung vom Turret zur Maus
+      const direction = new THREE.Vector3();
+      direction.subVectors(intersectPoint, turretWorldPos);
+      direction.y = 0; // Nur horizontale Rotation
+
+      // Zielrotation in Weltkoordinaten
+      const targetRotationWorld = Math.atan2(direction.x, direction.z);
+
+      // Relative Rotation zum Panzer-Körper berechnen
+      // Der Turret ist ein Child vom tankGroup, also müssen wir die Rotation des Parents berücksichtigen
+      const targetRotationRelative = targetRotationWorld - this.tankGroup.rotation.y;
+
+      // Sanfte Rotation
+      const lerpFactor = 0.15;
+      const diff = this.shortestRotation(this.tankTurret.rotation.y, targetRotationRelative);
+      this.tankTurret.rotation.y += diff * lerpFactor;
+    }
+  }
+
   private isRotationNear(current: number, target: number, tolerance: number = 0.2): boolean {
     const diff = Math.abs(this.shortestRotation(current, target));
     return diff < tolerance;
@@ -279,7 +302,6 @@ export class GameComponent implements OnInit, OnDestroy {
   private shortestRotation(current: number, target: number): number {
     let diff = target - current;
 
-    // Normalisieren auf -PI bis PI
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
 
