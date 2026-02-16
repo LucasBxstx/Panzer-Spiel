@@ -18,8 +18,13 @@ import { Player } from '../../../common/interfaces/game.interfaces';
 import { UserRepository } from '../../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../../user/user.entity';
-import { LobbyResponseDto } from './dto/lobby-response.dto';
+import {
+  CreateGameResponseDto,
+  LobbyResponseDto,
+  PlayerPreviewResponseDto,
+} from './dto/lobby-response.dto';
 import { JwtService } from '@nestjs/jwt';
+import { GameService } from '../../game/game.service';
 
 @WebSocketGateway({
   cors: true,
@@ -36,6 +41,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly lobbyService: LobbyService,
     private readonly jwtService: JwtService,
+    private readonly gameService: GameService,
 
     @Inject(UserRepository)
     private readonly userRepository: EntityRepository<User>,
@@ -101,7 +107,9 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const lobby = await this.lobbyService.createLobby(userId, dto, player);
     await client.join(lobby.id);
     this.playerLobbyMap.set(userId, lobby.id);
-    this.logger.log(`User ${userId} created a new Lobby:  ${lobby.id}`);
+    this.logger.log(
+      `User ${userId} created and joined a new Lobby:  ${lobby.id}`,
+    );
 
     return lobby;
   }
@@ -134,12 +142,28 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await client.join(dto.lobbyId);
       this.playerLobbyMap.set(userId, dto.lobbyId);
 
-      this.server.to(dto.lobbyId).emit('lobbyUpdated', lobby);
-      this.server.to(dto.lobbyId).emit('playerJoined', player);
+      this.server
+        .to(dto.lobbyId)
+        .emit('lobbyUpdated', LobbyResponseDto.mapFromEntity(lobby));
+      this.server
+        .to(dto.lobbyId)
+        .emit('playerJoined', PlayerPreviewResponseDto.mapFromEntity(player));
 
       this.logger.log(`User ${userId} joined lobby ${lobby.id}`);
 
-      return lobby;
+      if (lobby.players.length === lobby.gameSettings.maxPlayersCount) {
+        const gameId = this.gameService.createGame(lobby);
+        this.logger.log(
+          `The lobby is complete, a new Game was created:  ${gameId}`,
+        );
+        const createGameResponse: CreateGameResponseDto = { gameId };
+
+        setTimeout(() => {
+          this.server.in(dto.lobbyId).emit('startGame', createGameResponse);
+        }, 2000);
+      }
+
+      return LobbyResponseDto.mapFromEntity(lobby);
     } catch (error) {
       this.logger.log(`User ${userId} disconnected`);
       client.disconnect();

@@ -42,4 +42,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./multiplayer/lobby/lobby.component').then((m) => m.LobbyComponent),
   },
+  {
+    path: 'game/:id',
+    loadComponent: () => import('./game/game.component').then((m) => m.GameComponent),
+  },
 ];

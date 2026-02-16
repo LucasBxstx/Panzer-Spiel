@@ -8,6 +8,8 @@ import { AuthService } from '../../shared/services/auth.service';
 import { LobbyService } from '../../shared/services/lobby.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, interval, switchMap, take, tap } from 'rxjs';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-lobby',
@@ -17,6 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MapPreviewComponent,
     PageWrapperComponent,
     ReactiveFormsModule,
+    SpinnerComponent,
   ],
   templateUrl: './lobby.component.html',
   styleUrl: './lobby.component.scss',
@@ -30,6 +33,7 @@ export class LobbyComponent implements OnInit {
 
   public readonly isLoading = signal(true);
   public readonly error = signal<string | null>(null);
+  public readonly isStartingIn = signal<number | null>(null);
 
   public ngOnInit() {
     const lobbyId = this.route.snapshot.params['id'];
@@ -47,6 +51,23 @@ export class LobbyComponent implements OnInit {
     } else {
       this.rejoinLobby(lobbyId);
     }
+
+    this.lobbyService.createdGameEvent
+      .pipe(
+        tap(() => this.isStartingIn.set(10)),
+        switchMap((game) =>
+          interval(1000).pipe(
+            take(10),
+            tap(() => {
+              console.log('starting in ', game.id, this.isStartingIn());
+              this.isStartingIn.update((v) => (v ? v - 1 : null));
+            }),
+            finalize(() => this.router.navigate([`/game/${game.id}`])),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   private rejoinLobby(lobbyId: string): void {

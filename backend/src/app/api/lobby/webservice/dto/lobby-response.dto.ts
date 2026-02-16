@@ -160,3 +160,8 @@ export class LobbyResponseDto {
     };
   }
 }
+
+export class CreateGameResponseDto {
+  @Expose()
+  gameId: string;
+}

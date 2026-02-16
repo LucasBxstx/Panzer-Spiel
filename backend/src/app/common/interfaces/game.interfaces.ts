@@ -11,13 +11,8 @@ export interface Player {
   userId: string;
   name: string;
   socketId: string;
-  team?: Team;
-}
-
-export interface Team {
-  id: string;
-  name: string;
-  players: Player[];
+  teamId?: string;
+  tankId?: string;
 }
 
 export interface GameSettings {
@@ -62,4 +57,66 @@ export interface Position {
 export interface Scale {
   x: number;
   y: number;
+}
+
+export interface Game {
+  id: string;
+  gameSettings: GameSettings;
+  players: Player[];
+  teams: Team[];
+  tanks: Tank[];
+  bullets: Bullet[];
+  startingAt: Date;
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  playersIds: string[];
+  tankIds: string[];
+}
+
+export interface Tank {
+  id: string;
+  playerName: string;
+  userId: string;
+  teamId: string;
+  position: Position;
+  scale: Scale;
+  tankVariantId: string;
+  hp: number;
+  speed: number;
+  maxBullets: number;
+  bulletIds: string[];
+  kills: number;
+  isDead: boolean;
+  rotation: number;
+  crossHair: Position;
+}
+
+export interface Bullet {
+  id: string;
+  name: string;
+  tankId: string;
+  speed: number;
+  damage: number;
+  maxBounceCount: number;
+  bounceCount: number;
+}
+
+export interface TankVariant {
+  id: string;
+  name: string;
+  scale: Scale;
+  speed: number;
+  maxHp: number;
+  maxBullets: number;
+}
+
+export interface BulletVariant {
+  id: string;
+  name: string;
+  speed: number;
+  damage: number;
+  maxBounceCount: number;
 }

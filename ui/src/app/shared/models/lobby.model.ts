@@ -21,6 +21,10 @@ export interface LobbyResponse {
   joinedPlayers: PlayerPreviewResponse[];
 }
 
+export interface CreateGameResponse {
+  gameId: string;
+}
+
 export interface GameSettingsResponse {
   gameModeOption: GameModeOption;
   mapPreview: MapPreviewResponse;

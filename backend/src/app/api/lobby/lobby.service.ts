@@ -2,7 +2,6 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
-import { EntityManager, PostgreSqlDriver } from '@mikro-orm/postgresql';
 import {
   GameMap,
   GameSettings,
@@ -24,9 +23,6 @@ export class LobbyService {
   constructor(
     @Inject(UserRepository)
     private readonly userRepository: EntityRepository<User>,
-
-    @Inject(EntityManager)
-    private readonly entityManager: EntityManager<PostgreSqlDriver>,
   ) {}
 
   async createLobby(
@@ -124,7 +120,7 @@ export class LobbyService {
     userId: string,
     lobbyId: string,
     player: Player,
-  ): Promise<LobbyResponseDto> {
+  ): Promise<Lobby> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
@@ -149,11 +145,7 @@ export class LobbyService {
 
     lobby.players.push(player);
 
-    if (lobby.players.length === lobby.gameSettings.maxPlayersCount) {
-      // start game
-    }
-
-    return LobbyResponseDto.mapFromEntity(lobby);
+    return lobby;
   }
 
   async leaveLobby(
