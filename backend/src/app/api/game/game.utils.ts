@@ -53,6 +53,7 @@ function createTank(player: Player, tankVariant: TankVariant): Tank {
     position: { x: 0, y: 0 },
     crossHair: { x: 0, y: 0 },
     speed: tankVariant.speed,
+    rotationSpeed: tankVariant.rotationSpeed,
     hp: tankVariant.maxHp,
     maxBullets: tankVariant.maxBullets,
     bulletIds: [],
@@ -67,12 +68,13 @@ function getBasicTank(): TankVariant {
     id: uuidv4(),
     name: 'BasicTank',
     scale: {
-      x: 20,
-      y: 20,
+      x: 0.4,
+      y: 0.4,
     },
     maxHp: 10,
-    speed: 4,
+    speed: 0.1,
     maxBullets: 5,
+    rotationSpeed: 0.15,
   };
 }
 

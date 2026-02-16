@@ -76,7 +76,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.camera.position.set(0, 70, 85);
     this.camera.lookAt(0, 0, 0);
 
-    // Renderer
+    // Renderer mit Tone Mapping
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -85,14 +85,23 @@ export class GameComponent implements OnInit, OnDestroy {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.shadowMap.enabled = true;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // WICHTIG: Tone Mapping für hellere Darstellung
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.5; // Helligkeit erhöhen
+
+    // Helleres Licht
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     this.scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
     this.scene.add(directionalLight);
+
+    // Zusätzliches Gegenlicht (optional)
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    backLight.position.set(-10, 10, -10);
+    this.scene.add(backLight);
 
     // Ground
     this.createDesertGround();
@@ -149,34 +158,35 @@ export class GameComponent implements OnInit, OnDestroy {
   private createDesertGround(): void {
     const textureLoader = new THREE.TextureLoader();
 
-    // Textur laden
-    const sandTexture = textureLoader.load('assets/textures/gravelly-sand-diff.jpg');
+    const sandDiffuse = textureLoader.load('assets/textures/sandstone_cracks_diff_1k.jpg');
+    const sandNormal = textureLoader.load('assets/textures/sandstone_cracks_nor_gl_1k.png');
+    const sandRoughness = textureLoader.load('assets/textures/sandstone_cracks_rough_1k.jpg');
 
-    // Textur wiederholen für größere Fläche
-    sandTexture.wrapS = THREE.RepeatWrapping;
-    sandTexture.wrapT = THREE.RepeatWrapping;
-    sandTexture.repeat.set(20, 20); // 20x20 Wiederholungen
+    // WICHTIG: Color Space für Diffuse Map setzen!
+    sandDiffuse.colorSpace = THREE.SRGBColorSpace;
 
-    // // Optional: Normal Map für mehr Details
-    const sandNormal = textureLoader.load('assets/textures/gravelly-sand-disp.png');
-    sandNormal.wrapS = THREE.RepeatWrapping;
-    sandNormal.wrapT = THREE.RepeatWrapping;
-    sandNormal.repeat.set(20, 20);
-
-    const groundGeometry = new THREE.PlaneGeometry(100, 100, 5, 5);
-    const groundMaterial = new THREE.MeshStandardMaterial({
-      map: sandTexture,
-      normalMap: sandNormal, // Optional, aber empfohlen
-      roughness: 0.9, // Sandiger, matter Look
-      metalness: 0.1,
+    // Texturen wiederholen
+    [sandDiffuse, sandNormal, sandRoughness].forEach((texture) => {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(2, 2);
     });
 
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    this.scene.add(ground);
-  }
+    const groundGeometry = new THREE.PlaneGeometry(100, 100, 64, 64);
 
+    const groundMaterial = new THREE.MeshStandardMaterial({
+      map: sandDiffuse,
+      normalMap: sandNormal,
+      roughnessMap: sandRoughness,
+      roughness: 3.0,
+      metalness: 0.2,
+    });
+
+    this.groundPlane = new THREE.Mesh(groundGeometry, groundMaterial);
+    this.groundPlane.rotation.x = -Math.PI / 2;
+    this.groundPlane.receiveShadow = true;
+    this.scene.add(this.groundPlane);
+  }
   ngOnDestroy(): void {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
@@ -193,32 +203,64 @@ export class GameComponent implements OnInit, OnDestroy {
 
     // WASD Bewegung - ABSOLUT (unabhängig von Rotation)
     const moveDirection = new THREE.Vector3();
+    let targetRotation: number | null = null;
 
     // W - Vorwärts (immer in -Z Richtung)
     if (this.keyboard.isKeyPressed('KeyW')) {
       moveDirection.z -= 1;
+      targetRotation = Math.PI; // Nach vorne (180°)
     }
 
     // S - Rückwärts (immer in +Z Richtung)
     if (this.keyboard.isKeyPressed('KeyS')) {
       moveDirection.z += 1;
+      targetRotation = 0; // Nach hinten (0°)
     }
 
     // A - Links (immer in -X Richtung)
     if (this.keyboard.isKeyPressed('KeyA')) {
       moveDirection.x -= 1;
+      targetRotation = Math.PI * 1.5; // Nach links (270°)
     }
 
     // D - Rechts (immer in +X Richtung)
     if (this.keyboard.isKeyPressed('KeyD')) {
       moveDirection.x += 1;
+      targetRotation = Math.PI / 2; // Nach rechts (90°)
     }
 
-    // Normalisieren für gleichmäßige Geschwindigkeit in alle Richtungen
+    // Diagonale Richtungen (wenn zwei Tasten gleichzeitig)
+    if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyA')) {
+      targetRotation = Math.PI * 1.25; // Nach vorne-links (225°)
+    } else if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyD')) {
+      targetRotation = Math.PI * 0.75; // Nach vorne-rechts (135°)
+    } else if (this.keyboard.isKeyPressed('KeyS') && this.keyboard.isKeyPressed('KeyA')) {
+      targetRotation = Math.PI * 1.75; // Nach hinten-links (315°)
+    } else if (this.keyboard.isKeyPressed('KeyS') && this.keyboard.isKeyPressed('KeyD')) {
+      targetRotation = Math.PI * 0.25; // Nach hinten-rechts (45°)
+    }
+
+    // Panzer sanft zur Zielrotation drehen
+    if (targetRotation !== null) {
+      const rotationSpeed = 0.15; // Wie schnell der Panzer sich dreht
+      const diff = this.shortestRotation(this.tank.rotation.y, targetRotation);
+      this.tank.rotation.y += diff * rotationSpeed;
+    }
+
     if (moveDirection.length() > 0) {
       moveDirection.normalize();
       this.tank.position.x += moveDirection.x * this.tankSpeed;
       this.tank.position.z += moveDirection.z * this.tankSpeed;
     }
+  }
+
+  private shortestRotation(current: number, target: number): number {
+    let diff = target - current;
+
+    // Normalisieren auf -PI bis PI
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+
+    return diff;
   }
 }

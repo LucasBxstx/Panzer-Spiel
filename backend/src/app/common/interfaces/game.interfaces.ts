@@ -86,6 +86,7 @@ export interface Tank {
   tankVariantId: string;
   hp: number;
   speed: number;
+  rotationSpeed: number;
   maxBullets: number;
   bulletIds: string[];
   kills: number;
@@ -111,6 +112,7 @@ export interface TankVariant {
   speed: number;
   maxHp: number;
   maxBullets: number;
+  rotationSpeed: number;
 }
 
 export interface BulletVariant {
