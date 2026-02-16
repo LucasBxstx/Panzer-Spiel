@@ -201,35 +201,50 @@ export class GameComponent implements OnInit, OnDestroy {
   update() {
     if (!this.tank) return;
 
-    // WASD Bewegung - ABSOLUT (unabhängig von Rotation)
     const moveDirection = new THREE.Vector3();
     let targetRotation: number | null = null;
 
-    // W - Vorwärts (immer in -Z Richtung)
+    // W - Vorwärts
     if (this.keyboard.isKeyPressed('KeyW')) {
       moveDirection.z -= 1;
-      targetRotation = Math.PI; // Nach vorne (180°)
+
+      // Wenn Panzer ca. nach hinten schaut (0°), fährt er rückwärts
+      if (!this.isRotationNear(this.tank.rotation.y, 0)) {
+        targetRotation = Math.PI; // Dreht sich nach vorne
+      }
     }
 
-    // S - Rückwärts (immer in +Z Richtung)
+    // S - Rückwärts
     if (this.keyboard.isKeyPressed('KeyS')) {
       moveDirection.z += 1;
-      targetRotation = 0; // Nach hinten (0°)
+
+      // Wenn Panzer ca. nach vorne schaut (180°), fährt er rückwärts
+      if (!this.isRotationNear(this.tank.rotation.y, Math.PI)) {
+        targetRotation = 0; // Dreht sich nach hinten
+      }
     }
 
-    // A - Links (immer in -X Richtung)
+    // A - Links
     if (this.keyboard.isKeyPressed('KeyA')) {
       moveDirection.x -= 1;
-      targetRotation = Math.PI * 1.5; // Nach links (270°)
+
+      // Wenn Panzer ca. nach rechts schaut (90°), fährt er rückwärts/seitwärts
+      if (!this.isRotationNear(this.tank.rotation.y, Math.PI / 2)) {
+        targetRotation = Math.PI * 1.5; // Dreht sich nach links (270°)
+      }
     }
 
-    // D - Rechts (immer in +X Richtung)
+    // D - Rechts
     if (this.keyboard.isKeyPressed('KeyD')) {
       moveDirection.x += 1;
-      targetRotation = Math.PI / 2; // Nach rechts (90°)
+
+      // Wenn Panzer ca. nach links schaut (270°), fährt er rückwärts/seitwärts
+      if (!this.isRotationNear(this.tank.rotation.y, Math.PI * 1.5)) {
+        targetRotation = Math.PI / 2; // Dreht sich nach rechts (90°)
+      }
     }
 
-    // Diagonale Richtungen (wenn zwei Tasten gleichzeitig)
+    // Diagonale Richtungen
     if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyA')) {
       targetRotation = Math.PI * 1.25; // Nach vorne-links (225°)
     } else if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyD')) {
@@ -240,18 +255,25 @@ export class GameComponent implements OnInit, OnDestroy {
       targetRotation = Math.PI * 0.25; // Nach hinten-rechts (45°)
     }
 
-    // Panzer sanft zur Zielrotation drehen
+    // Rotation
     if (targetRotation !== null) {
-      const rotationSpeed = 0.15; // Wie schnell der Panzer sich dreht
+      const rotationSpeed = 0.15;
       const diff = this.shortestRotation(this.tank.rotation.y, targetRotation);
       this.tank.rotation.y += diff * rotationSpeed;
     }
 
+    // Bewegung
     if (moveDirection.length() > 0) {
       moveDirection.normalize();
       this.tank.position.x += moveDirection.x * this.tankSpeed;
       this.tank.position.z += moveDirection.z * this.tankSpeed;
     }
+  }
+
+  // Hilfsfunktion: Prüft ob Rotation nahe am Ziel ist
+  private isRotationNear(current: number, target: number, tolerance: number = 0.2): boolean {
+    const diff = Math.abs(this.shortestRotation(current, target));
+    return diff < tolerance;
   }
 
   private shortestRotation(current: number, target: number): number {
