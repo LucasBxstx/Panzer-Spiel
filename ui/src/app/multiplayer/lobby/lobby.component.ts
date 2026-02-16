@@ -59,7 +59,6 @@ export class LobbyComponent implements OnInit {
           interval(1000).pipe(
             take(10),
             tap(() => {
-              console.log('starting in ', game.id, this.isStartingIn());
               this.isStartingIn.update((v) => (v ? v - 1 : null));
             }),
             finalize(() => this.router.navigate([`/game/${game.id}`])),
@@ -94,7 +93,12 @@ export class LobbyComponent implements OnInit {
   }
 
   public leaveLobby(): void {
+    if (this.isStartingIn()) {
+      return;
+    }
+
     const lobby = this.lobbyService.currentLobby();
+
     if (!lobby) {
       this.router.navigate(['/multiplayer']);
       return;

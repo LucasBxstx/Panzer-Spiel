@@ -156,11 +156,8 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.log(
           `The lobby is complete, a new Game was created:  ${gameId}`,
         );
-        const createGameResponse: CreateGameResponseDto = { gameId };
 
-        setTimeout(() => {
-          this.server.in(dto.lobbyId).emit('startGame', createGameResponse);
-        }, 2000);
+        this.startGameCountdown(dto.lobbyId, { gameId });
       }
 
       return LobbyResponseDto.mapFromEntity(lobby);
@@ -194,5 +191,30 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     return { success: true };
+  }
+
+  private startGameCountdown(
+    lobbyId: string,
+    createGameResponse: CreateGameResponseDto,
+  ) {
+    setTimeout(() => {
+      this.server.in(lobbyId).emit('startGame', createGameResponse);
+      this.logger.log(`startGame event emitted to lobby ${lobbyId}`);
+
+      setTimeout(() => {
+        this.server
+          .in(lobbyId)
+          .fetchSockets()
+          .then((clients) => {
+            clients.forEach((client) => client.disconnect(true));
+            this.logger.log(
+              `All players in lobby ${lobbyId} have been disconnected`,
+            );
+          })
+          .catch((err) => {
+            this.logger.error('Error disconnecting players:', err);
+          });
+      }, 10000);
+    }, 2000);
   }
 }
