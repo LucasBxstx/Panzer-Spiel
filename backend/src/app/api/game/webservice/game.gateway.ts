@@ -18,8 +18,8 @@ import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../../user/user.entity';
 import { extractTokenFromHandshake } from '../../../common/utils/ws.utils';
 import { WsCurrentUserId } from '../../../common/decorators/ws-current-user.decorator';
-import { LobbyResponseDto } from '../../lobby/webservice/dto/lobby-response.dto';
 import { JoinGameDto } from './dto/game.dto';
+import { GameStateResponseDto } from './dto/game-response.dto';
 
 @WebSocketGateway({
   cors: true,
@@ -70,20 +70,23 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinGame')
-  async handleJoinLobby(
+  async handleJoinGame(
     @MessageBody() dto: JoinGameDto,
     @ConnectedSocket() client: Socket,
     @WsCurrentUserId() userId: string,
-  ): Promise<LobbyResponseDto> {
+  ): Promise<GameStateResponseDto> {
     try {
-      const game = this.gameService.joinGame(userId, dto);
+      const game: GameStateResponseDto = await this.gameService.joinGame(
+        userId,
+        dto,
+      );
 
       await client.join(game.id);
       this.playerGameMap.set(userId, game.id);
 
       this.logger.log(`User ${userId} joined the game ${game.id}`);
 
-      return GameResponseDto.mapFromEntity(game);
+      return game;
     } catch (error) {
       this.logger.log(`User ${userId} disconnected`);
       client.disconnect();

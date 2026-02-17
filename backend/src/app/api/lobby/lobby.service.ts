@@ -2,11 +2,6 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
-import {
-  GameSettings,
-  Lobby,
-  Player,
-} from '../../common/interfaces/game.interfaces';
 import { CreateLobbyDto } from './webservice/dto/lobby.dto';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -15,6 +10,9 @@ import {
 } from './webservice/dto/lobby-response.dto';
 import { WsException } from '@nestjs/websockets';
 import { getBasicMap } from '../game/game.utils';
+import { GameSettings } from '../../common/models/game-settings.model';
+import { Lobby } from '../../common/models/lobby.model';
+import { LobbyPlayer } from '../../common/models/player.model';
 
 @Injectable()
 export class LobbyService {
@@ -28,7 +26,7 @@ export class LobbyService {
   async createLobby(
     userId: string,
     dto: CreateLobbyDto,
-    player: Player,
+    player: LobbyPlayer,
   ): Promise<LobbyResponseDto> {
     const user = await this.userRepository.findOne({ id: userId });
 
@@ -81,7 +79,7 @@ export class LobbyService {
   async joinLobby(
     userId: string,
     lobbyId: string,
-    player: Player,
+    player: LobbyPlayer,
   ): Promise<Lobby> {
     const user = await this.userRepository.findOne({ id: userId });
 

@@ -1,29 +1,44 @@
-import {
-  BulletVariant,
-  GameMap,
-  Lobby,
-  Player,
-  Tank,
-  TankVariant,
-  Team,
-} from '../../common/interfaces/game.interfaces';
 import { v4 as uuidv4 } from 'uuid';
+import { Team } from '../../common/models/team.model';
+import { Lobby } from '../../common/models/lobby.model';
+import { Tank, TankVariant } from '../../common/models/tank.model';
+import { Player } from '../../common/models/player.model';
+import { BulletVariant } from '../../common/models/bullet.model';
+import { GameMap } from '../../common/models/game-map.model';
+import { Position } from '../../common/models/position.model';
 
-export function createTeams(lobby: Lobby): Team[] {
+export function getPlayers(lobby: Lobby): Map<string, Player> {
+  return new Map<string, Player>(
+    lobby.players.map((p) => [
+      p.userId,
+      {
+        ...p,
+        isConnected: false,
+        teamId: '',
+        tankId: '',
+      },
+    ]),
+  );
+}
+
+export function createTeams(
+  lobby: Lobby,
+  players: Player[],
+): Map<string, Team> {
   const teamNames = ['black', 'red', 'blue', 'yellow'];
-  const teams: Team[] = [];
+  const teams: Map<string, Team> = new Map();
 
   for (let i = 0; i < lobby.gameSettings.numberOfTeams; i++) {
     const teamId = uuidv4();
     const playersIds: string[] = [];
 
     for (let j = 0; j < lobby.gameSettings.teamSize; j++) {
-      const player = lobby.players[(i + 1) * j];
-      playersIds.push(player.userId);
+      const player = players[(i + 1) * j];
       player.teamId = teamId;
+      playersIds.push(player.userId);
     }
 
-    teams.push({
+    teams.set(teamId, {
       id: teamId,
       name: teamNames[i],
       playersIds,
@@ -34,25 +49,46 @@ export function createTeams(lobby: Lobby): Team[] {
   return teams;
 }
 
-export function createTanks(lobby: Lobby, teams: Team[]): Tank[] {
-  return lobby.players.map((player) => {
-    const tank = createTank(player, getBasicTank());
-    player.tankId = tank.id;
+export function createTanks(
+  players: Map<string, Player>,
+  map: GameMap,
+  teams: Team[],
+): Map<string, Tank> {
+  const tanks = new Map<string, Tank>();
 
-    return tank;
+  teams.forEach((team, teamIndex) => {
+    const teamEntryPoints = map.teamEntryPoints[teamIndex];
+
+    team.playersIds.forEach((playerId, playerIndex) => {
+      const entryPoint: Position = teamEntryPoints.positions[playerIndex];
+      const player = players.get(playerId);
+
+      if (player) {
+        const tank = createTank(player, getBasicTank(), entryPoint);
+        player.tankId = tank.id;
+        tanks.set(tank.id, tank);
+      }
+    });
   });
+
+  return tanks;
 }
 
-function createTank(player: Player, tankVariant: TankVariant): Tank {
+function createTank(
+  player: Player,
+  tankVariant: TankVariant,
+  position: Position,
+): Tank {
   return {
     id: uuidv4(),
     playerName: player.name,
     userId: player.userId,
-    teamId: player.teamId!,
+    teamId: player.teamId,
     tankVariantId: tankVariant.id,
     scale: tankVariant.scale,
-    position: { x: 0, y: 0 },
-    crossHair: { x: 0, y: 0 },
+    renderScale: tankVariant.renderScale,
+    position: { ...position },
+    crossHair: { x: 0, y: 0, z: 0 },
     speed: tankVariant.speed,
     rotationSpeed: tankVariant.rotationSpeed,
     hp: tankVariant.maxHp,
@@ -69,8 +105,14 @@ function getBasicTank(): TankVariant {
     id: uuidv4(),
     name: 'BasicTank',
     scale: {
+      x: 10,
+      y: 10,
+      z: 10,
+    },
+    renderScale: {
       x: 0.4,
       y: 0.4,
+      z: 0.4,
     },
     maxHp: 10,
     speed: 0.1,
@@ -86,6 +128,9 @@ function getBasicBullet(): BulletVariant {
     speed: 10,
     damage: 10,
     maxBounceCount: 0,
+    scale: { x: 2, y: 2, z: 2 },
+    renderScale: { x: 1, y: 1, z: 1 },
+    modelUrl: 'not given yet',
   };
 }
 
@@ -94,13 +139,30 @@ export function getBasicMap(): GameMap {
     id: uuidv4(),
     name: 'Desert',
     pictureUrl: 'assets/pictures/map-desert.png',
+    scale: {
+      x: 100,
+      y: 100,
+      z: 100,
+    },
+    groundTexture: {
+      id: uuidv4(),
+      name: 'sandstone-cracks',
+      diffuseImageUrl: 'assets/textures/sandstone_cracks_diff_1k.jpg',
+      normalImageUrl: 'assets/textures/sandstone_cracks_nor_gl_1k.png',
+      roughnessImageUrl: 'assets/textures/sandstone_cracks_rough_1k.jpg',
+      repeat: {
+        x: 2,
+        y: 2,
+      },
+    },
     teamEntryPoints: [
       {
         team: 1,
         positions: [
           {
             x: 10,
-            y: 10,
+            y: 0,
+            z: 10,
           },
         ],
       },
@@ -109,7 +171,8 @@ export function getBasicMap(): GameMap {
         positions: [
           {
             x: 30,
-            y: 30,
+            y: 0,
+            z: 30,
           },
         ],
       },
@@ -121,14 +184,17 @@ export function getBasicMap(): GameMap {
         position: {
           x: 20,
           y: 20,
+          z: 20,
         },
         scale: {
           x: 20,
           y: 20,
+          z: 10,
         },
         renderScale: {
           x: 20,
           y: 20,
+          z: 10,
         },
       },
     ],

@@ -14,18 +14,19 @@ import { LobbyService } from '../lobby.service';
 import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 import { CreateLobbyDto, JoinLobbyDto } from './dto/lobby.dto';
 import { WsCurrentUserId } from '../../../common/decorators/ws-current-user.decorator';
-import { Lobby, Player } from '../../../common/interfaces/game.interfaces';
 import { UserRepository } from '../../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../../user/user.entity';
 import {
   CreateGameResponseDto,
   LobbyResponseDto,
-  PlayerPreviewResponseDto,
 } from './dto/lobby-response.dto';
 import { JwtService } from '@nestjs/jwt';
 import { GameService } from '../../game/game.service';
 import { extractTokenFromHandshake } from '../../../common/utils/ws.utils';
+import { LobbyPlayer } from '../../../common/models/player.model';
+import { Lobby } from '../../../common/models/lobby.model';
+import { PlayerPreviewResponseDto } from '../../../common/dtos/player-preview-response.dto';
 
 @WebSocketGateway({
   cors: true,
@@ -87,7 +88,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException('Unauthorized');
     }
 
-    const player: Player = {
+    const player: LobbyPlayer = {
       userId,
       socketId: client.id,
       name: user.name,
@@ -116,7 +117,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException('Unauthorized');
     }
 
-    const player: Player = {
+    const player: LobbyPlayer = {
       userId,
       socketId: client.id,
       name: user.name,

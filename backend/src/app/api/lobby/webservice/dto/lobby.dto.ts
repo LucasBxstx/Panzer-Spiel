@@ -1,5 +1,5 @@
 import { IsEnum, IsNumber, IsUUID } from 'class-validator';
-import { GameMode } from '../../../../common/interfaces/game.interfaces';
+import { GameMode } from '../../../../common/models/game-settings.model';
 
 export class CreateLobbyDto {
   @IsUUID()

@@ -4,7 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { User } from '../user/user.entity';
 import { EntityRepository } from '@mikro-orm/core';
-import { JwtPayload } from '../../common/interfaces/jwt-user.interface';
+import { JwtPayload } from '../../common/models/jwt-user.model';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
