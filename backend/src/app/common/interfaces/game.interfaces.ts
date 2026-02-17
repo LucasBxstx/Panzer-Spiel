@@ -13,6 +13,7 @@ export interface Player {
   socketId: string;
   teamId?: string;
   tankId?: string;
+  isConnected: boolean;
 }
 
 export interface GameSettings {
@@ -35,6 +36,17 @@ export interface GameMap {
   pictureUrl: string;
   obstacles: Obstacle[];
   teamEntryPoints: TeamEntryPoints[];
+  scale: Scale;
+  groundTexture: Texture;
+}
+
+export interface Texture {
+  id: string;
+  name: string;
+  diffuseImageUrl?: string;
+  normalImageUrl: string;
+  roughnessImageUrl?: string;
+  repeat:
 }
 
 export interface Obstacle {
@@ -42,6 +54,10 @@ export interface Obstacle {
   name: string;
   position: Position;
   scale: Scale;
+  renderScale: Scale;
+  modelUrl?: string;
+  textureUrl?: string;
+  color?: string;
 }
 
 export interface TeamEntryPoints {
@@ -49,14 +65,19 @@ export interface TeamEntryPoints {
   positions: Position[];
 }
 
-export interface Position {
+export interface Vector2D {
   x: number;
   y: number;
 }
 
-export interface Scale {
-  x: number;
-  y: number;
+export interface Vector3D extends Vector2D {
+   z: number;
+}
+
+export interface Position extends Vector3D{
+}
+
+export interface Scale extends Vector3D{
 }
 
 export interface Game {

@@ -1,5 +1,6 @@
 import {
   BulletVariant,
+  GameMap,
   Lobby,
   Player,
   Tank,
@@ -85,5 +86,51 @@ function getBasicBullet(): BulletVariant {
     speed: 10,
     damage: 10,
     maxBounceCount: 0,
+  };
+}
+
+export function getBasicMap(): GameMap {
+  return {
+    id: uuidv4(),
+    name: 'Desert',
+    pictureUrl: 'assets/pictures/map-desert.png',
+    teamEntryPoints: [
+      {
+        team: 1,
+        positions: [
+          {
+            x: 10,
+            y: 10,
+          },
+        ],
+      },
+      {
+        team: 2,
+        positions: [
+          {
+            x: 30,
+            y: 30,
+          },
+        ],
+      },
+    ],
+    obstacles: [
+      {
+        id: '1',
+        name: 'Wall',
+        position: {
+          x: 20,
+          y: 20,
+        },
+        scale: {
+          x: 20,
+          y: 20,
+        },
+        renderScale: {
+          x: 20,
+          y: 20,
+        },
+      },
+    ],
   };
 }
