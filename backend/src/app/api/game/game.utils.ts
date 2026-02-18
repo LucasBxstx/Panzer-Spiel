@@ -28,19 +28,21 @@ export function createTeams(
   const teamNames = ['black', 'red', 'blue', 'yellow'];
   const teams: Map<string, Team> = new Map();
 
-  for (let i = 0; i < lobby.gameSettings.numberOfTeams; i++) {
+  console.log(players[0], players[1]);
+
+  for (let i = 1; i <= lobby.gameSettings.numberOfTeams; i++) {
     const teamId = uuidv4();
     const playersIds: string[] = [];
 
-    for (let j = 0; j < lobby.gameSettings.teamSize; j++) {
-      const player = players[(i + 1) * j];
+    for (let j = 1; j <= lobby.gameSettings.teamSize; j++) {
+      const player = players[i * j - 1];
       player.teamId = teamId;
       playersIds.push(player.userId);
     }
 
     teams.set(teamId, {
       id: teamId,
-      name: teamNames[i],
+      name: teamNames[i - 1],
       playersIds,
       tankIds: [],
     });

@@ -21,9 +21,9 @@ export class TeamResponseDto {
     return {
       id: team.id,
       name: team.name,
-      players: Array.from(players.values()).map((p) =>
-        PlayerResponseDto.mapFromEntity(p),
-      ),
+      players: Array.from(players.values())
+        .filter((p) => p.teamId === team.id)
+        .map((p) => PlayerResponseDto.mapFromEntity(p)),
     };
   }
 }
