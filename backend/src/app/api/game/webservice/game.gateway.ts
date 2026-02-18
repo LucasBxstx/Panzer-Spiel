@@ -9,7 +9,6 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { Inject, Logger, UseGuards } from '@nestjs/common';
-import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { GameService } from '../game.service';
@@ -20,10 +19,11 @@ import { extractTokenFromHandshake } from '../../../common/utils/ws.utils';
 import { WsCurrentUserId } from '../../../common/decorators/ws-current-user.decorator';
 import { JoinGameDto } from './dto/game.dto';
 import { GameStateResponseDto } from './dto/game-response.dto';
+import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 
 @WebSocketGateway({
   cors: true,
-  namespace: '/lobby',
+  namespace: '/game',
 })
 @UseGuards(WsJwtGuard)
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {

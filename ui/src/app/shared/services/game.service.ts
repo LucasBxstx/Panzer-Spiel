@@ -21,6 +21,7 @@ export class GameService {
     const token = this.authService.getToken();
 
     if (this.socket?.connected || !token) {
+      console.log('no connection possible');
       return;
     }
 

@@ -50,7 +50,6 @@ export class GameService {
     dto: JoinGameDto,
   ): Promise<GameStateResponseDto> {
     const user = await this.userRepository.findOne({ id: userId });
-
     if (!user) {
       throw new WsException('User not found');
     }

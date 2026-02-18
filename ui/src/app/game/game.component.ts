@@ -14,6 +14,9 @@ import { GLTFLoader } from 'three-stdlib';
 import { NgOptimizedImage } from '@angular/common';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
 import { GameService } from '../shared/services/game.service';
+import { ActivatedRoute } from '@angular/router';
+import { Position } from '../shared/models/vector.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-game',
@@ -28,6 +31,8 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private destroyRef = inject(DestroyRef);
   private readonly gameService = inject(GameService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly showError = signal(false);
 
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
@@ -41,7 +46,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private animationId?: number;
   private tankSpeed = 0.1;
 
-  private readonly position = signal<{ x: number; y: number }>({ x: 20, y: 20 });
+  private readonly position = signal<Position>({ x: 20, y: 0, z: 20 });
 
   // Maus-Properties
   private mouse = new THREE.Vector2();
@@ -49,6 +54,13 @@ export class GameComponent implements OnInit, OnDestroy {
   private groundPlane!: THREE.Mesh;
 
   ngOnInit(): void {
+    const gameId = this.route.snapshot.paramMap.get('id');
+    if (!gameId) {
+      this.showError.set(true);
+      return;
+    }
+
+    this.gameService.joinGame(gameId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     this.initThreeJS();
     this.loadTankModel();
     this.animate();
@@ -117,7 +129,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
         this.tankGroup.scale.set(0.4, 0.4, 0.4);
         this.tankGroup.rotation.set(0, Math.PI, 0);
-        this.tankGroup.position.set(this.position().x, 0, this.position().y);
+        this.tankGroup.position.set(this.position().x, this.position().y, this.position().z);
 
         // Schatten für alle Meshes
         this.tankGroup.traverse((child) => {
