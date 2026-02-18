@@ -13,6 +13,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three-stdlib';
 import { NgOptimizedImage } from '@angular/common';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
+import { GameService } from '../shared/services/game.service';
 
 @Component({
   selector: 'app-game',
@@ -26,6 +27,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private destroyRef = inject(DestroyRef);
+  private readonly gameService = inject(GameService);
 
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
