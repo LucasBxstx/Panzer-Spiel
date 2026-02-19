@@ -189,26 +189,26 @@ export function getBasicMap(): GameMap {
       },
     ],
     obstacles: [
-      {
-        id: '1',
-        name: 'Wall',
-        position: {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
-        scale: {
-          x: 20,
-          y: 20,
-          z: 30,
-        },
-        renderScale: {
-          x: 20,
-          y: 20,
-          z: 30,
-        },
-        texture: getBrickTexture(),
-      },
+      // {
+      //   id: '1',
+      //   name: 'Wall',
+      //   position: {
+      //     x: 0,
+      //     y: 0,
+      //     z: 0,
+      //   },
+      //   scale: {
+      //     x: 20,
+      //     y: 20,
+      //     z: 30,
+      //   },
+      //   renderScale: {
+      //     x: 20,
+      //     y: 20,
+      //     z: 30,
+      //   },
+      //   texture: getBrickTexture(),
+      // },
     ],
   };
 }

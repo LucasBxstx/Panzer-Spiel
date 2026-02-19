@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
@@ -24,6 +24,7 @@ export class GameService {
   private gameLoops: Map<string, NodeJS.Timeout> = new Map();
 
   private server?: Server;
+  private logger = new Logger(GameService.name);
 
   constructor(
     @Inject(UserRepository)
@@ -92,6 +93,7 @@ export class GameService {
     }, 50);
 
     this.gameLoops.set(gameId, interval);
+    this.logger.log('Starting game loop for game: ' + gameId);
   }
 
   private broadcastGameState(gameId: string) {
@@ -101,6 +103,7 @@ export class GameService {
     const stateUpdate = GameStateResponseDto.mapFromEntity(game);
 
     this.server.to(gameId).emit('stateUpdate', stateUpdate);
+    // this.logger.log(`Gamestate was broadcasted for game ${gameId}`);
   }
 
   stopGame(gameId: string) {
@@ -110,6 +113,7 @@ export class GameService {
       this.gameLoops.delete(gameId);
     }
     this.games.delete(gameId);
+    this.logger.log(`Game ${gameId} was stopped`);
   }
 
   updateTankPosition(
@@ -136,6 +140,8 @@ export class GameService {
     }
 
     updateTankPosition(tank, dto.input, dto.deltaTime);
+
+    this.logger.log(`Position for tank ${tank.id} was updated`);
 
     return { success: true };
   }

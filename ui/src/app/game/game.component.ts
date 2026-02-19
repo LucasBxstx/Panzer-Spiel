@@ -162,9 +162,28 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.handleMyTankInput(deltaTime);
     // ToDo: interpolate positions of other tanks
+    this.updateOtherTankPositions();
 
     updateMyTurretRotation(this.myTank, this.raycaster, this.mouse, this.camera);
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private updateOtherTankPositions(): void {
+    const data = this.gameService.gameState();
+
+    if (!data) return;
+
+    this.tanks.forEach((tankGroup) => {
+      const newTankState = data.tanks.get(tankGroup.tankId);
+      const isMyTank = tankGroup.tankId === this.myTank.tankId;
+
+      if (newTankState && !isMyTank) {
+        tankGroup.tankGroup.position.x = newTankState.position.x;
+        tankGroup.tankGroup.position.y = newTankState.position.y;
+        tankGroup.tankGroup.position.z = newTankState.position.z;
+        tankGroup.tankGroup.rotation.y = newTankState.rotation;
+      }
+    });
   }
 
   private handleMyTankInput(deltaTime: number): void {

@@ -3,12 +3,14 @@ import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import {
-  GameStateResponseDto,
+  GameStateResponse,
   InitialGameStateResponse,
+  InitialGameStateResponseDto,
   mapGameDtoToResponse,
 } from '../models/game.model';
 import { Observable } from 'rxjs';
 import { getMyTankProps, TankProps, UpdateTankPosition } from '../models/tank.model';
+import { updateGameState } from '../../game/game.utils.ts/update-game-state';
 
 @Injectable({
   providedIn: 'root',
@@ -58,10 +60,13 @@ export class GameService {
       this.connected.set(false);
     });
 
-    // this.socket.on('lobbyCreated', (lobby: LobbyResponse) => {
-    //   console.log('Lobby created:', lobby);
-    //   this.currentLobby.set(lobby);
-    // });
+    this.socket.on('stateUpdate', (newState: GameStateResponse) => {
+      console.log('GameStateUpdate', newState);
+      const oldState = this.gameState();
+
+      if (!oldState) return;
+      updateGameState(oldState, newState);
+    });
   }
 
   public joinGame(gameId: string): Observable<InitialGameStateResponse> {
@@ -70,7 +75,7 @@ export class GameService {
     }
 
     return new Observable<InitialGameStateResponse>((observer) => {
-      this.socket?.emit('joinGame', { gameId }, (response: GameStateResponseDto) => {
+      this.socket?.emit('joinGame', { gameId }, (response: InitialGameStateResponseDto) => {
         if (response && response.id) {
           console.log('Joined Game successfully:', response);
 

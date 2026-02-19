@@ -1,17 +1,19 @@
 import { Tank } from '../../common/models/tank.model';
 import { InputStateDto } from './webservice/dto/update-tank-position.dto';
 import { Vector3D } from '../../common/models/vector.model';
+import { Position } from '../../common/models/position.model';
 
 export function updateTankPosition(
   tank: Tank,
   input: InputStateDto,
   deltaTime: number,
 ) {
-  const moveDirection = tank.position;
+  const moveDirection: Position = { x: 0, y: 0, z: 0 };
   let targetRotation: number | null = null;
   const position = tank.position;
   let rotation = tank.rotation;
 
+  console.log('start update Tank position;', tank.position);
   if (input.w) {
     moveDirection.z -= 1;
     if (!isRotationNear(rotation, 0)) targetRotation = Math.PI;
@@ -39,14 +41,16 @@ export function updateTankPosition(
     rotation += diff * tank.rotationSpeed * deltaTime * 60;
   }
 
-  if (moveDirection.x !== 0 && moveDirection.z !== 0) {
+  if (moveDirection.x !== 0 || moveDirection.z !== 0) {
     normalizeInPlace(moveDirection);
-    position.x += moveDirection.x * tank.speed * deltaTime * 60;
-    position.z += moveDirection.z * tank.speed * deltaTime * 60;
+    tank.position.x += moveDirection.x * tank.speed * deltaTime * 60;
+    tank.position.z += moveDirection.z * tank.speed * deltaTime * 60;
   }
 
   tank.position = position;
   tank.rotation = rotation;
+
+  console.log('end update Tank position;', tank.position);
 }
 
 export function isRotationNear(

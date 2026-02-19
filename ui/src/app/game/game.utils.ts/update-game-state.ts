@@ -1,0 +1,16 @@
+import { GameStateResponse, InitialGameStateResponse } from '../../shared/models/game.model';
+
+export function updateGameState(oldState: InitialGameStateResponse, newState: GameStateResponse) {
+  const tanks = oldState.tanks;
+  newState.tanks.forEach((tank) => {
+    const oldTankState = tanks.get(tank.id);
+
+    if (oldTankState) {
+      oldTankState.position = tank.position;
+      oldTankState.rotation = tank.rotation;
+      oldTankState.idDead = tank.isDead;
+      oldTankState.kills = tank.kills;
+      oldTankState.seq = tank.seq;
+    }
+  });
+}

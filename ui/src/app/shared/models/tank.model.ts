@@ -61,3 +61,12 @@ export interface UpdateTankPosition {
   deltaTime: number;
   timestamp: number;
 }
+
+export interface TankPositionResponse {
+  id: string;
+  position: Position;
+  rotation: number;
+  seq: number;
+  kills: number;
+  isDead: boolean;
+}
