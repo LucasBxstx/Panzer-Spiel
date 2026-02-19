@@ -39,3 +39,22 @@ export interface TankGroup {
   tankBody: THREE.Object3D;
   tankTurret: THREE.Object3D;
 }
+
+export interface InputState {
+  w: boolean;
+  a: boolean;
+  s: boolean;
+  d: boolean;
+}
+
+export interface TankPosition {
+  position: Position;
+  rotation: number;
+}
+
+export interface UpdateTankPosition {
+  seq: number;
+  input: InputState;
+  deltaTime: number;
+  timestamp: number;
+}

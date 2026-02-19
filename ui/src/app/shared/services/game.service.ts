@@ -9,7 +9,7 @@ import {
   mapGameDtoToResponse,
 } from '../models/game.model';
 import { Observable } from 'rxjs';
-import { getMyTankProps, TankProps } from '../models/tank.model';
+import { getMyTankProps, TankProps, UpdateTankPosition } from '../models/tank.model';
 
 @Injectable({
   providedIn: 'root',
@@ -97,4 +97,6 @@ export class GameService {
       };
     });
   }
+
+  updateTankPosition(dto: UpdateTankPosition) {}
 }

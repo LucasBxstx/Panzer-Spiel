@@ -21,12 +21,12 @@ import { setupRenderer } from './game.utils.ts/setup-renderer';
 import { addGround } from './game.utils.ts/add-ground';
 import { createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
-import { TankGroup } from '../shared/models/tank.model';
+import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
 import { updateMyTurretRotation } from './game.utils.ts/updateMyTurretRotation';
-import { updateMyTankPosition } from './game.utils.ts/updateMyTankPosition';
 import { catchError, finalize, throwError } from 'rxjs';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { ChipComponent } from '../shared/components/chip/chip.component';
+import { applyInput } from './game.utils.ts/applyInput';
 
 @Component({
   selector: 'app-game',
@@ -48,14 +48,21 @@ export class GameComponent implements OnInit, OnDestroy {
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
-
-  private tanks: TankGroup[] = [];
-  private myTank!: TankGroup;
-
-  private animationId?: number;
+  private clock = new THREE.Clock();
 
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
+
+  private tanks: TankGroup[] = [];
+  private myTank!: TankGroup;
+  private animationId?: number;
+  private inputSequence: number = 0;
+  private localPosition!: TankPosition;
+  private pendingInputs: {
+    seq: number;
+    input: InputState;
+    deltaTime: number;
+  }[] = [];
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
@@ -140,6 +147,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
         if (tankObj.tankId === gameState.myTankId) {
           this.myTank = tankObj;
+          const { x, y, z } = tankObj.tankGroup.position;
+          this.localPosition = {
+            position: { x, y, z },
+            rotation: tankObj.tankGroup.rotation.y,
+          };
         }
       });
     });
@@ -147,10 +159,44 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private animate(): void {
     this.animationId = requestAnimationFrame(() => this.animate());
+    const deltaTime = this.clock.getDelta();
 
-    updateMyTankPosition(this.myTank, this.gameService.myTankProps(), this.keyboardService);
+    this.handleMyTankInput(deltaTime);
+    // ToDo: interpolate positions of other tanks
+
     updateMyTurretRotation(this.myTank, this.raycaster, this.mouse, this.camera);
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private handleMyTankInput(deltaTime: number): void {
+    const input: InputState = {
+      w: this.keyboardService.isKeyPressed('KeyW'),
+      a: this.keyboardService.isKeyPressed('KeyA'),
+      s: this.keyboardService.isKeyPressed('KeyS'),
+      d: this.keyboardService.isKeyPressed('KeyD'),
+    };
+
+    const noKeyPressed = !Object.values(input).some((v) => v);
+    const myTankProps = this.gameService.myTankProps();
+    if (noKeyPressed || !myTankProps) return;
+
+    const seq = ++this.inputSequence;
+
+    this.localPosition = applyInput(
+      this.localPosition,
+      input,
+      this.gameService.myTankProps()!.speed,
+      myTankProps.rotationSpeed,
+      deltaTime,
+    );
+
+    this.myTank.tankGroup.position.x = this.localPosition.position.x;
+    this.myTank.tankGroup.position.z = this.localPosition.position.z;
+    this.myTank.tankGroup.rotation.y = this.localPosition.rotation;
+
+    this.pendingInputs.push({ seq, input, deltaTime });
+
+    this.gameService.updateTankPosition({ seq, input, deltaTime, timestamp: Date.now() });
   }
 
   private onWindowResize(): void {
