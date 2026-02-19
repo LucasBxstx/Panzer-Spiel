@@ -16,3 +16,18 @@
 
   <div class="right"></div>
 </div>
+@if (showError() || showSpinner()) {
+  <div class="center-container">
+    @if (showError()) {
+      <div class="w-full flex justify-center text-red-500">
+        <app-chip class="w-[500px] text-center">Error Occurred. Please reload</app-chip>
+      </div>
+    }
+    @if (showSpinner()) {
+      <div class="w-full flex justify-center align-center">
+        <app-spinner></app-spinner>
+      </div>
+    }
+  </div>
+
+}

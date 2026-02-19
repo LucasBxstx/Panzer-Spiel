@@ -22,38 +22,40 @@ import { addGround } from './game.utils.ts/add-ground';
 import { createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { TankGroup } from '../shared/models/tank.model';
+import { updateMyTurretRotation } from './game.utils.ts/updateMyTurretRotation';
+import { updateMyTankPosition } from './game.utils.ts/updateMyTankPosition';
+import { catchError, finalize, throwError } from 'rxjs';
+import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
+import { ChipComponent } from '../shared/components/chip/chip.component';
 
 @Component({
   selector: 'app-game',
-  imports: [NgOptimizedImage],
+  imports: [NgOptimizedImage, SpinnerComponent, ChipComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
 export class GameComponent implements OnInit, OnDestroy {
-  private readonly keyboard = inject(KeyboardInputService);
   @ViewChild('gameCanvas', { static: true })
   private canvasRef!: ElementRef<HTMLCanvasElement>;
-
   private destroyRef = inject(DestroyRef);
+
+  private readonly keyboardService = inject(KeyboardInputService);
   private readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
-  private readonly showError = signal(false);
+  public readonly showError = signal(false);
+  public readonly showSpinner = signal(true);
 
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
 
-  // Panzer-Komponenten
   private tanks: TankGroup[] = [];
   private myTank!: TankGroup;
 
   private animationId?: number;
-  private tankSpeed = 0.1;
 
-  // Maus-Properties
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
-  private groundPlane!: THREE.Mesh;
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
@@ -73,7 +75,16 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.gameService
       .joinGame(gameId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          this.showError.set(true);
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          this.showSpinner.set(false);
+        }),
+      )
       .subscribe(() => {
         this.drawGame();
       });
@@ -137,8 +148,8 @@ export class GameComponent implements OnInit, OnDestroy {
   private animate(): void {
     this.animationId = requestAnimationFrame(() => this.animate());
 
-    this.updateMyTankPosition();
-    this.updateMyTurretRotation();
+    updateMyTankPosition(this.myTank, this.gameService.myTankProps(), this.keyboardService);
+    updateMyTurretRotation(this.myTank, this.raycaster, this.mouse, this.camera);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -158,107 +169,5 @@ export class GameComponent implements OnInit, OnDestroy {
     this.scene.clear();
 
     window.removeEventListener('resize', this.onWindowResize.bind(this));
-  }
-
-  updateMyTankPosition() {
-    const myTankProps = this.gameService.myTankProps();
-    if (!this.myTank || !myTankProps) return;
-
-    const moveDirection = new THREE.Vector3();
-    let targetRotation: number | null = null;
-
-    if (this.keyboard.isKeyPressed('KeyW')) {
-      moveDirection.z -= 1;
-      if (!this.isRotationNear(this.myTank.tankGroup.rotation.y, 0)) {
-        targetRotation = Math.PI;
-      }
-    }
-
-    if (this.keyboard.isKeyPressed('KeyS')) {
-      moveDirection.z += 1;
-      if (!this.isRotationNear(this.myTank.tankGroup.rotation.y, Math.PI)) {
-        targetRotation = 0;
-      }
-    }
-
-    if (this.keyboard.isKeyPressed('KeyA')) {
-      moveDirection.x -= 1;
-      if (!this.isRotationNear(this.myTank.tankGroup.rotation.y, Math.PI / 2)) {
-        targetRotation = Math.PI * 1.5;
-      }
-    }
-
-    if (this.keyboard.isKeyPressed('KeyD')) {
-      moveDirection.x += 1;
-      if (!this.isRotationNear(this.myTank.tankGroup.rotation.y, Math.PI * 1.5)) {
-        targetRotation = Math.PI / 2;
-      }
-    }
-
-    if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyA')) {
-      targetRotation = Math.PI * 1.25;
-    } else if (this.keyboard.isKeyPressed('KeyW') && this.keyboard.isKeyPressed('KeyD')) {
-      targetRotation = Math.PI * 0.75;
-    } else if (this.keyboard.isKeyPressed('KeyS') && this.keyboard.isKeyPressed('KeyA')) {
-      targetRotation = Math.PI * 1.75;
-    } else if (this.keyboard.isKeyPressed('KeyS') && this.keyboard.isKeyPressed('KeyD')) {
-      targetRotation = Math.PI * 0.25;
-    }
-
-    if (targetRotation !== null) {
-      const diff = this.shortestRotation(this.myTank.tankGroup.rotation.y, targetRotation);
-      this.myTank.tankGroup.rotation.y += diff * myTankProps.rotationSpeed;
-    }
-
-    if (moveDirection.length() > 0) {
-      moveDirection.normalize();
-      this.myTank.tankGroup.position.x += moveDirection.x * this.tankSpeed;
-      this.myTank.tankGroup.position.z += moveDirection.z * this.tankSpeed;
-    }
-  }
-
-  private updateMyTurretRotation(): void {
-    if (!this.myTank.tankTurret) return;
-
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-
-    const turretWorldPos = new THREE.Vector3();
-    this.myTank.tankTurret.getWorldPosition(turretWorldPos);
-
-    const aimPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -turretWorldPos.y);
-
-    const intersectPoint = new THREE.Vector3();
-    const hit = this.raycaster.ray.intersectPlane(aimPlane, intersectPoint);
-
-    if (!hit) return;
-
-    const direction = new THREE.Vector3();
-    direction.subVectors(intersectPoint, turretWorldPos);
-    direction.y = 0;
-
-    if (direction.lengthSq() < 0.0001) return;
-
-    const targetRotationWorld = Math.atan2(direction.x, direction.z);
-
-    const tankWorldRotation = this.myTank.tankTurret.rotation.y;
-    const targetRotationRelative = targetRotationWorld - tankWorldRotation;
-
-    const lerpFactor = 0.15;
-    const diff = this.shortestRotation(this.myTank.tankTurret.rotation.y, targetRotationRelative);
-    this.myTank.tankTurret.rotation.y += diff * lerpFactor;
-  }
-
-  private isRotationNear(current: number, target: number, tolerance: number = 0.2): boolean {
-    const diff = Math.abs(this.shortestRotation(current, target));
-    return diff < tolerance;
-  }
-
-  private shortestRotation(current: number, target: number): number {
-    let diff = target - current;
-
-    while (diff > Math.PI) diff -= Math.PI * 2;
-    while (diff < -Math.PI) diff += Math.PI * 2;
-
-    return diff;
   }
 }

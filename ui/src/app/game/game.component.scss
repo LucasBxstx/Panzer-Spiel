@@ -56,3 +56,10 @@
     }
   }
 }
+
+.center-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  @include page-centered
+}
