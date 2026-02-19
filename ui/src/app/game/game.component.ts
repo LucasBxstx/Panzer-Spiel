@@ -185,7 +185,7 @@ export class GameComponent implements OnInit, OnDestroy {
     );
 
     this.myTank.tankTurret.rotation.y = rotation;
-    if (Math.abs(this.lastUpdatedTurretRotation - rotation) < 0.1) return;
+    if (Math.abs(this.lastUpdatedTurretRotation - rotation) < 0.001) return;
 
     const now = Date.now();
     if (now - this.lastTurretSendTime < this.TURRET_SEND_INTERVAL) return;

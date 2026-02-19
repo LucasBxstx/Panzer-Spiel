@@ -119,7 +119,7 @@ function getBasicTank(): TankVariant {
       z: 0.4,
     },
     maxHp: 10,
-    speed: 0.7,
+    speed: 0.5,
     maxBullets: 5,
     rotationSpeed: 0.3,
   };
