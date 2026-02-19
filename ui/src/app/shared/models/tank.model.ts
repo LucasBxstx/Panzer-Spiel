@@ -12,11 +12,13 @@ export interface TankResponse {
   rotation: number;
   kills: number;
   idDead: boolean;
+  seq: number;
 }
 
 export interface TankProps {
   speed: number;
   rotationSpeed: number;
+  seq: number;
 }
 
 export function getMyTankProps(
@@ -30,6 +32,7 @@ export function getMyTankProps(
   return {
     speed: myTank.speed,
     rotationSpeed: myTank.rotationSpeed,
+    seq: myTank.seq,
   };
 }
 

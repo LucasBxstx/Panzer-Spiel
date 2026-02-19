@@ -1,11 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import {
-  GameStateResponse,
   GameStateResponseDto,
+  InitialGameStateResponse,
   mapGameDtoToResponse,
 } from '../models/game.model';
 import { Observable } from 'rxjs';
@@ -15,12 +14,11 @@ import { getMyTankProps, TankProps, UpdateTankPosition } from '../models/tank.mo
   providedIn: 'root',
 })
 export class GameService {
-  private readonly httpClient = inject(HttpClient);
   private readonly authService = inject(AuthService);
 
   private socket: Socket | null = null;
   public readonly connected = signal(false);
-  public readonly gameState = signal<GameStateResponse | null>(null);
+  public readonly gameState = signal<InitialGameStateResponse | null>(null);
   public readonly myTankProps = signal<TankProps | null>(null);
 
   connect() {
@@ -66,12 +64,12 @@ export class GameService {
     // });
   }
 
-  joinGame(gameId: string): Observable<GameStateResponse> {
+  public joinGame(gameId: string): Observable<InitialGameStateResponse> {
     if (!this.socket?.connected) {
       this.connect();
     }
 
-    return new Observable<GameStateResponse>((observer) => {
+    return new Observable<InitialGameStateResponse>((observer) => {
       this.socket?.emit('joinGame', { gameId }, (response: GameStateResponseDto) => {
         if (response && response.id) {
           console.log('Joined Game successfully:', response);
@@ -98,5 +96,9 @@ export class GameService {
     });
   }
 
-  updateTankPosition(dto: UpdateTankPosition) {}
+  public updateTankPosition(dto: UpdateTankPosition) {
+    this.socket?.emit('updateTankPosition', dto, (response: { confirmed: boolean }) => {
+      console.log('Update ' + dto.seq + ' successful', response.confirmed);
+    });
+  }
 }

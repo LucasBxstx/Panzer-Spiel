@@ -2,11 +2,6 @@ import { Expose, Type } from 'class-transformer';
 import { PositionResponseDto, ScaleResponseDto } from './vector-response.dto';
 import { Tank } from '../models/tank.model';
 
-// Alles was das frontend braucht, um panzer zu erstellen
-export class TankCreationResponseDto {}
-
-export class TankPropertiesResponseDto {}
-
 export class TankResponseDto {
   @Expose()
   id: string;
@@ -40,6 +35,9 @@ export class TankResponseDto {
   @Expose()
   isDead: boolean;
 
+  @Expose()
+  seq: number;
+
   static mapFromEntity(tank: Tank): TankResponseDto {
     return {
       id: tank.id,
@@ -52,6 +50,39 @@ export class TankResponseDto {
       speed: tank.speed,
       isDead: tank.isDead,
       kills: tank.kills,
+      seq: tank.lastProcessedSeq,
+    };
+  }
+}
+
+export class TankPositionResponseDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  @Type(() => PositionResponseDto)
+  position: PositionResponseDto;
+
+  @Expose()
+  rotation: number;
+
+  @Expose()
+  seq: number;
+
+  @Expose()
+  kills: number;
+
+  @Expose()
+  isDead: boolean;
+
+  static mapFromEntity(tank: Tank): TankPositionResponseDto {
+    return {
+      id: tank.id,
+      position: PositionResponseDto.mapFromEntity(tank.position),
+      rotation: tank.rotation,
+      kills: tank.kills,
+      isDead: tank.isDead,
+      seq: tank.lastProcessedSeq,
     };
   }
 }

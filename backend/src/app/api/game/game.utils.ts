@@ -100,6 +100,7 @@ function createTank(
     isDead: false,
     kills: 0,
     rotation: entryPoint.rotation,
+    lastProcessedSeq: 0,
   };
 }
 

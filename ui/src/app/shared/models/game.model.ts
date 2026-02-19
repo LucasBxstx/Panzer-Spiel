@@ -15,7 +15,7 @@ export interface GameStateResponseDto {
   startingAt: Date;
 }
 
-export interface GameStateResponse {
+export interface InitialGameStateResponse {
   id: string;
   gameMode: GameModeOption;
   map: GameMapResponse;
@@ -26,7 +26,7 @@ export interface GameStateResponse {
   startingAt: Date;
 }
 
-export function mapGameDtoToResponse(dto: GameStateResponseDto): GameStateResponse {
+export function mapGameDtoToResponse(dto: GameStateResponseDto): InitialGameStateResponse {
   return {
     ...dto,
     tanks: new Map<string, TankResponse>(Object.entries(dto.tanks)),

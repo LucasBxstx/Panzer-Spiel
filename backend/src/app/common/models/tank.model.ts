@@ -20,6 +20,7 @@ export interface Tank {
   isDead: boolean;
   rotation: number;
   crossHair: Position;
+  lastProcessedSeq: number;
 }
 
 export interface TankVariant {

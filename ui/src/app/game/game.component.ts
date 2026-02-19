@@ -56,7 +56,6 @@ export class GameComponent implements OnInit, OnDestroy {
   private tanks: TankGroup[] = [];
   private myTank!: TankGroup;
   private animationId?: number;
-  private inputSequence: number = 0;
   private localPosition!: TankPosition;
   private pendingInputs: {
     seq: number;
@@ -180,7 +179,7 @@ export class GameComponent implements OnInit, OnDestroy {
     const myTankProps = this.gameService.myTankProps();
     if (noKeyPressed || !myTankProps) return;
 
-    const seq = ++this.inputSequence;
+    const seq = myTankProps.seq;
 
     this.localPosition = applyInput(
       this.localPosition,

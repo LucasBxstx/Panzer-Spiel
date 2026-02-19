@@ -4,5 +4,3 @@ export class JoinGameDto {
   @IsUUID()
   gameId: string;
 }
-
-export class UpdateTankPosition {}

@@ -3,6 +3,7 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -17,18 +18,26 @@ import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../../user/user.entity';
 import { extractTokenFromHandshake } from '../../../common/utils/ws.utils';
 import { WsCurrentUserId } from '../../../common/decorators/ws-current-user.decorator';
-import { JoinGameDto } from './dto/game.dto';
-import { GameStateResponseDto } from './dto/game-response.dto';
+import { JoinGameDto } from './dto/join-game.dto';
+import { InitialGameStateResponseDto } from './dto/game-state-response.dto';
 import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
+import { UpdateTankPositionDto } from './dto/update-tank-position.dto';
+import { UpdateTankPositionResponseDto } from './dto/update-tank-position-response.dto';
 
 @WebSocketGateway({
   cors: true,
   namespace: '/game',
 })
 @UseGuards(WsJwtGuard)
-export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class GameGateway
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
+{
   @WebSocketServer()
   server: Server;
+
+  afterInit(server: Server) {
+    this.gameService.setServer(server);
+  }
 
   private readonly logger = new Logger(GameGateway.name);
   private playerGameMap: Map<string, string> = new Map();
@@ -74,9 +83,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() dto: JoinGameDto,
     @ConnectedSocket() client: Socket,
     @WsCurrentUserId() userId: string,
-  ): Promise<GameStateResponseDto> {
+  ): Promise<InitialGameStateResponseDto> {
     try {
-      const game: GameStateResponseDto = await this.gameService.joinGame(
+      const game: InitialGameStateResponseDto = await this.gameService.joinGame(
         userId,
         dto,
       );
@@ -90,7 +99,34 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (error) {
       this.logger.log(`User ${userId} disconnected`);
       client.disconnect();
-      throw new WsException('Cannot join game');
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
+    }
+  }
+
+  @SubscribeMessage('updateTankPosition')
+  handleUpdateTankPosition(
+    @MessageBody() dto: UpdateTankPositionDto,
+    @WsCurrentUserId() userId: string,
+  ): UpdateTankPositionResponseDto {
+    try {
+      const gameId = this.playerGameMap.get(userId);
+
+      if (!gameId) {
+        throw new WsException('Player is not part of any game');
+      }
+
+      return this.gameService.updateTankPosition(userId, gameId, dto);
+    } catch (error) {
+      this.logger.log(`User ${userId} disconnected`);
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
     }
   }
 }

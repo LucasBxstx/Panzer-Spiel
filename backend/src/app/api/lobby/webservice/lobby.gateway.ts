@@ -95,14 +95,22 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       isConnected: true,
     };
 
-    const lobby = await this.lobbyService.createLobby(userId, dto, player);
-    await client.join(lobby.id);
-    this.playerLobbyMap.set(userId, lobby.id);
-    this.logger.log(
-      `User ${userId} created and joined a new Lobby:  ${lobby.id}`,
-    );
+    try {
+      const lobby = await this.lobbyService.createLobby(userId, dto, player);
+      await client.join(lobby.id);
+      this.playerLobbyMap.set(userId, lobby.id);
+      this.logger.log(
+        `User ${userId} created and joined a new Lobby:  ${lobby.id}`,
+      );
 
-    return lobby;
+      return lobby;
+    } catch (error) {
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
+    }
   }
 
   @SubscribeMessage('joinLobby')
@@ -156,7 +164,11 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (error) {
       this.logger.log(`User ${userId} disconnected`);
       client.disconnect();
-      throw new WsException('Cannot join');
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
     }
   }
 
@@ -172,17 +184,25 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return { success: false };
     }
 
-    const lobby = await this.lobbyService.leaveLobby(userId, lobbyId);
-    await client.leave(lobbyId);
-    this.playerLobbyMap.delete(userId);
+    try {
+      const lobby = await this.lobbyService.leaveLobby(userId, lobbyId);
+      await client.leave(lobbyId);
+      this.playerLobbyMap.delete(userId);
 
-    if (lobby) {
-      this.server.to(lobbyId).emit('lobbyUpdated', lobby);
-      this.server.to(lobbyId).emit('playerLeft', client.data.userId);
-      this.logger.log(`User ${userId} left the lobby ${lobby.id}`);
+      if (lobby) {
+        this.server.to(lobbyId).emit('lobbyUpdated', lobby);
+        this.server.to(lobbyId).emit('playerLeft', client.data.userId);
+        this.logger.log(`User ${userId} left the lobby ${lobby.id}`);
+      }
+
+      return { success: true };
+    } catch (error) {
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
     }
-
-    return { success: true };
   }
 
   private startGameCountdown(
