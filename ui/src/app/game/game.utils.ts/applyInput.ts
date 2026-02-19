@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { isRotationNear, shortestRotation } from './updateMyTurretRotation';
+import { isRotationNear, shortestRotation } from './calculateMyTurretRotation';
 import { InputState, TankPosition } from '../../shared/models/tank.model';
 
 export function applyInput(

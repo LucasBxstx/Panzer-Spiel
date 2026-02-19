@@ -15,8 +15,12 @@ import {
 import { WsException } from '@nestjs/websockets';
 import { UpdateTankPositionDto } from './webservice/dto/update-tank-position.dto';
 import { updateTankPosition } from './update-tank-position.utils';
-import { UpdateTankPositionResponseDto } from './webservice/dto/update-tank-position-response.dto';
+import {
+  UpdateTankPositionResponseDto,
+  UpdateTurretRotationResponseDto,
+} from './webservice/dto/update-tank-response.dto';
 import { Server } from 'socket.io';
+import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation.dto';
 
 @Injectable()
 export class GameService {
@@ -142,6 +146,36 @@ export class GameService {
     updateTankPosition(tank, dto.input, dto.deltaTime);
 
     this.logger.log(`Position for tank ${tank.id} was updated`);
+
+    return { success: true };
+  }
+
+  updateTurretRotation(
+    userId: string,
+    gameId: string,
+    dto: UpdateTurretRotationDto,
+  ): UpdateTurretRotationResponseDto {
+    const game = this.games.get(gameId);
+
+    if (!game) {
+      throw new WsException('Game not found');
+    }
+
+    const player = game.players.get(userId);
+
+    if (!player) {
+      throw new WsException('Player not found');
+    }
+
+    const tank = game.tanks.get(player.tankId);
+
+    if (!tank) {
+      throw new WsException('Tank not found');
+    }
+
+    tank.turretRotation = dto.rotation;
+
+    this.logger.log(`Turret rotation for tank ${tank.id} was updated`);
 
     return { success: true };
   }

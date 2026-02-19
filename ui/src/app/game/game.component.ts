@@ -22,7 +22,7 @@ import { addGround } from './game.utils.ts/add-ground';
 import { createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
-import { updateMyTurretRotation } from './game.utils.ts/updateMyTurretRotation';
+import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { ChipComponent } from '../shared/components/chip/chip.component';
@@ -53,8 +53,14 @@ export class GameComponent implements OnInit, OnDestroy {
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
 
+  private lastTurretSendTime = 0;
+  private lastUpdatedTurretRotation = 0;
+  private readonly TURRET_SEND_INTERVAL = 50;
+  private lastTankSendTime = 0;
+  private readonly TANK_SEND_INTERVAL = 50;
+
   private tanks: TankGroup[] = [];
-  private myTank!: TankGroup;
+  private myTank?: TankGroup;
   private animationId?: number;
   private localPosition!: TankPosition;
   private pendingInputs: {
@@ -147,6 +153,7 @@ export class GameComponent implements OnInit, OnDestroy {
         if (tankObj.tankId === gameState.myTankId) {
           this.myTank = tankObj;
           const { x, y, z } = tankObj.tankGroup.position;
+          this.lastUpdatedTurretRotation = tankObj.tankTurret.position.y;
           this.localPosition = {
             position: { x, y, z },
             rotation: tankObj.tankGroup.rotation.y,
@@ -160,12 +167,33 @@ export class GameComponent implements OnInit, OnDestroy {
     this.animationId = requestAnimationFrame(() => this.animate());
     const deltaTime = this.clock.getDelta();
 
-    this.handleMyTankMovement(deltaTime);
-    // ToDo: interpolate positions of other tanks
+    this.updateMyTankPosition(deltaTime);
+    this.updateMyTurretRotation();
     this.updateOtherTankPositions();
 
-    updateMyTurretRotation(this.myTank, this.raycaster, this.mouse, this.camera);
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private updateMyTurretRotation(): void {
+    if (!this.myTank) return;
+
+    const rotation = calculateMyTurretRotation(
+      this.myTank,
+      this.raycaster,
+      this.mouse,
+      this.camera,
+    );
+
+    this.myTank.tankTurret.rotation.y = rotation;
+    if (Math.abs(this.lastUpdatedTurretRotation - rotation) < 0.1) return;
+
+    const now = Date.now();
+    if (now - this.lastTurretSendTime < this.TURRET_SEND_INTERVAL) return;
+
+    this.lastUpdatedTurretRotation = rotation;
+    this.lastTurretSendTime = now;
+
+    this.gameService.updateTurretRotation({ rotation });
   }
 
   private updateOtherTankPositions(): void {
@@ -175,18 +203,19 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.tanks.forEach((tankGroup) => {
       const newTankState = data.tanks.get(tankGroup.tankId);
-      // const isMyTank = tankGroup.tankId === this.myTank.tankId;
+      const isMyTank = tankGroup.tankId === this.myTank?.tankId;
 
       if (newTankState) {
         tankGroup.tankGroup.position.x = newTankState.position.x;
         tankGroup.tankGroup.position.y = newTankState.position.y;
         tankGroup.tankGroup.position.z = newTankState.position.z;
         tankGroup.tankBody.rotation.y = newTankState.rotation;
+        if (!isMyTank) tankGroup.tankTurret.rotation.y = newTankState.turretRotation;
       }
     });
   }
 
-  private handleMyTankMovement(deltaTime: number): void {
+  private updateMyTankPosition(deltaTime: number): void {
     const input: InputState = {
       w: this.keyboardService.isKeyPressed('KeyW'),
       a: this.keyboardService.isKeyPressed('KeyA'),
@@ -197,6 +226,10 @@ export class GameComponent implements OnInit, OnDestroy {
     const noKeyPressed = !Object.values(input).some((v) => v);
     const myTankProps = this.gameService.myTankProps();
     if (noKeyPressed || !myTankProps) return;
+
+    const now = Date.now();
+    if (now - this.lastTankSendTime < this.TANK_SEND_INTERVAL) return;
+    this.lastTankSendTime = now;
 
     const seq = myTankProps.seq;
 

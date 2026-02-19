@@ -8,6 +8,7 @@ export function updateGameState(oldState: InitialGameStateResponse, newState: Ga
     if (oldTankState) {
       oldTankState.position = tank.position;
       oldTankState.rotation = tank.rotation;
+      oldTankState.turretRotation = tank.turretRotation;
       oldTankState.idDead = tank.isDead;
       oldTankState.kills = tank.kills;
       oldTankState.seq = tank.seq;

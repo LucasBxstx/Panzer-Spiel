@@ -13,12 +13,13 @@ export interface Tank {
   tankVariantId: string;
   hp: number;
   speed: number;
+  rotation: number;
   rotationSpeed: number;
+  turretRotation: number;
   maxBullets: number;
   bulletIds: string[];
   kills: number;
   isDead: boolean;
-  rotation: number;
   crossHair: Position;
   lastProcessedSeq: number;
 }

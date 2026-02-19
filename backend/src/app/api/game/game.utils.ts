@@ -98,6 +98,7 @@ function createTank(
     isDead: false,
     kills: 0,
     rotation: entryPoint.rotation,
+    turretRotation: entryPoint.rotation,
     lastProcessedSeq: 0,
   };
 }
@@ -118,9 +119,9 @@ function getBasicTank(): TankVariant {
       z: 0.4,
     },
     maxHp: 10,
-    speed: 0.1,
+    speed: 0.7,
     maxBullets: 5,
-    rotationSpeed: 0.15,
+    rotationSpeed: 0.3,
   };
 }
 

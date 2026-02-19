@@ -22,7 +22,11 @@ import { JoinGameDto } from './dto/join-game.dto';
 import { InitialGameStateResponseDto } from './dto/game-state-response.dto';
 import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 import { UpdateTankPositionDto } from './dto/update-tank-position.dto';
-import { UpdateTankPositionResponseDto } from './dto/update-tank-position-response.dto';
+import {
+  UpdateTankPositionResponseDto,
+  UpdateTurretRotationResponseDto,
+} from './dto/update-tank-response.dto';
+import { UpdateTurretRotationDto } from './dto/update-turret-rotation.dto';
 
 @WebSocketGateway({
   cors: true,
@@ -121,6 +125,30 @@ export class GameGateway
 
       return this.gameService.updateTankPosition(userId, gameId, dto);
     } catch (error) {
+      this.logger.log(`User ${userId} disconnected`);
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
+    }
+  }
+
+  @SubscribeMessage('updateTurretRotation')
+  handleUpdateTurretRotation(
+    @MessageBody() dto: UpdateTurretRotationDto,
+    @WsCurrentUserId() userId: string,
+  ): UpdateTurretRotationResponseDto {
+    try {
+      const gameId = this.playerGameMap.get(userId);
+
+      if (!gameId) {
+        throw new WsException('Player is not part of any game');
+      }
+
+      return this.gameService.updateTurretRotation(userId, gameId, dto);
+    } catch (error) {
+      console.error('Error in handleUpdateTurretRotation:', error);
       this.logger.log(`User ${userId} disconnected`);
       if (error instanceof WsException) {
         throw error;

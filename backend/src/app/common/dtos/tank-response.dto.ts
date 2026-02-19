@@ -30,6 +30,9 @@ export class TankResponseDto {
   rotation: number;
 
   @Expose()
+  turretRotation: number;
+
+  @Expose()
   kills: number;
 
   @Expose()
@@ -47,6 +50,7 @@ export class TankResponseDto {
       renderScale: ScaleResponseDto.mapFromEntity(tank.renderScale),
       rotation: tank.rotation,
       rotationSpeed: tank.rotationSpeed,
+      turretRotation: tank.turretRotation,
       speed: tank.speed,
       isDead: tank.isDead,
       kills: tank.kills,
@@ -67,6 +71,9 @@ export class TankPositionResponseDto {
   rotation: number;
 
   @Expose()
+  turretRotation: number;
+
+  @Expose()
   seq: number;
 
   @Expose()
@@ -80,6 +87,7 @@ export class TankPositionResponseDto {
       id: tank.id,
       position: PositionResponseDto.mapFromEntity(tank.position),
       rotation: tank.rotation,
+      turretRotation: tank.turretRotation,
       kills: tank.kills,
       isDead: tank.isDead,
       seq: tank.lastProcessedSeq,

@@ -9,7 +9,12 @@ import {
   mapGameDtoToResponse,
 } from '../models/game.model';
 import { Observable } from 'rxjs';
-import { getMyTankProps, TankProps, UpdateTankPosition } from '../models/tank.model';
+import {
+  getMyTankProps,
+  TankProps,
+  UpdateTankPosition,
+  UpdateTurretRotation,
+} from '../models/tank.model';
 import { updateGameState } from '../../game/game.utils.ts/update-game-state';
 
 @Injectable({
@@ -102,7 +107,13 @@ export class GameService {
 
   public updateTankPosition(dto: UpdateTankPosition) {
     this.socket?.emit('updateTankPosition', dto, (response: { confirmed: boolean }) => {
-      console.log('Update ' + dto.seq + ' successful', response.confirmed);
+      console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
+    });
+  }
+
+  public updateTurretRotation(dto: UpdateTurretRotation) {
+    this.socket?.emit('updateTurretRotation', dto, (response: { confirmed: boolean }) => {
+      console.log('Update turret rotation successful', response.confirmed);
     });
   }
 }

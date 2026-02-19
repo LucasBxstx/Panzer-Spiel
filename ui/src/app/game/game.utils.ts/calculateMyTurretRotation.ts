@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import { TankGroup } from '../../shared/models/tank.model';
 
-export function updateMyTurretRotation(
+export function calculateMyTurretRotation(
   myTank: TankGroup,
   raycaster: THREE.Raycaster,
   mouse: THREE.Vector2,
   camera: THREE.PerspectiveCamera,
-): void {
+): number {
   raycaster.setFromCamera(mouse, camera);
-
+  let newRotation = myTank.tankTurret.rotation.y;
   const turretWorldPos = new THREE.Vector3();
   myTank.tankTurret.getWorldPosition(turretWorldPos);
 
@@ -17,13 +17,13 @@ export function updateMyTurretRotation(
   const intersectPoint = new THREE.Vector3();
   const hit = raycaster.ray.intersectPlane(aimPlane, intersectPoint);
 
-  if (!hit) return;
+  if (!hit) return newRotation;
 
   const direction = new THREE.Vector3();
   direction.subVectors(intersectPoint, turretWorldPos);
   direction.y = 0;
 
-  if (direction.lengthSq() < 0.0001) return;
+  if (direction.lengthSq() < 0.0001) return myTank.tankTurret.rotation.y;
 
   const targetRotationWorld = Math.atan2(direction.x, direction.z);
 
@@ -32,7 +32,9 @@ export function updateMyTurretRotation(
 
   const lerpFactor = 0.15;
   const diff = shortestRotation(myTank.tankTurret.rotation.y, targetRotationRelative);
-  myTank.tankTurret.rotation.y += diff * lerpFactor;
+  newRotation += diff * lerpFactor;
+
+  return newRotation;
 }
 
 export function isRotationNear(current: number, target: number, tolerance: number = 0.2): boolean {

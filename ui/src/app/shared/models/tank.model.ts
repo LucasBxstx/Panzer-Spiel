@@ -10,6 +10,7 @@ export interface TankResponse {
   speed: number;
   rotationSpeed: number;
   rotation: number;
+  turretRotation: number;
   kills: number;
   idDead: boolean;
   seq: number;
@@ -62,10 +63,15 @@ export interface UpdateTankPosition {
   timestamp: number;
 }
 
+export interface UpdateTurretRotation {
+  rotation: number;
+}
+
 export interface TankPositionResponse {
   id: string;
   position: Position;
   rotation: number;
+  turretRotation: number;
   seq: number;
   kills: number;
   isDead: boolean;
