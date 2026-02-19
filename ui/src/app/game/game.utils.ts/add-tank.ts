@@ -15,7 +15,7 @@ export function addTank(scene: Scene, tank: TankResponse): Promise<TankGroup> {
         const s = tank.renderScale;
         const p = tank.position;
         tankGroup.scale.set(s.x, s.y, s.z);
-        tankGroup.rotation.set(0, tank.rotation, 0);
+        tankGroup.rotation.set(0, 0, 0);
         tankGroup.position.set(p.x, p.y, p.z);
 
         tankGroup.traverse((child) => {
@@ -27,6 +27,8 @@ export function addTank(scene: Scene, tank: TankResponse): Promise<TankGroup> {
 
         const tankBody = tankGroup.getObjectByName('tank')!;
         const tankTurret = tankGroup.getObjectByName('turret')!;
+
+        tankBody.rotation.set(0, tank.rotation, 0);
 
         scene.add(tankGroup);
 

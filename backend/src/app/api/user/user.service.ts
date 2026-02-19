@@ -23,7 +23,6 @@ export class UserService {
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
-    console.log('Finding user with id:', id);
     const user = await this.userRepository.findOne({ id });
 
     if (!user) {

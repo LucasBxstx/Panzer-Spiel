@@ -61,7 +61,6 @@ export class GameService {
     });
 
     this.socket.on('stateUpdate', (newState: GameStateResponse) => {
-      console.log('GameStateUpdate', newState);
       const oldState = this.gameState();
 
       if (!oldState) return;

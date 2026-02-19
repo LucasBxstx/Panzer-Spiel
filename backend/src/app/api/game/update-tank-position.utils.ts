@@ -13,7 +13,6 @@ export function updateTankPosition(
   const position = tank.position;
   let rotation = tank.rotation;
 
-  console.log('start update Tank position;', tank.position);
   if (input.w) {
     moveDirection.z -= 1;
     if (!isRotationNear(rotation, 0)) targetRotation = Math.PI;
@@ -49,8 +48,6 @@ export function updateTankPosition(
 
   tank.position = position;
   tank.rotation = rotation;
-
-  console.log('end update Tank position;', tank.position);
 }
 
 export function isRotationNear(

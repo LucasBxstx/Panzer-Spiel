@@ -28,8 +28,6 @@ export function createTeams(
   const teamNames = ['black', 'red', 'blue', 'yellow'];
   const teams: Map<string, Team> = new Map();
 
-  console.log(players[0], players[1]);
-
   for (let i = 1; i <= lobby.gameSettings.numberOfTeams; i++) {
     const teamId = uuidv4();
     const playersIds: string[] = [];

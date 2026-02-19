@@ -160,7 +160,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.animationId = requestAnimationFrame(() => this.animate());
     const deltaTime = this.clock.getDelta();
 
-    this.handleMyTankInput(deltaTime);
+    this.handleMyTankMovement(deltaTime);
     // ToDo: interpolate positions of other tanks
     this.updateOtherTankPositions();
 
@@ -175,18 +175,18 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.tanks.forEach((tankGroup) => {
       const newTankState = data.tanks.get(tankGroup.tankId);
-      const isMyTank = tankGroup.tankId === this.myTank.tankId;
+      // const isMyTank = tankGroup.tankId === this.myTank.tankId;
 
-      if (newTankState && !isMyTank) {
+      if (newTankState) {
         tankGroup.tankGroup.position.x = newTankState.position.x;
         tankGroup.tankGroup.position.y = newTankState.position.y;
         tankGroup.tankGroup.position.z = newTankState.position.z;
-        tankGroup.tankGroup.rotation.y = newTankState.rotation;
+        tankGroup.tankBody.rotation.y = newTankState.rotation;
       }
     });
   }
 
-  private handleMyTankInput(deltaTime: number): void {
+  private handleMyTankMovement(deltaTime: number): void {
     const input: InputState = {
       w: this.keyboardService.isKeyPressed('KeyW'),
       a: this.keyboardService.isKeyPressed('KeyA'),
@@ -203,14 +203,16 @@ export class GameComponent implements OnInit, OnDestroy {
     this.localPosition = applyInput(
       this.localPosition,
       input,
-      this.gameService.myTankProps()!.speed,
+      myTankProps.speed,
       myTankProps.rotationSpeed,
       deltaTime,
     );
 
-    this.myTank.tankGroup.position.x = this.localPosition.position.x;
-    this.myTank.tankGroup.position.z = this.localPosition.position.z;
-    this.myTank.tankGroup.rotation.y = this.localPosition.rotation;
+    // If tank movement is too laggy in production, we can assign the new position directly
+    // But for now in development, the game is so smooth, that we don't need to do prediction
+    // this.myTank.tankGroup.position.x = this.localPosition.position.x;
+    // this.myTank.tankGroup.position.z = this.localPosition.position.z;
+    // this.myTank.tankGroup.rotation.y = this.localPosition.rotation;
 
     this.pendingInputs.push({ seq, input, deltaTime });
 
