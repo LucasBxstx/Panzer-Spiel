@@ -10,13 +10,13 @@ export class TextureResponseDto {
   name: string;
 
   @Expose()
-  diffuseImageUrl?: string;
+  diffuseImageUrl: string;
 
   @Expose()
   normalImageUrl: string;
 
   @Expose()
-  roughnessImageUrl?: string;
+  roughnessImageUrl: string;
 
   @Expose()
   @Type(() => Vector2DResponseDto)

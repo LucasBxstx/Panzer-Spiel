@@ -10,6 +10,9 @@ export class TankResponseDto {
   playerName: string;
 
   @Expose()
+  modelUrl: string;
+
+  @Expose()
   @Type(() => PositionResponseDto)
   position: PositionResponseDto;
 
@@ -36,6 +39,7 @@ export class TankResponseDto {
     return {
       id: tank.id,
       playerName: tank.playerName,
+      modelUrl: tank.modelUrl,
       position: PositionResponseDto.mapFromEntity(tank.position),
       renderScale: ScaleResponseDto.mapFromEntity(tank.renderScale),
       rotation: tank.rotation,

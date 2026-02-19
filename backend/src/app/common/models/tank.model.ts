@@ -6,6 +6,7 @@ export interface Tank {
   playerName: string;
   userId: string;
   teamId: string;
+  modelUrl: string;
   position: Position;
   scale: Scale;
   renderScale: Scale;
@@ -24,6 +25,7 @@ export interface Tank {
 export interface TankVariant {
   id: string;
   name: string;
+  modelUrl: string;
   scale: Scale;
   renderScale: Scale;
   speed: number;

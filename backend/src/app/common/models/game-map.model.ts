@@ -15,5 +15,10 @@ export interface GameMap {
 
 export interface TeamEntryPoints {
   team: number;
-  positions: Position[];
+  point: EntryPoint[];
+}
+
+export interface EntryPoint {
+  rotation: number;
+  position: Position;
 }

@@ -4,8 +4,8 @@ import { Lobby } from '../../common/models/lobby.model';
 import { Tank, TankVariant } from '../../common/models/tank.model';
 import { Player } from '../../common/models/player.model';
 import { BulletVariant } from '../../common/models/bullet.model';
-import { GameMap } from '../../common/models/game-map.model';
-import { Position } from '../../common/models/position.model';
+import { EntryPoint, GameMap } from '../../common/models/game-map.model';
+import { Texture } from '../../common/models/texture.model';
 
 export function getPlayers(lobby: Lobby): Map<string, Player> {
   return new Map<string, Player>(
@@ -62,7 +62,7 @@ export function createTanks(
     const teamEntryPoints = map.teamEntryPoints[teamIndex];
 
     team.playersIds.forEach((playerId, playerIndex) => {
-      const entryPoint: Position = teamEntryPoints.positions[playerIndex];
+      const entryPoint = teamEntryPoints.point[playerIndex];
       const player = players.get(playerId);
 
       if (player) {
@@ -79,7 +79,7 @@ export function createTanks(
 function createTank(
   player: Player,
   tankVariant: TankVariant,
-  position: Position,
+  entryPoint: EntryPoint,
 ): Tank {
   return {
     id: uuidv4(),
@@ -87,9 +87,10 @@ function createTank(
     userId: player.userId,
     teamId: player.teamId,
     tankVariantId: tankVariant.id,
+    modelUrl: tankVariant.modelUrl,
     scale: tankVariant.scale,
     renderScale: tankVariant.renderScale,
-    position: { ...position },
+    position: { ...entryPoint.position },
     crossHair: { x: 0, y: 0, z: 0 },
     speed: tankVariant.speed,
     rotationSpeed: tankVariant.rotationSpeed,
@@ -98,7 +99,7 @@ function createTank(
     bulletIds: [],
     isDead: false,
     kills: 0,
-    rotation: 0,
+    rotation: entryPoint.rotation,
   };
 }
 
@@ -106,6 +107,7 @@ function getBasicTank(): TankVariant {
   return {
     id: uuidv4(),
     name: 'BasicTank',
+    modelUrl: 'assets/models/tank-panther-split.glb',
     scale: {
       x: 10,
       y: 10,
@@ -160,21 +162,27 @@ export function getBasicMap(): GameMap {
     teamEntryPoints: [
       {
         team: 1,
-        positions: [
+        point: [
           {
-            x: 10,
-            y: 0,
-            z: 10,
+            position: {
+              x: -40,
+              y: 0,
+              z: -40,
+            },
+            rotation: 2 * Math.PI,
           },
         ],
       },
       {
         team: 2,
-        positions: [
+        point: [
           {
-            x: 30,
-            y: 0,
-            z: 30,
+            position: {
+              x: 40,
+              y: 0,
+              z: 40,
+            },
+            rotation: Math.PI,
           },
         ],
       },
@@ -198,7 +206,19 @@ export function getBasicMap(): GameMap {
           y: 20,
           z: 10,
         },
+        texture: getBrickTexture(),
       },
     ],
+  };
+}
+
+export function getBrickTexture(): Texture {
+  return {
+    id: uuidv4(),
+    name: 'Brick',
+    diffuseImageUrl: 'assets/textures/broken_brick_wall_diff_1k.jpg',
+    normalImageUrl: 'assets/textures/broken_brick_wall_nor_gl_1k.png',
+    roughnessImageUrl: 'assets/textures/broken_brick_wall_rough_1k.jpg',
+    repeat: { x: 5, y: 1 },
   };
 }
