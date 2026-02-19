@@ -2,6 +2,11 @@ import { Expose, Type } from 'class-transformer';
 import { PositionResponseDto, ScaleResponseDto } from './vector-response.dto';
 import { Tank } from '../models/tank.model';
 
+// Alles was das frontend braucht, um panzer zu erstellen
+export class TankCreationResponseDto {}
+
+export class TankPropertiesResponseDto {}
+
 export class TankResponseDto {
   @Expose()
   id: string;

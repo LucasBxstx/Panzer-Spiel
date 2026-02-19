@@ -1,16 +1,9 @@
 import { GLTFLoader } from 'three-stdlib';
 import * as THREE from 'three';
 import { Scene } from 'three';
-import { TankResponse } from '../../shared/models/tank.model';
+import { TankGroup, TankResponse } from '../../shared/models/tank.model';
 
-export function addTank(
-  scene: Scene,
-  tank: TankResponse,
-): Promise<{
-  tankGroup: THREE.Group;
-  tankBody: THREE.Object3D;
-  tankTurret: THREE.Object3D;
-}> {
+export function addTank(scene: Scene, tank: TankResponse): Promise<TankGroup> {
   const loader = new GLTFLoader();
 
   return new Promise((resolve, reject) => {
@@ -37,7 +30,7 @@ export function addTank(
 
         scene.add(tankGroup);
 
-        resolve({ tankGroup, tankBody, tankTurret });
+        resolve({ tankId: tank.id, tankGroup, tankBody, tankTurret });
       },
       (progress) => {
         console.log('Loading progress:', (progress.loaded / progress.total) * 100 + '%');

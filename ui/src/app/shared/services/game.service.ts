@@ -3,8 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
-import { GameStateResponse } from '../models/game.model';
+import {
+  GameStateResponse,
+  GameStateResponseDto,
+  mapGameDtoToResponse,
+} from '../models/game.model';
 import { Observable } from 'rxjs';
+import { getMyTankProps, TankProps } from '../models/tank.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +21,7 @@ export class GameService {
   private socket: Socket | null = null;
   public readonly connected = signal(false);
   public readonly gameState = signal<GameStateResponse | null>(null);
+  public readonly myTankProps = signal<TankProps | null>(null);
 
   connect() {
     const token = this.authService.getToken();
@@ -39,6 +45,8 @@ export class GameService {
     this.socket.on('connect_error', (error) => {
       console.error('Connection failed:', error.message);
       this.connected.set(false);
+      this.gameState.set(null);
+      this.myTankProps.set(null);
 
       if (error.message === 'Unauthorized') {
         this.authService.logout();
@@ -48,6 +56,7 @@ export class GameService {
     this.socket.on('disconnect', (reason) => {
       console.log('Disconnected:', reason);
       this.gameState.set(null);
+      this.myTankProps.set(null);
       this.connected.set(false);
     });
 
@@ -63,11 +72,14 @@ export class GameService {
     }
 
     return new Observable<GameStateResponse>((observer) => {
-      this.socket?.emit('joinGame', { gameId }, (response: any) => {
+      this.socket?.emit('joinGame', { gameId }, (response: GameStateResponseDto) => {
         if (response && response.id) {
           console.log('Joined Game successfully:', response);
-          this.gameState.set(response);
-          observer.next(response);
+
+          const gameState = mapGameDtoToResponse(response);
+          this.gameState.set(gameState);
+          this.myTankProps.set(getMyTankProps(gameState.tanks, gameState.myTankId));
+          observer.next(gameState);
           observer.complete();
         } else {
           console.error('Invalid join response:', response);

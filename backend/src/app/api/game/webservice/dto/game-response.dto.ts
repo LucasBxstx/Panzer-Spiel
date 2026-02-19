@@ -24,16 +24,19 @@ export class GameStateResponseDto {
 
   @Expose()
   @Type(() => TankResponseDto)
-  tanks: TankResponseDto[];
+  tanks: Record<string, TankResponseDto>;
 
   @Expose()
   @Type(() => BulletResponseDto)
   bullets: BulletResponseDto[];
 
   @Expose()
+  myTankId: string;
+
+  @Expose()
   startingAt: Date;
 
-  static mapFromEntity(game: Game): GameStateResponseDto {
+  static mapFromEntity(game: Game, myTankId: string): GameStateResponseDto {
     return {
       id: game.id,
       gameMode: GameModeOptionResponseDto.mapFromEntity(
@@ -43,13 +46,17 @@ export class GameStateResponseDto {
         TeamResponseDto.mapFromEntity(team, game.players),
       ),
       map: GameMapResponseDto.mapFromEntity(game.gameSettings.map),
-      tanks: Array.from(game.tanks.values()).map((t) =>
-        TankResponseDto.mapFromEntity(t),
+      tanks: Object.fromEntries(
+        Array.from(game.tanks.values()).map((t) => [
+          t.id,
+          TankResponseDto.mapFromEntity(t),
+        ]),
       ),
       bullets: Array.from(game.bullets.values()).map((b) =>
         BulletResponseDto.mapFromEntity(b),
       ),
       startingAt: game.startingAt,
+      myTankId,
     };
   }
 }

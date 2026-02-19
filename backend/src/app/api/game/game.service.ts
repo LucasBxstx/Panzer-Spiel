@@ -68,6 +68,6 @@ export class GameService {
 
     player.isConnected = true;
 
-    return GameStateResponseDto.mapFromEntity(game);
+    return GameStateResponseDto.mapFromEntity(game, player.tankId);
   }
 }
