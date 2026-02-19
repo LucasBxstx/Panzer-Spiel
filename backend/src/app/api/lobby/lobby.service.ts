@@ -2,13 +2,6 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
-import { EntityManager, PostgreSqlDriver } from '@mikro-orm/postgresql';
-import {
-  GameMap,
-  GameSettings,
-  Lobby,
-  Player,
-} from '../../common/interfaces/game.interfaces';
 import { CreateLobbyDto } from './webservice/dto/lobby.dto';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -16,6 +9,10 @@ import {
   LobbyResponseDto,
 } from './webservice/dto/lobby-response.dto';
 import { WsException } from '@nestjs/websockets';
+import { getBasicMap } from '../game/game.utils';
+import { GameSettings } from '../../common/models/game-settings.model';
+import { Lobby } from '../../common/models/lobby.model';
+import { LobbyPlayer } from '../../common/models/player.model';
 
 @Injectable()
 export class LobbyService {
@@ -24,15 +21,12 @@ export class LobbyService {
   constructor(
     @Inject(UserRepository)
     private readonly userRepository: EntityRepository<User>,
-
-    @Inject(EntityManager)
-    private readonly entityManager: EntityManager<PostgreSqlDriver>,
   ) {}
 
   async createLobby(
     userId: string,
     dto: CreateLobbyDto,
-    player: Player,
+    player: LobbyPlayer,
   ): Promise<LobbyResponseDto> {
     const user = await this.userRepository.findOne({ id: userId });
 
@@ -41,45 +35,7 @@ export class LobbyService {
     }
 
     // const map = await this.mapRepository...
-    const map: GameMap = {
-      id: uuidv4(),
-      name: 'Desert',
-      pictureUrl: 'assets/pictures/map-desert.png',
-      teamEntryPoints: [
-        {
-          team: 1,
-          positions: [
-            {
-              x: 10,
-              y: 10,
-            },
-          ],
-        },
-        {
-          team: 2,
-          positions: [
-            {
-              x: 30,
-              y: 30,
-            },
-          ],
-        },
-      ],
-      obstacles: [
-        {
-          id: '1',
-          name: 'Wall',
-          position: {
-            x: 20,
-            y: 20,
-          },
-          scale: {
-            x: 20,
-            y: 20,
-          },
-        },
-      ],
-    };
+    const map = getBasicMap();
 
     if (!map) {
       throw new WsException('Map not found');
@@ -123,8 +79,8 @@ export class LobbyService {
   async joinLobby(
     userId: string,
     lobbyId: string,
-    player: Player,
-  ): Promise<LobbyResponseDto> {
+    player: LobbyPlayer,
+  ): Promise<Lobby> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
@@ -149,11 +105,7 @@ export class LobbyService {
 
     lobby.players.push(player);
 
-    if (lobby.players.length === lobby.gameSettings.maxPlayersCount) {
-      // start game
-    }
-
-    return LobbyResponseDto.mapFromEntity(lobby);
+    return lobby;
   }
 
   async leaveLobby(

@@ -7,6 +7,7 @@ import { HealthModule } from './app/api/health/health.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './app/api/auth/auth.module';
 import { LobbyModule } from './app/api/lobby/lobby.module';
+import { GameModule } from './app/api/game/game.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { LobbyModule } from './app/api/lobby/lobby.module';
     HealthModule,
     AuthModule,
     LobbyModule,
+    GameModule,
   ],
   controllers: [],
   providers: [],

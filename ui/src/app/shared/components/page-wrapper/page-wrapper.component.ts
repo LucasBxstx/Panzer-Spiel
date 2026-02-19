@@ -14,6 +14,7 @@ export class PageWrapperComponent {
   public readonly navigateTo = input<string>();
   public readonly headingLabel = input.required<string>();
   public readonly backLabel = input.required<string>();
+  public readonly disableLeavePage = input<boolean>(false);
   public readonly leavePage = output<void>();
 
   public navigate(): void {

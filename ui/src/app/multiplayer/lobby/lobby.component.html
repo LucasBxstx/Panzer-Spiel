@@ -1,7 +1,7 @@
 <div class="page-sizing">
   <app-card>
     <app-page-wrapper [backLabel]="'Lobby verlassen'"
-                      [headingLabel]="'Match Lobby'" (leavePage)="leaveLobby()">
+                      [headingLabel]="'Match Lobby'" (leavePage)="leaveLobby()" [disableLeavePage]="!!isStartingIn()">
 
       @if (lobbyService.currentLobby(); as lobby) {
         <div content class="mt-[-20px]">
@@ -13,6 +13,7 @@
                 } @else {
                   Du bist der Lobby von {{ lobby.hostUserName }}.
                 }
+
                 Warte auf weitere Spieler, damit das Spiel starten kann.
               </div>
               <div class="font-bold mt-3">Map:</div>
@@ -61,11 +62,13 @@
                 @for (player of lobby.joinedPlayers; track player.name) {
                   <app-chip class="my-1" [value]="player.name"></app-chip>
                 }
+
               </div>
               @if (lobby.joinedPlayers.length < lobby.gameSettings.maxPlayersCount) {
                 <div class="text-center mt-5">Warte auf weitere Spieler...</div>
-              } @else {
-                <div class="text-center mt-5">Bereit zum Starten!</div>
+              }
+              @if (isStartingIn(); as countdown) {
+                <div class="text-center mt-5">Das Spiel startet in {{ countdown }} Sekunden</div>
               }
             </div>
           </div>
@@ -76,11 +79,13 @@
 
       @if (isLoading()) {
 
-        <div content>isLoading</div>
+        <div content class="text-center m-10">
+          <app-spinner></app-spinner>
+        </div>
       }
 
       @if (error()) {
-        <div content> {{ error() }}</div>
+        <div content class="text-center m-10 text-red-500"> {{ error() }}</div>
       }
 
     </app-page-wrapper>

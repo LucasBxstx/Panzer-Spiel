@@ -1,104 +1,8 @@
 import { Expose, Type } from 'class-transformer';
-import {
-  GameMap,
-  GameMode,
-  GameSettings,
-  Lobby,
-  Player,
-} from '../../../../common/interfaces/game.interfaces';
-
-export class MapPreviewResponseDto {
-  @Expose()
-  id: string;
-
-  @Expose()
-  name: string;
-
-  @Expose()
-  pictureUrl: string;
-
-  static mapFromEntity(map: GameMap): MapPreviewResponseDto {
-    return {
-      id: map.id,
-      name: map.name,
-      pictureUrl: map.pictureUrl,
-    };
-  }
-}
-
-export class GameModeOptionResponseDto {
-  @Expose()
-  name: string;
-
-  @Expose()
-  value: GameMode;
-
-  static mapFromEntity(gameMode: GameMode): GameModeOptionResponseDto {
-    return {
-      name: this.getGameModeName(gameMode),
-      value: gameMode,
-    };
-  }
-
-  static getGameModeName(gameMode: GameMode): string {
-    switch (gameMode) {
-      case GameMode.OneVsOne:
-        return '1 vs 1';
-      case GameMode.TeamVsTeam:
-        return 'Team vs Team';
-      case GameMode.TeamVsBots:
-        return 'Team vs Bots';
-      default:
-        return 'undefined';
-    }
-  }
-}
-
-export class PlayerPreviewResponseDto {
-  @Expose()
-  userId: string;
-
-  @Expose()
-  name: string;
-
-  static mapFromEntity(player: Player): PlayerPreviewResponseDto {
-    return {
-      userId: player.userId,
-      name: player.name,
-    };
-  }
-}
-
-export class GameSettingsResponseDto {
-  @Expose()
-  @Type(() => GameModeOptionResponseDto)
-  gameModeOption: GameModeOptionResponseDto;
-
-  @Expose()
-  @Type(() => MapPreviewResponseDto)
-  mapPreview: MapPreviewResponseDto;
-
-  @Expose()
-  maxPlayersCount: number;
-
-  @Expose()
-  numberOfTeams: number;
-
-  @Expose()
-  teamSize: number;
-
-  static mapFromEntity(settings: GameSettings): GameSettingsResponseDto {
-    return {
-      gameModeOption: GameModeOptionResponseDto.mapFromEntity(
-        settings.gameMode,
-      ),
-      mapPreview: MapPreviewResponseDto.mapFromEntity(settings.map),
-      maxPlayersCount: settings.maxPlayersCount,
-      teamSize: settings.teamSize,
-      numberOfTeams: settings.numberOfTeams,
-    };
-  }
-}
+import { Lobby } from '../../../../common/models/lobby.model';
+import { PlayerPreviewResponseDto } from '../../../../common/dtos/player-preview-response.dto';
+import { GameSettingsResponseDto } from '../../../../common/dtos/game-settings-response.dto';
+import { GameModeOptionResponseDto } from '../../../../common/dtos/game-mode-option-response.dto';
 
 export class LobbyPreviewResponseDto {
   @Expose()
@@ -159,4 +63,9 @@ export class LobbyResponseDto {
       ),
     };
   }
+}
+
+export class CreateGameResponseDto {
+  @Expose()
+  gameId: string;
 }

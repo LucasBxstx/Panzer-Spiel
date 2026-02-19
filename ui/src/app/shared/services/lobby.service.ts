@@ -1,7 +1,7 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { EventEmitter, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from './auth.service';
 import { io, Socket } from 'socket.io-client';
-import { CreateLobbyRequest, LobbyResponse } from '../models/lobby.model';
+import { CreateGameResponse, CreateLobbyRequest, LobbyResponse } from '../models/lobby.model';
 import { environment } from '../../../environments/environment';
 import { interval, Observable, startWith, switchMap } from 'rxjs';
 import { LobbyPreviewResponse } from '../models/lobby-preview.model';
@@ -17,6 +17,7 @@ export class LobbyService {
   private socket: Socket | null = null;
   public readonly currentLobby = signal<LobbyResponse | null>(null);
   public readonly connected = signal(false);
+  public readonly createdGameEvent = new EventEmitter<{ id: string }>();
 
   public pollOpenLobbies(): Observable<LobbyPreviewResponse[]> {
     return interval(5000).pipe(
@@ -68,6 +69,11 @@ export class LobbyService {
       console.log('Lobby updated:', lobby);
       this.currentLobby.set(lobby);
     });
+
+    this.socket.on('startGame', (response: CreateGameResponse) => {
+      console.log('Created Game', response.gameId);
+      this.createdGameEvent.emit({ id: response.gameId });
+    });
   }
 
   createLobby(dto: CreateLobbyRequest): Observable<LobbyResponse> {
@@ -91,7 +97,7 @@ export class LobbyService {
       const timeout = setTimeout(() => {
         console.error('Timeout waiting for server response');
         observer.error(new Error('Timeout: Server antwortet nicht'));
-      }, 10000);
+      }, 5000);
 
       return () => {
         clearTimeout(timeout);
@@ -120,7 +126,7 @@ export class LobbyService {
       const timeout = setTimeout(() => {
         console.error('Timeout waiting for joinLobby response');
         observer.error(new Error('Timeout: Server antwortet nicht'));
-      }, 10000);
+      }, 5000);
 
       return () => {
         clearTimeout(timeout);
@@ -146,7 +152,7 @@ export class LobbyService {
       const timeout = setTimeout(() => {
         console.error('Timeout waiting for leaveLobby response');
         observer.error(new Error('Timeout: Server antwortet nicht'));
-      }, 10000);
+      }, 5000);
 
       return () => {
         clearTimeout(timeout);

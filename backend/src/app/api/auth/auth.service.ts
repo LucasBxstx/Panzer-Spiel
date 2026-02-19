@@ -13,7 +13,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/core';
 import { LoginDto } from './webservice/dtos/login.dto';
 import { TokenResponseDto } from './webservice/dtos/token-response.dto';
-import { JwtPayload } from '../../common/interfaces/jwt-user.interface';
+import { JwtPayload } from '../../common/models/jwt-user.model';
 
 @Injectable()
 export class AuthService {

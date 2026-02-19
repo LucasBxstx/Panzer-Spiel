@@ -14,12 +14,19 @@ import { LobbyService } from '../lobby.service';
 import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 import { CreateLobbyDto, JoinLobbyDto } from './dto/lobby.dto';
 import { WsCurrentUserId } from '../../../common/decorators/ws-current-user.decorator';
-import { Player } from '../../../common/interfaces/game.interfaces';
 import { UserRepository } from '../../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../../user/user.entity';
-import { LobbyResponseDto } from './dto/lobby-response.dto';
+import {
+  CreateGameResponseDto,
+  LobbyResponseDto,
+} from './dto/lobby-response.dto';
 import { JwtService } from '@nestjs/jwt';
+import { GameService } from '../../game/game.service';
+import { extractTokenFromHandshake } from '../../../common/utils/ws.utils';
+import { LobbyPlayer } from '../../../common/models/player.model';
+import { Lobby } from '../../../common/models/lobby.model';
+import { PlayerPreviewResponseDto } from '../../../common/dtos/player-preview-response.dto';
 
 @WebSocketGateway({
   cors: true,
@@ -36,6 +43,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly lobbyService: LobbyService,
     private readonly jwtService: JwtService,
+    private readonly gameService: GameService,
 
     @Inject(UserRepository)
     private readonly userRepository: EntityRepository<User>,
@@ -43,7 +51,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     try {
-      const token = this.extractTokenFromHandshake(client);
+      const token = extractTokenFromHandshake(client);
 
       if (!token) {
         client.disconnect();
@@ -60,18 +68,6 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.logger.error('Connection error:', err.message);
       client.disconnect();
     }
-  }
-
-  private extractTokenFromHandshake(client: Socket): string | null {
-    const token = client.handshake?.auth?.token;
-    if (token) return token;
-
-    const authHeader = client.handshake?.headers?.authorization;
-    if (authHeader?.startsWith('Bearer ')) {
-      return authHeader.substring(7);
-    }
-
-    return client.handshake?.query?.token as string;
   }
 
   async handleDisconnect(client: Socket) {
@@ -92,16 +88,19 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException('Unauthorized');
     }
 
-    const player: Player = {
+    const player: LobbyPlayer = {
       userId,
       socketId: client.id,
       name: user.name,
+      isConnected: true,
     };
 
     const lobby = await this.lobbyService.createLobby(userId, dto, player);
     await client.join(lobby.id);
     this.playerLobbyMap.set(userId, lobby.id);
-    this.logger.log(`User ${userId} created a new Lobby:  ${lobby.id}`);
+    this.logger.log(
+      `User ${userId} created and joined a new Lobby:  ${lobby.id}`,
+    );
 
     return lobby;
   }
@@ -118,10 +117,11 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsException('Unauthorized');
     }
 
-    const player: Player = {
+    const player: LobbyPlayer = {
       userId,
       socketId: client.id,
       name: user.name,
+      isConnected: true,
     };
 
     try {
@@ -134,12 +134,25 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await client.join(dto.lobbyId);
       this.playerLobbyMap.set(userId, dto.lobbyId);
 
-      this.server.to(dto.lobbyId).emit('lobbyUpdated', lobby);
-      this.server.to(dto.lobbyId).emit('playerJoined', player);
+      this.server
+        .to(dto.lobbyId)
+        .emit('lobbyUpdated', LobbyResponseDto.mapFromEntity(lobby));
+      this.server
+        .to(dto.lobbyId)
+        .emit('playerJoined', PlayerPreviewResponseDto.mapFromEntity(player));
 
       this.logger.log(`User ${userId} joined lobby ${lobby.id}`);
 
-      return lobby;
+      if (lobby.players.length === lobby.gameSettings.maxPlayersCount) {
+        const gameId = this.gameService.createGame(lobby);
+        this.logger.log(
+          `The lobby is complete, a new Game was created:  ${gameId}`,
+        );
+
+        this.startGameCountdown(lobby, { gameId });
+      }
+
+      return LobbyResponseDto.mapFromEntity(lobby);
     } catch (error) {
       this.logger.log(`User ${userId} disconnected`);
       client.disconnect();
@@ -170,5 +183,31 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     return { success: true };
+  }
+
+  private startGameCountdown(
+    lobby: Lobby,
+    createGameResponse: CreateGameResponseDto,
+  ) {
+    setTimeout(() => {
+      this.server.in(lobby.id).emit('startGame', createGameResponse);
+      this.logger.log(`startGame event emitted to lobby ${lobby.id}`);
+
+      setTimeout(() => {
+        this.server
+          .in(lobby.id)
+          .fetchSockets()
+          .then((clients) => {
+            lobby.players.forEach((player) => (player.isConnected = false));
+            clients.forEach((client) => client.disconnect(true));
+            this.logger.log(
+              `All players in lobby ${lobby.id} have been disconnected`,
+            );
+          })
+          .catch((err) => {
+            this.logger.error('Error disconnecting players:', err);
+          });
+      }, 10000);
+    }, 2000);
   }
 }
