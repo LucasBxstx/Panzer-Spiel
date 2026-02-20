@@ -10,7 +10,6 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as THREE from 'three';
-import { NgOptimizedImage } from '@angular/common';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
 import { GameService } from '../shared/services/game.service';
 import { ActivatedRoute } from '@angular/router';
@@ -18,19 +17,19 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addLight } from './game.utils.ts/add-light';
 import { setupCamera } from './game.utils.ts/setup-camera';
 import { setupRenderer } from './game.utils.ts/setup-renderer';
-import { addGround } from './game.utils.ts/add-ground';
-import { createObstacleWithTexture } from './game.utils.ts/add-obstacle';
+import { createObstacleWithModel } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
 import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
-import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
-import { ChipComponent } from '../shared/components/chip/chip.component';
 import { applyInput } from './game.utils.ts/applyInput';
+import { getCliffLandscape } from './game.utils.ts/create-map-helper';
+import { ObstacleResponse } from '../shared/models/obstacle.model';
+import { addGround } from './game.utils.ts/add-ground';
 
 @Component({
   selector: 'app-game',
-  imports: [NgOptimizedImage, SpinnerComponent, ChipComponent],
+  imports: [],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -132,11 +131,20 @@ export class GameComponent implements OnInit, OnDestroy {
 
     addGround(this.scene, gameState.map);
 
-    gameState.map.obstacles.forEach((obstacle) => {
-      if (obstacle.texture) {
-        createObstacleWithTexture(this.scene, obstacle);
-      }
-    });
+    // gameState.map.obstacles.forEach((obstacle) => {
+    //   if (obstacle.texture) {
+    //     createObstacleWithTexture(this.scene, obstacle);
+    //   } else if (obstacle.modelUrl) {
+    //     createObstacleWithModel(this.scene, obstacle);
+    //   }
+    // });
+
+    // build map helper
+    const obstacles: ObstacleResponse[] = [];
+    // obstacles.push(...getDesertMesaLandscape());
+    // obstacles.push(getDesertGround());
+    obstacles.push(...getCliffLandscape());
+    obstacles.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 
   private addTanks(): void {

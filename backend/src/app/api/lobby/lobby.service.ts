@@ -9,10 +9,10 @@ import {
   LobbyResponseDto,
 } from './webservice/dto/lobby-response.dto';
 import { WsException } from '@nestjs/websockets';
-import { getBasicMap } from '../game/game.utils';
 import { GameSettings } from '../../common/models/game-settings.model';
 import { Lobby } from '../../common/models/lobby.model';
 import { LobbyPlayer } from '../../common/models/player.model';
+import { getDesertMap } from '../game/map.utils';
 
 @Injectable()
 export class LobbyService {
@@ -35,7 +35,7 @@ export class LobbyService {
     }
 
     // const map = await this.mapRepository...
-    const map = getBasicMap();
+    const map = getDesertMap();
 
     if (!map) {
       throw new WsException('Map not found');

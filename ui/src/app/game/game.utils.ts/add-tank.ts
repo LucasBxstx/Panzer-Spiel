@@ -35,7 +35,7 @@ export function addTank(scene: Scene, tank: TankResponse): Promise<TankGroup> {
         resolve({ tankId: tank.id, tankGroup, tankBody, tankTurret });
       },
       (progress) => {
-        console.log('Loading progress:', (progress.loaded / progress.total) * 100 + '%');
+        console.log('Loading progress tank model:', (progress.loaded / progress.total) * 100 + '%');
       },
       (error) => {
         reject(error);

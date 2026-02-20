@@ -1,4 +1,4 @@
-import { Position, Scale } from './vector.model';
+import { Position, Scale, Vector3D } from './vector.model';
 import { TextureResponse } from './texture.model';
 
 export interface ObstacleResponse {
@@ -7,6 +7,7 @@ export interface ObstacleResponse {
   scale: Scale;
   renderScale: Scale;
   position: Position;
+  rotation: Vector3D;
   modelUrl?: string;
   texture?: TextureResponse;
   color?: string;
