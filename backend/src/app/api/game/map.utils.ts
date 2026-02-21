@@ -1,10 +1,10 @@
 import { GameMap } from '../../common/models/game-map.model';
 import { v4 as uuidv4 } from 'uuid';
-import { Texture } from '../../common/models/texture.model';
 import { Obstacle } from '../../common/models/obstacle.model';
 import { create3DVector, Vector3D } from '../../common/models/vector.model';
 import { Position } from '../../common/models/position.model';
 import { Scale } from '../../common/models/scale.model';
+import { Texture } from '../../common/models/texture.model';
 
 export function getDesertMap(): GameMap {
   return {
@@ -55,46 +55,57 @@ export function getDesertMap(): GameMap {
         ],
       },
     ],
-    obstacles: [getDamagedWall(), ...getSandHillLandscale()],
+    obstacles: [
+      // getDamagedWall(),
+      ...getWalls(),
+      ...getSandHillLandscale(),
+    ],
   };
 }
 
-export function getBrickTexture(): Texture {
+export function getWalls(): Obstacle[] {
+  return [
+    getWall({
+      position: create3DVector(0, 0, 0),
+      scale: create3DVector(8, 15, 30),
+      rotation: create3DVector(0, 0, 0),
+    }),
+    getWall({
+      position: create3DVector(-15, 0, 0),
+      scale: create3DVector(8, 15, 30),
+      rotation: create3DVector(0, 1.5 * Math.PI, 0),
+    }),
+  ];
+}
+
+export function getWall({
+  position,
+  scale,
+  rotation,
+}: {
+  position: Position;
+  scale: Scale;
+  rotation: Vector3D;
+}): Obstacle {
+  return {
+    id: uuidv4(),
+    name: 'stone-wall',
+    texture: getStoneWallTexture(),
+    position,
+    renderScale: scale,
+    scale,
+    rotation,
+  };
+}
+
+export function getStoneWallTexture(): Texture {
   return {
     id: uuidv4(),
     name: 'Brick',
-    diffuseImageUrl: 'assets/textures/broken_brick_wall_diff_1k.jpg',
-    normalImageUrl: 'assets/textures/broken_brick_wall_nor_gl_1k.png',
-    roughnessImageUrl: 'assets/textures/broken_brick_wall_rough_1k.jpg',
-    repeat: { x: 5, y: 1 },
-  };
-}
-
-export function getWall(): Obstacle {
-  return {
-    id: '1',
-    name: 'Wall',
-    position: {
-      x: 0,
-      y: 0,
-      z: 0,
-    },
-    scale: {
-      x: 20,
-      y: 20,
-      z: 30,
-    },
-    rotation: {
-      x: 0,
-      y: 0,
-      z: 0,
-    },
-    renderScale: {
-      x: 20,
-      y: 20,
-      z: 30,
-    },
-    texture: getBrickTexture(),
+    diffuseImageUrl: 'assets/textures/old_stone_wall_diff_1k.jpg',
+    normalImageUrl: 'assets/textures/old_stone_wall_nor_gl_1k.png',
+    roughnessImageUrl: 'assets/textures/old_stone_wall_rough_1k.exr',
+    repeat: { x: 20, y: 20 },
   };
 }
 

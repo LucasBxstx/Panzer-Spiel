@@ -23,7 +23,9 @@ export function createObstacleWithTexture(scene: Scene, obstacle: ObstacleRespon
 
   const cube = new THREE.Mesh(geometry, material);
   const p = obstacle.position;
+  const r = obstacle.rotation;
   cube.position.set(p.x, p.y, p.z);
+  cube.rotation.set(r.x, r.y, r.z);
   cube.castShadow = true;
   cube.receiveShadow = true;
   scene.add(cube);
