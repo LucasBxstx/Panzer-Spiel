@@ -1,26 +1,31 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import {
   GameStateResponse,
-  GameStateResponseDto,
+  InitialGameStateResponse,
+  InitialGameStateResponseDto,
   mapGameDtoToResponse,
 } from '../models/game.model';
 import { Observable } from 'rxjs';
-import { getMyTankProps, TankProps } from '../models/tank.model';
+import {
+  getMyTankProps,
+  TankProps,
+  UpdateTankPosition,
+  UpdateTurretRotation,
+} from '../models/tank.model';
+import { updateGameState } from '../../game/game.utils.ts/update-game-state';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
-  private readonly httpClient = inject(HttpClient);
   private readonly authService = inject(AuthService);
 
   private socket: Socket | null = null;
   public readonly connected = signal(false);
-  public readonly gameState = signal<GameStateResponse | null>(null);
+  public readonly gameState = signal<InitialGameStateResponse | null>(null);
   public readonly myTankProps = signal<TankProps | null>(null);
 
   connect() {
@@ -60,19 +65,21 @@ export class GameService {
       this.connected.set(false);
     });
 
-    // this.socket.on('lobbyCreated', (lobby: LobbyResponse) => {
-    //   console.log('Lobby created:', lobby);
-    //   this.currentLobby.set(lobby);
-    // });
+    this.socket.on('stateUpdate', (newState: GameStateResponse) => {
+      const oldState = this.gameState();
+
+      if (!oldState) return;
+      updateGameState(oldState, newState);
+    });
   }
 
-  joinGame(gameId: string): Observable<GameStateResponse> {
+  public joinGame(gameId: string): Observable<InitialGameStateResponse> {
     if (!this.socket?.connected) {
       this.connect();
     }
 
-    return new Observable<GameStateResponse>((observer) => {
-      this.socket?.emit('joinGame', { gameId }, (response: GameStateResponseDto) => {
+    return new Observable<InitialGameStateResponse>((observer) => {
+      this.socket?.emit('joinGame', { gameId }, (response: InitialGameStateResponseDto) => {
         if (response && response.id) {
           console.log('Joined Game successfully:', response);
 
@@ -95,6 +102,18 @@ export class GameService {
       return () => {
         clearTimeout(timeout);
       };
+    });
+  }
+
+  public updateTankPosition(dto: UpdateTankPosition) {
+    this.socket?.emit('updateTankPosition', dto, (response: { confirmed: boolean }) => {
+      console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
+    });
+  }
+
+  public updateTurretRotation(dto: UpdateTurretRotation) {
+    this.socket?.emit('updateTurretRotation', dto, (response: { confirmed: boolean }) => {
+      console.log('Update turret rotation successful', response.confirmed);
     });
   }
 }

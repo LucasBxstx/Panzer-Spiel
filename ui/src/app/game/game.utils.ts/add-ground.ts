@@ -6,7 +6,7 @@ import { loadTexture } from './load-texture';
 export function addGround(scene: Scene, map: GameMapResponse) {
   const { diffuse, normal, roughness } = loadTexture(map.groundTexture);
 
-  const groundGeometry = new THREE.PlaneGeometry(100, 100, 64, 64);
+  const groundGeometry = new THREE.PlaneGeometry(150, 150, 64, 64);
 
   const groundMaterial = new THREE.MeshStandardMaterial({
     map: diffuse,

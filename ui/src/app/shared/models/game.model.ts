@@ -1,10 +1,10 @@
 import { GameModeOption } from './lobby.model';
 import { GameMapResponse } from './game-map.model';
 import { TeamResponse } from './team.model';
-import { TankResponse } from './tank.model';
+import { TankPositionResponse, TankResponse } from './tank.model';
 import { BulletResponse } from './bullet.model';
 
-export interface GameStateResponseDto {
+export interface InitialGameStateResponseDto {
   id: string;
   gameMode: GameModeOption;
   map: GameMapResponse;
@@ -15,7 +15,7 @@ export interface GameStateResponseDto {
   startingAt: Date;
 }
 
-export interface GameStateResponse {
+export interface InitialGameStateResponse {
   id: string;
   gameMode: GameModeOption;
   map: GameMapResponse;
@@ -26,9 +26,15 @@ export interface GameStateResponse {
   startingAt: Date;
 }
 
-export function mapGameDtoToResponse(dto: GameStateResponseDto): GameStateResponse {
+export function mapGameDtoToResponse(dto: InitialGameStateResponseDto): InitialGameStateResponse {
   return {
     ...dto,
     tanks: new Map<string, TankResponse>(Object.entries(dto.tanks)),
   };
+}
+
+export interface GameStateResponse {
+  id: string;
+  tanks: TankPositionResponse[];
+  bullets: BulletResponse[];
 }

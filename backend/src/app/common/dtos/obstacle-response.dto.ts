@@ -1,4 +1,8 @@
-import { PositionResponseDto, ScaleResponseDto } from './vector-response.dto';
+import {
+  PositionResponseDto,
+  ScaleResponseDto,
+  Vector3DResponseDto,
+} from './vector-response.dto';
 import { Expose, Type } from 'class-transformer';
 import { TextureResponseDto } from './texture-response.dto';
 import { Obstacle } from '../models/obstacle.model';
@@ -23,6 +27,10 @@ export class ObstacleResponseDto {
   position: PositionResponseDto;
 
   @Expose()
+  @Type(() => Vector3DResponseDto)
+  rotation: Vector3DResponseDto;
+
+  @Expose()
   modelUrl?: string;
 
   @Expose()
@@ -40,6 +48,7 @@ export class ObstacleResponseDto {
       position: PositionResponseDto.mapFromEntity(obstacle.position),
       scale: ScaleResponseDto.mapFromEntity(obstacle.scale),
       renderScale: ScaleResponseDto.mapFromEntity(obstacle.renderScale),
+      rotation: Vector3DResponseDto.mapFromEntity(obstacle.rotation),
       modelUrl: obstacle.modelUrl,
       texture: obstacle.texture
         ? TextureResponseDto.mapFromEntity(obstacle.texture)

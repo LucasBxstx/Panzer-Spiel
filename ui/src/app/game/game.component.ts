@@ -10,7 +10,6 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as THREE from 'three';
-import { NgOptimizedImage } from '@angular/common';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
 import { GameService } from '../shared/services/game.service';
 import { ActivatedRoute } from '@angular/router';
@@ -18,19 +17,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addLight } from './game.utils.ts/add-light';
 import { setupCamera } from './game.utils.ts/setup-camera';
 import { setupRenderer } from './game.utils.ts/setup-renderer';
-import { addGround } from './game.utils.ts/add-ground';
-import { createObstacleWithTexture } from './game.utils.ts/add-obstacle';
+import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
-import { TankGroup } from '../shared/models/tank.model';
-import { updateMyTurretRotation } from './game.utils.ts/updateMyTurretRotation';
-import { updateMyTankPosition } from './game.utils.ts/updateMyTankPosition';
+import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
+import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
-import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
-import { ChipComponent } from '../shared/components/chip/chip.component';
+import { applyInput } from './game.utils.ts/applyInput';
+import { addGround } from './game.utils.ts/add-ground';
 
 @Component({
   selector: 'app-game',
-  imports: [NgOptimizedImage, SpinnerComponent, ChipComponent],
+  imports: [],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -48,14 +45,26 @@ export class GameComponent implements OnInit, OnDestroy {
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
-
-  private tanks: TankGroup[] = [];
-  private myTank!: TankGroup;
-
-  private animationId?: number;
+  private clock = new THREE.Clock();
 
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
+
+  private lastTurretSendTime = 0;
+  private lastUpdatedTurretRotation = 0;
+  private readonly TURRET_SEND_INTERVAL = 50;
+  private lastTankSendTime = 0;
+  private readonly TANK_SEND_INTERVAL = 50;
+
+  private tanks: TankGroup[] = [];
+  private myTank?: TankGroup;
+  private animationId?: number;
+  private localPosition!: TankPosition;
+  private pendingInputs: {
+    seq: number;
+    input: InputState;
+    deltaTime: number;
+  }[] = [];
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
@@ -123,8 +132,18 @@ export class GameComponent implements OnInit, OnDestroy {
     gameState.map.obstacles.forEach((obstacle) => {
       if (obstacle.texture) {
         createObstacleWithTexture(this.scene, obstacle);
+      } else if (obstacle.modelUrl) {
+        createObstacleWithModel(this.scene, obstacle);
       }
     });
+
+    // build map helper
+    // obstacles.push(...getDesertMesaLandscape());
+    // obstacles.push(getDesertGround());
+    // const walls = getWalls();
+    // walls.forEach((w) => createObstacleWithTexture(this.scene, w));
+    // const cliffs = getCliffLandscape();
+    // cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 
   private addTanks(): void {
@@ -140,6 +159,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
         if (tankObj.tankId === gameState.myTankId) {
           this.myTank = tankObj;
+          const { x, y, z } = tankObj.tankGroup.position;
+          this.lastUpdatedTurretRotation = tankObj.tankTurret.position.y;
+          this.localPosition = {
+            position: { x, y, z },
+            rotation: tankObj.tankGroup.rotation.y,
+          };
         }
       });
     });
@@ -147,10 +172,91 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private animate(): void {
     this.animationId = requestAnimationFrame(() => this.animate());
+    const deltaTime = this.clock.getDelta();
 
-    updateMyTankPosition(this.myTank, this.gameService.myTankProps(), this.keyboardService);
-    updateMyTurretRotation(this.myTank, this.raycaster, this.mouse, this.camera);
+    this.updateMyTankPosition(deltaTime);
+    this.updateMyTurretRotation();
+    this.updateOtherTankPositions();
+
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private updateMyTurretRotation(): void {
+    if (!this.myTank) return;
+
+    const rotation = calculateMyTurretRotation(
+      this.myTank,
+      this.raycaster,
+      this.mouse,
+      this.camera,
+    );
+
+    this.myTank.tankTurret.rotation.y = rotation;
+    if (Math.abs(this.lastUpdatedTurretRotation - rotation) < 0.001) return;
+
+    const now = Date.now();
+    if (now - this.lastTurretSendTime < this.TURRET_SEND_INTERVAL) return;
+
+    this.lastUpdatedTurretRotation = rotation;
+    this.lastTurretSendTime = now;
+
+    this.gameService.updateTurretRotation({ rotation });
+  }
+
+  private updateOtherTankPositions(): void {
+    const data = this.gameService.gameState();
+
+    if (!data) return;
+
+    this.tanks.forEach((tankGroup) => {
+      const newTankState = data.tanks.get(tankGroup.tankId);
+      const isMyTank = tankGroup.tankId === this.myTank?.tankId;
+
+      if (newTankState) {
+        tankGroup.tankGroup.position.x = newTankState.position.x;
+        tankGroup.tankGroup.position.y = newTankState.position.y;
+        tankGroup.tankGroup.position.z = newTankState.position.z;
+        tankGroup.tankBody.rotation.y = newTankState.rotation;
+        if (!isMyTank) tankGroup.tankTurret.rotation.y = newTankState.turretRotation;
+      }
+    });
+  }
+
+  private updateMyTankPosition(deltaTime: number): void {
+    const input: InputState = {
+      w: this.keyboardService.isKeyPressed('KeyW'),
+      a: this.keyboardService.isKeyPressed('KeyA'),
+      s: this.keyboardService.isKeyPressed('KeyS'),
+      d: this.keyboardService.isKeyPressed('KeyD'),
+    };
+
+    const noKeyPressed = !Object.values(input).some((v) => v);
+    const myTankProps = this.gameService.myTankProps();
+    if (noKeyPressed || !myTankProps) return;
+
+    const now = Date.now();
+    if (now - this.lastTankSendTime < this.TANK_SEND_INTERVAL) return;
+    this.lastTankSendTime = now;
+
+    const seq = myTankProps.seq;
+
+    this.localPosition = applyInput(
+      this.localPosition,
+      input,
+      myTankProps.speed,
+      myTankProps.rotationSpeed,
+      deltaTime,
+    );
+
+    // If tank movement is too laggy in production, we can assign the new position directly
+    // But for now in development, the game is so smooth, that we don't need to do prediction
+    // this.myTank.tankGroup.position.x = this.localPosition.position.x;
+    // this.myTank.tankGroup.position.z = this.localPosition.position.z;
+    // this.myTank.tankGroup.rotation.y = this.localPosition.rotation;
+
+    this.pendingInputs.push({ seq, input, deltaTime });
+
+    this.gameService.updateTankPosition({ seq, input, deltaTime, timestamp: Date.now() });
   }
 
   private onWindowResize(): void {

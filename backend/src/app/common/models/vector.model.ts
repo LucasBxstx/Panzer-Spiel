@@ -6,3 +6,11 @@ export interface Vector2D {
 export interface Vector3D extends Vector2D {
   z: number;
 }
+
+export function create3DVector(x: number, y: number, z: number): Vector3D {
+  return {
+    x,
+    y,
+    z,
+  };
+}

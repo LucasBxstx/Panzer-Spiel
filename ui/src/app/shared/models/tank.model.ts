@@ -10,13 +10,16 @@ export interface TankResponse {
   speed: number;
   rotationSpeed: number;
   rotation: number;
+  turretRotation: number;
   kills: number;
   idDead: boolean;
+  seq: number;
 }
 
 export interface TankProps {
   speed: number;
   rotationSpeed: number;
+  seq: number;
 }
 
 export function getMyTankProps(
@@ -30,6 +33,7 @@ export function getMyTankProps(
   return {
     speed: myTank.speed,
     rotationSpeed: myTank.rotationSpeed,
+    seq: myTank.seq,
   };
 }
 
@@ -38,4 +42,37 @@ export interface TankGroup {
   tankGroup: THREE.Group;
   tankBody: THREE.Object3D;
   tankTurret: THREE.Object3D;
+}
+
+export interface InputState {
+  w: boolean;
+  a: boolean;
+  s: boolean;
+  d: boolean;
+}
+
+export interface TankPosition {
+  position: Position;
+  rotation: number;
+}
+
+export interface UpdateTankPosition {
+  seq: number;
+  input: InputState;
+  deltaTime: number;
+  timestamp: number;
+}
+
+export interface UpdateTurretRotation {
+  rotation: number;
+}
+
+export interface TankPositionResponse {
+  id: string;
+  position: Position;
+  rotation: number;
+  turretRotation: number;
+  seq: number;
+  kills: number;
+  isDead: boolean;
 }

@@ -9,6 +9,7 @@ export function setupRenderer(canvas: HTMLCanvasElement) {
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.shadowMap.enabled = true;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMappingExposure = 1.5;
 
   return renderer;
