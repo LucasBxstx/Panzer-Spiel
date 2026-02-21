@@ -24,6 +24,7 @@ import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRota
 import { catchError, finalize, throwError } from 'rxjs';
 import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
+import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 
 @Component({
   selector: 'app-game',
@@ -142,8 +143,8 @@ export class GameComponent implements OnInit, OnDestroy {
     // obstacles.push(getDesertGround());
     // const walls = getWalls();
     // walls.forEach((w) => createObstacleWithTexture(this.scene, w));
-    // const cliffs = getCliffLandscape();
-    // cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
+    const cliffs = getCliffLandscape();
+    cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 
   private addTanks(): void {
@@ -154,7 +155,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     gameState.tanks.forEach((tank) => {
-      addTank(this.scene, tank).then((tankObj) => {
+      addTank(this.scene, tank, true).then((tankObj) => {
         this.tanks.push(tankObj);
 
         if (tankObj.tankId === gameState.myTankId) {

@@ -7,6 +7,7 @@ export interface TankResponse {
   modelUrl: string;
   position: Position;
   renderScale: Scale;
+  scale: Scale;
   speed: number;
   rotationSpeed: number;
   rotation: number;

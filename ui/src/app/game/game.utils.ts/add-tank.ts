@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Scene } from 'three';
 import { TankGroup, TankResponse } from '../../shared/models/tank.model';
 
-export function addTank(scene: Scene, tank: TankResponse): Promise<TankGroup> {
+export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): Promise<TankGroup> {
   const loader = new GLTFLoader();
 
   return new Promise((resolve, reject) => {
@@ -30,6 +30,8 @@ export function addTank(scene: Scene, tank: TankResponse): Promise<TankGroup> {
 
         tankBody.rotation.set(0, tank.rotation, 0);
 
+        if (showHitbox) createHitboxHelper(tank, tankBody, tankGroup);
+
         scene.add(tankGroup);
 
         resolve({ tankId: tank.id, tankGroup, tankBody, tankTurret });
@@ -42,4 +44,36 @@ export function addTank(scene: Scene, tank: TankResponse): Promise<TankGroup> {
       },
     );
   });
+}
+
+function createHitboxHelper(
+  tank: TankResponse,
+  tankBody: THREE.Object3D,
+  tankGroup: THREE.Group,
+): THREE.LineSegments {
+  const s = tank.scale;
+
+  const geometry = new THREE.BoxGeometry(s.x, s.y, s.z);
+  const edges = new THREE.EdgesGeometry(geometry);
+  const material = new THREE.LineBasicMaterial({
+    color: 0xff0000,
+    depthTest: true,
+  });
+
+  const hitbox = new THREE.LineSegments(edges, material);
+  hitbox.renderOrder = 999;
+
+  // Position relativ zu tankBody (nicht Weltkoordinaten)
+  // tankBody's lokaler Ursprung → wir müssen die Mitte der tankGroup finden
+  const box = new THREE.Box3().setFromObject(tankGroup);
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+
+  // Von Weltkoordinaten in tankBody-lokale Koordinaten – OHNE worldToLocal
+  hitbox.position.set(center.x - tankGroup.position.x, s.y / 2, center.z - tankGroup.position.z);
+
+  // An tankBody hängen → erbt automatisch die Rotation
+  tankBody.add(hitbox);
+
+  return hitbox;
 }

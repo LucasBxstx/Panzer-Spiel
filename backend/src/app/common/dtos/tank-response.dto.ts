@@ -21,6 +21,10 @@ export class TankResponseDto {
   renderScale: ScaleResponseDto;
 
   @Expose()
+  @Type(() => ScaleResponseDto)
+  scale: ScaleResponseDto;
+
+  @Expose()
   speed: number;
 
   @Expose()
@@ -48,6 +52,7 @@ export class TankResponseDto {
       modelUrl: tank.modelUrl,
       position: PositionResponseDto.mapFromEntity(tank.position),
       renderScale: ScaleResponseDto.mapFromEntity(tank.renderScale),
+      scale: ScaleResponseDto.mapFromEntity(tank.scale),
       rotation: tank.rotation,
       rotationSpeed: tank.rotationSpeed,
       turretRotation: tank.turretRotation,

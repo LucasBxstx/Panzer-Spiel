@@ -108,9 +108,9 @@ function getBasicTank(): TankVariant {
     name: 'BasicTank',
     modelUrl: 'assets/models/tank-panther-split.glb',
     scale: {
-      x: 10,
+      x: 13,
       y: 10,
-      z: 10,
+      z: 20,
     },
     renderScale: {
       x: 0.4,
@@ -118,7 +118,7 @@ function getBasicTank(): TankVariant {
       z: 0.4,
     },
     maxHp: 10,
-    speed: 0.5,
+    speed: 0.4,
     maxBullets: 5,
     rotationSpeed: 0.3,
   };
