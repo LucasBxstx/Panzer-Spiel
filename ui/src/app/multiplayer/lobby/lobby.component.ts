@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, interval, switchMap, take, tap } from 'rxjs';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
+export const COUNT_DOWN_SECONDS = 3;
 @Component({
   selector: 'app-lobby',
   imports: [
@@ -54,10 +55,10 @@ export class LobbyComponent implements OnInit {
 
     this.lobbyService.createdGameEvent
       .pipe(
-        tap(() => this.isStartingIn.set(10)),
+        tap(() => this.isStartingIn.set(COUNT_DOWN_SECONDS)),
         switchMap((game) =>
           interval(1000).pipe(
-            take(10),
+            take(COUNT_DOWN_SECONDS),
             tap(() => {
               this.isStartingIn.update((v) => (v ? v - 1 : null));
             }),

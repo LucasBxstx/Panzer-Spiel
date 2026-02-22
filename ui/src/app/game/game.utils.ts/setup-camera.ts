@@ -8,7 +8,7 @@ export function setupCamera(canvas: HTMLCanvasElement) {
     1000,
   );
 
-  // camera.position.set(0, 10, 40);
+  // camera.position.set(30, 10, 50);
   camera.position.set(0, 70, 85);
   camera.lookAt(0, 0, 0);
 

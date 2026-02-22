@@ -58,7 +58,7 @@ export function getDesertMap(): GameMap {
     obstacles: [
       // getDamagedWall(),
       ...getWalls(),
-      ...getSandHillLandscale(),
+      // ...getSandHillLandscale(),
     ],
   };
 }

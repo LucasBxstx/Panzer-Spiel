@@ -2,21 +2,57 @@ import { Tank, TankMovement } from '../../common/models/tank.model';
 import { Obstacle } from '../../common/models/obstacle.model';
 import { Scale } from '../../common/models/scale.model';
 import { Position } from '../../common/models/position.model';
-import { Vector3D } from '../../common/models/vector.model';
+import { create3DVector, Vector3D } from '../../common/models/vector.model';
+
+export interface CollisionObject {
+  position: Position;
+  scale: Scale;
+  rotation: Vector3D;
+}
+
+export function getTankNewPosition(
+  tank: Tank,
+  movement?: TankMovement,
+): CollisionObject {
+  return {
+    position: structuredClone(movement ? movement.position : tank.position),
+    rotation: create3DVector(
+      0,
+      movement ? movement.rotation.y : tank.rotation,
+      0,
+    ),
+    scale: structuredClone(tank.scale),
+  };
+}
+
+export function tankCollidesTank(
+  myTankObj: Tank,
+  myTankMovement: TankMovement,
+  otherTankObjs: Tank[],
+): boolean {
+  const myTank = getTankNewPosition(myTankObj, myTankMovement);
+
+  for (const otherTankObj of otherTankObjs) {
+    const otherTank = getTankNewPosition(otherTankObj);
+    if (checkCollision(myTank, otherTank)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export function tankCollidesObstacle(
-  tank: Tank,
+  tankObj: Tank,
   tankMovement: TankMovement,
   obstacles: Obstacle[],
 ) {
-  const newTank = {
-    position: structuredClone(tankMovement.position),
-    rotation: structuredClone(tankMovement.rotation),
-    scale: structuredClone(tank.scale),
-  };
+  const tank = getTankNewPosition(tankObj, tankMovement);
 
   for (const obstacle of obstacles) {
-    if (checkCollision(obstacle, newTank)) {
+    if (checkCollision(obstacle, tank)) {
+      console.log('collision with obstacle, ', obstacle.name, obstacle);
+      console.log('colliting tank', tankObj);
       return true;
     }
   }
@@ -111,9 +147,7 @@ function isSeparated(
 }
 
 // Hauptfunktion
-export function checkCollision<
-  T extends { position: Position; scale: Scale; rotation: Vector3D },
->(a: T, b: T): boolean {
+export function checkCollision<T extends CollisionObject>(a: T, b: T): boolean {
   // Halbe Ausdehnung (Scale als volle Größe angenommen)
   const halfA: Vector3D = {
     x: a.scale.x / 2,

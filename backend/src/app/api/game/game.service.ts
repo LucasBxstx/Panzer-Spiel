@@ -21,7 +21,7 @@ import {
 } from './webservice/dto/update-tank-response.dto';
 import { Server } from 'socket.io';
 import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation.dto';
-import { tankCollidesObstacle } from './collision';
+import { tankCollidesObstacle, tankCollidesTank } from './collision';
 
 @Injectable()
 export class GameService {
@@ -145,11 +145,18 @@ export class GameService {
     }
 
     const obstacles = game.gameSettings.map.obstacles;
+    const tanks = Array.from(game.tanks.values()).filter(
+      (t) => t.id !== tank.id,
+    );
 
     const tankMovement = calculateTankMovement(tank, dto.input, dto.deltaTime);
-    const collides = tankCollidesObstacle(tank, tankMovement, obstacles);
-
-    if (true) {
+    const collidesObstacle = tankCollidesObstacle(
+      tank,
+      tankMovement,
+      obstacles,
+    );
+    const collidesTank = tankCollidesTank(tank, tankMovement, tanks);
+    if (!collidesObstacle && !collidesTank) {
       tank.position = tankMovement.position;
       tank.rotation = tankMovement.rotation.y;
     }
