@@ -63,20 +63,16 @@ function createHitboxHelper(
   const hitbox = new THREE.LineSegments(edges, material);
   hitbox.renderOrder = 999;
 
-  // Position relativ zu tankBody (nicht Weltkoordinaten)
-  // tankBody's lokaler Ursprung → wir müssen die Mitte der tankGroup finden
   const box = new THREE.Box3().setFromObject(tankGroup);
   const center = new THREE.Vector3();
   box.getCenter(center);
 
-  // Von Weltkoordinaten in tankBody-lokale Koordinaten – OHNE worldToLocal
   hitbox.position.set(
     center.x - tankGroup.position.x,
     center.y - tankGroup.position.y,
     center.z - tankGroup.position.z,
   );
 
-  // An tankBody hängen → erbt automatisch die Rotation
   tankBody.add(hitbox);
 
   return hitbox;
