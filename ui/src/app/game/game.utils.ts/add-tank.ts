@@ -70,7 +70,11 @@ function createHitboxHelper(
   box.getCenter(center);
 
   // Von Weltkoordinaten in tankBody-lokale Koordinaten – OHNE worldToLocal
-  hitbox.position.set(center.x - tankGroup.position.x, s.y / 2, center.z - tankGroup.position.z);
+  hitbox.position.set(
+    center.x - tankGroup.position.x,
+    center.y - tankGroup.position.y,
+    center.z - tankGroup.position.z,
+  );
 
   // An tankBody hängen → erbt automatisch die Rotation
   tankBody.add(hitbox);

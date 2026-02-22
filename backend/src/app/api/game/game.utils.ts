@@ -5,6 +5,7 @@ import { Tank, TankVariant } from '../../common/models/tank.model';
 import { Player } from '../../common/models/player.model';
 import { BulletVariant } from '../../common/models/bullet.model';
 import { EntryPoint, GameMap } from '../../common/models/game-map.model';
+import { Position } from '../../common/models/position.model';
 
 export function getPlayers(lobby: Lobby): Map<string, Player> {
   return new Map<string, Player>(
@@ -78,6 +79,11 @@ function createTank(
   tankVariant: TankVariant,
   entryPoint: EntryPoint,
 ): Tank {
+  const position: Position = {
+    ...entryPoint.position,
+    y: tankVariant.scale.y / 2,
+  };
+
   return {
     id: uuidv4(),
     playerName: player.name,
@@ -87,7 +93,7 @@ function createTank(
     modelUrl: tankVariant.modelUrl,
     scale: tankVariant.scale,
     renderScale: tankVariant.renderScale,
-    position: { ...entryPoint.position },
+    position,
     crossHair: { x: 0, y: 0, z: 0 },
     speed: tankVariant.speed,
     rotationSpeed: tankVariant.rotationSpeed,
@@ -106,7 +112,7 @@ function getBasicTank(): TankVariant {
   return {
     id: uuidv4(),
     name: 'BasicTank',
-    modelUrl: 'assets/models/tank-panther-split.glb',
+    modelUrl: 'assets/models/tank-panther-centered.glb',
     scale: {
       x: 13,
       y: 10,
