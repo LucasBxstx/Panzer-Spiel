@@ -155,7 +155,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     gameState.tanks.forEach((tank) => {
-      addTank(this.scene, tank, true).then((tankObj) => {
+      addTank(this.scene, tank, false).then((tankObj) => {
         this.tanks.push(tankObj);
 
         if (tankObj.tankId === gameState.myTankId) {

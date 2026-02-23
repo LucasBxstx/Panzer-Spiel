@@ -28,7 +28,7 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
         const modelTankBody = tankGroup.getObjectByName('tank')!;
         const modelTankTurret = tankGroup.getObjectByName('turret')!;
 
-        const bodyGeometry = new THREE.BoxGeometry(s.x, s.y, s.z);
+        const bodyGeometry = new THREE.BoxGeometry(s.x / rs.x, s.y / rs.y, s.z / rs.z);
         const bodyMaterial = new THREE.MeshStandardMaterial({ visible: false });
         const tankBody = new THREE.Mesh(bodyGeometry, bodyMaterial);
         tankBody.rotation.set(0, tank.rotation, 0);
@@ -43,7 +43,7 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
           const edges = new THREE.EdgesGeometry(bodyGeometry);
           const hitbox = new THREE.LineSegments(
             edges,
-            new THREE.LineBasicMaterial({ color: 0xff0000, depthTest: false }),
+            new THREE.LineBasicMaterial({ color: 0xff0000, depthTest: true }),
           );
           tankBody.add(hitbox);
         }
