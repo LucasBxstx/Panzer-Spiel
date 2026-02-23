@@ -193,15 +193,18 @@ export class GameComponent implements OnInit, OnDestroy {
     );
 
     this.myTank.tankTurret.rotation.y = rotation;
-    if (Math.abs(this.lastUpdatedTurretRotation - rotation) < 0.001) return;
+
+    const worldRotation = rotation + this.myTank.tankBody.rotation.y;
+
+    if (Math.abs(this.lastUpdatedTurretRotation - worldRotation) < 0.001) return;
 
     const now = Date.now();
     if (now - this.lastTurretSendTime < this.TURRET_SEND_INTERVAL) return;
 
-    this.lastUpdatedTurretRotation = rotation;
+    this.lastUpdatedTurretRotation = worldRotation;
     this.lastTurretSendTime = now;
 
-    this.gameService.updateTurretRotation({ rotation });
+    this.gameService.updateTurretRotation({ rotation: worldRotation });
   }
 
   private updateOtherTankPositions(): void {
@@ -218,7 +221,8 @@ export class GameComponent implements OnInit, OnDestroy {
         tankGroup.tankGroup.position.y = newTankState.position.y;
         tankGroup.tankGroup.position.z = newTankState.position.z;
         tankGroup.tankBody.rotation.y = newTankState.rotation;
-        if (!isMyTank) tankGroup.tankTurret.rotation.y = newTankState.turretRotation;
+        if (!isMyTank)
+          tankGroup.tankTurret.rotation.y = newTankState.turretRotation - newTankState.rotation;
       }
     });
   }
