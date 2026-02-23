@@ -20,6 +20,7 @@ import { InitialGameStateResponseDto } from './dto/game-state-response.dto';
 import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 import { UpdateTankPositionDto } from './dto/update-tank-position.dto';
 import {
+  FireBulletResponseDto,
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
 } from './dto/game-state.response';
@@ -120,7 +121,10 @@ export class GameGateway
 
       return this.gameService.updateTankPosition(userId, gameId, dto);
     } catch (error) {
-      this.logger.log(`User ${userId} disconnected`);
+      this.logger.log(
+        `An error occured when updating tank position for user ${userId}`,
+        error,
+      );
       if (error instanceof WsException) {
         throw error;
       }
@@ -143,8 +147,10 @@ export class GameGateway
 
       return this.gameService.updateTurretRotation(userId, gameId, dto);
     } catch (error) {
-      console.error('Error in handleUpdateTurretRotation:', error);
-      this.logger.log(`User ${userId} disconnected`);
+      this.logger.log(
+        `An error occurred when updating the turret rotation for user ${userId}`,
+        error,
+      );
       if (error instanceof WsException) {
         throw error;
       }
@@ -157,7 +163,7 @@ export class GameGateway
   handleFireBullet(
     @MessageBody() dto: FireBulletDto,
     @WsCurrentUserId() userId: string,
-  ): UpdateTankPositionResponseDto {
+  ): FireBulletResponseDto {
     try {
       const gameId = this.playerGameMap.get(userId);
 
@@ -165,9 +171,13 @@ export class GameGateway
         throw new WsException('Player is not part of any game');
       }
 
+      this.logger.log(`User ${userId} requested to fire bullet`);
       return this.gameService.fireBullet(userId, gameId, dto);
     } catch (error) {
-      this.logger.log(`User ${userId} disconnected`);
+      this.logger.log(
+        `An error occured when requesting to fire a bullet`,
+        error,
+      );
       if (error instanceof WsException) {
         throw error;
       }

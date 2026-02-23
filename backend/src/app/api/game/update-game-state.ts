@@ -10,6 +10,7 @@ import { BulletMovement } from '../../common/models/bullet.model';
 export function updateGameState(game: Game) {
   Array.from(game.bullets.values()).forEach((bullet) => {
     // update Position
+    console.log('update bullet position,', bullet.id, bullet);
     const bulletMovement: BulletMovement = {
       position: {
         x: bullet.position.x + bullet.direction.x * bullet.speed,
@@ -18,7 +19,7 @@ export function updateGameState(game: Game) {
       },
       rotation: create3DVector(0, bullet.rotation, 0),
     };
-
+    console.log('updated position', bulletMovement);
     const updatedBullet = getBulletCollisionObject(bullet, bulletMovement);
 
     let destroyBullet = false;
@@ -28,6 +29,7 @@ export function updateGameState(game: Game) {
       if (collidesObstacle) {
         destroyBullet = true;
         // ToDo: let bullet bounce
+        console.log('bullet collides with obstacle', obstacle);
         break;
       }
     }
@@ -41,6 +43,8 @@ export function updateGameState(game: Game) {
         );
         if (collidesTank) {
           destroyBullet = true;
+          console.log('bullet collides with tank', tank);
+
           break;
         }
       }
@@ -56,6 +60,8 @@ export function updateGameState(game: Game) {
           );
           if (collidesOtherBullet) {
             destroyBullet = true;
+
+            console.log('bullet collides with other bullet', otherBullet);
             break;
           }
         }
@@ -68,9 +74,12 @@ export function updateGameState(game: Game) {
     const outOfMapZ = Math.abs(updatedBullet.position.z) > mapScale.z / 2;
     if (outOfMapX || outOfMapZ) {
       destroyBullet = true;
+
+      console.log('bullet out of map');
     }
 
     if (destroyBullet) {
+      console.log('destroy bullet');
       game.bullets.delete(game.id);
       const tank = game.tanks.get(bullet.tankId);
       if (tank) {
@@ -85,6 +94,9 @@ export function updateGameState(game: Game) {
       bullet.position.x = updatedBullet.position.x;
       bullet.position.y = updatedBullet.position.y;
       bullet.position.z = updatedBullet.position.z;
+      console.log('update bullet position', bullet);
     }
+
+    console.log('bullet update completed', bullet.id);
   });
 }

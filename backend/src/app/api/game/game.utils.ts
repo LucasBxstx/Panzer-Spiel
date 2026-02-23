@@ -134,10 +134,10 @@ export function getBasicBullet(): BulletVariant {
   return {
     id: uuidv4(),
     name: 'BasicBullet',
-    speed: 10,
+    speed: 0.1,
     damage: 10,
     maxBounceCount: 0,
-    scale: { x: 2, y: 2, z: 2 },
+    scale: { x: 1, y: 1, z: 1 },
     renderScale: { x: 1, y: 1, z: 1 },
     modelUrl: 'not given yet',
   };

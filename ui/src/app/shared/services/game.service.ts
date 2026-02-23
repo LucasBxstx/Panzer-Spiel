@@ -70,7 +70,7 @@ export class GameService {
       const oldState = this.gameState();
 
       if (!oldState) return;
-      updateGameState(oldState, newState);
+      this.gameState.set(updateGameState(oldState, newState));
     });
   }
 
@@ -119,6 +119,8 @@ export class GameService {
   }
 
   public fireBullet(dto: FireBulletRequest) {
-    this.socket?.emit('fireBullet', dto, (response: { confirmed: boolean }) => {});
+    this.socket?.emit('fireBullet', dto, (response: any) => {
+      console.log('fireBullet', response);
+    });
   }
 }

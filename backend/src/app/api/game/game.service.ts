@@ -29,7 +29,7 @@ import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation
 import { tankCollidesObstacle, tankCollidesTank } from './collision';
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { Bullet } from '../../common/models/bullet.model';
-import { updateGameState } from './update-bullet-positions';
+import { updateGameState } from './update-game-state';
 
 @Injectable()
 export class GameService {
@@ -110,6 +110,7 @@ export class GameService {
     const game = this.games.get(gameId);
     if (!game || !this.server) return;
 
+    this.logger.log('---update Gamestate---');
     updateGameState(game);
 
     const stateUpdate = GameStateResponseDto.mapFromEntity(game);
@@ -226,10 +227,9 @@ export class GameService {
       throw new WsException('Tank not found');
     }
 
-    if (tank.maxBullets >= tank.bulletIds.length) {
-      throw new WsException(
-        'Cannot fire bullet. Tank has reached shooting rate',
-      );
+    if (tank.bulletIds.length >= tank.maxBullets) {
+      this.logger.log(`Tank ${tank.id} is out of shooting limit`);
+      return { success: false };
     }
 
     const basicBullet = getBasicBullet();
@@ -242,6 +242,9 @@ export class GameService {
       bounceCount: 0,
       rotation: tank.turretRotation,
     };
+
+    bullet.position.x += bullet.direction.x * 10;
+    bullet.position.z += bullet.direction.z * 10;
 
     game.bullets.set(bullet.id, bullet);
     tank.bulletIds.push(bullet.id);
