@@ -46,6 +46,7 @@ export function tankCollidesTank(
   return false;
 }
 
+// OBB collision
 export function tankCollidesObstacle(
   tankObj: Tank,
   tankMovement: TankMovement,
@@ -55,8 +56,6 @@ export function tankCollidesObstacle(
 
   for (const obstacle of obstacles) {
     if (checkCollision(obstacle, tank)) {
-      console.log('collision with obstacle, ', obstacle.name, obstacle);
-      console.log('colliting tank', tankObj);
       return true;
     }
   }
@@ -68,14 +67,12 @@ export function checkCollision<T extends CollisionObject>(a: T, b: T): boolean {
   const halfA = { x: a.scale.x / 2, z: a.scale.z / 2 };
   const halfB = { x: b.scale.x / 2, z: b.scale.z / 2 };
 
-  // Nur Y-Rotation relevant
   const angleA = a.rotation.y;
   const angleB = b.rotation.y;
 
-  // Lokale Achsen im XZ-Plane (2D)
   const axesA: [PlaneVector, PlaneVector] = [
-    { x: Math.cos(angleA), z: Math.sin(angleA) }, // vorwärts
-    { x: -Math.sin(angleA), z: Math.cos(angleA) }, // rechts
+    { x: Math.cos(angleA), z: Math.sin(angleA) },
+    { x: -Math.sin(angleA), z: Math.cos(angleA) },
   ];
   const axesB: [PlaneVector, PlaneVector] = [
     { x: Math.cos(angleB), z: Math.sin(angleB) },
@@ -99,10 +96,10 @@ export function checkCollision<T extends CollisionObject>(a: T, b: T): boolean {
       Math.abs(dot2D(axesB[0], axis)) * halfB.x +
       Math.abs(dot2D(axesB[1], axis)) * halfB.z;
 
-    if (distance > projA + projB) return false; // Lücke gefunden
+    if (distance > projA + projB) return false;
   }
 
-  return true; // Kollision
+  return true;
 }
 
 function dot2D(a: PlaneVector, b: PlaneVector): number {
