@@ -28,3 +28,8 @@ export interface BulletVariant {
   scale: Scale;
   renderScale: Scale;
 }
+
+export interface BulletMovement {
+  position: Position;
+  rotation: Vector3D;
+}

@@ -10,6 +10,7 @@ import {
 } from '../models/game.model';
 import { Observable } from 'rxjs';
 import {
+  FireBulletRequest,
   getMyTankProps,
   TankProps,
   UpdateTankPosition,
@@ -107,13 +108,17 @@ export class GameService {
 
   public updateTankPosition(dto: UpdateTankPosition) {
     this.socket?.emit('updateTankPosition', dto, (response: { confirmed: boolean }) => {
-      console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
+      // console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
     });
   }
 
   public updateTurretRotation(dto: UpdateTurretRotation) {
     this.socket?.emit('updateTurretRotation', dto, (response: { confirmed: boolean }) => {
-      console.log('Update turret rotation successful', response.confirmed);
+      // console.log('Update turret rotation successful', response.confirmed);
     });
+  }
+
+  public fireBullet(dto: FireBulletRequest) {
+    this.socket?.emit('fireBullet', dto, (response: { confirmed: boolean }) => {});
   }
 }

@@ -1,4 +1,4 @@
-import { Position, Scale } from './vector.model';
+import { Position, Scale, Vector3D } from './vector.model';
 import * as THREE from 'three';
 
 export interface TankResponse {
@@ -76,4 +76,9 @@ export interface TankPositionResponse {
   seq: number;
   kills: number;
   isDead: boolean;
+}
+
+export interface FireBulletRequest {
+  position: Position;
+  direction: Vector3D;
 }

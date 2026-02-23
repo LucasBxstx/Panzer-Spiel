@@ -7,6 +7,7 @@ import {
   PlaneVector,
   Vector3D,
 } from '../../common/models/vector.model';
+import { Bullet, BulletMovement } from '../../common/models/bullet.model';
 
 export interface CollisionObject {
   position: Position;
@@ -14,7 +15,7 @@ export interface CollisionObject {
   rotation: Vector3D;
 }
 
-export function getTankNewPosition(
+export function getTankCollisionObject(
   tank: Tank,
   movement?: TankMovement,
 ): CollisionObject {
@@ -29,15 +30,30 @@ export function getTankNewPosition(
   };
 }
 
+export function getBulletCollisionObject(
+  bullet: Bullet,
+  movement?: BulletMovement,
+): CollisionObject {
+  return {
+    position: structuredClone(movement ? movement.position : bullet.position),
+    rotation: create3DVector(
+      0,
+      movement ? movement.rotation.y : bullet.rotation,
+      0,
+    ),
+    scale: structuredClone(bullet.scale),
+  };
+}
+
 export function tankCollidesTank(
   myTankObj: Tank,
   myTankMovement: TankMovement,
   otherTankObjs: Tank[],
 ): boolean {
-  const myTank = getTankNewPosition(myTankObj, myTankMovement);
+  const myTank = getTankCollisionObject(myTankObj, myTankMovement);
 
   for (const otherTankObj of otherTankObjs) {
-    const otherTank = getTankNewPosition(otherTankObj);
+    const otherTank = getTankCollisionObject(otherTankObj);
     if (checkCollision(myTank, otherTank)) {
       return true;
     }
@@ -52,7 +68,7 @@ export function tankCollidesObstacle(
   tankMovement: TankMovement,
   obstacles: Obstacle[],
 ) {
-  const tank = getTankNewPosition(tankObj, tankMovement);
+  const tank = getTankCollisionObject(tankObj, tankMovement);
 
   for (const obstacle of obstacles) {
     if (checkCollision(obstacle, tank)) {

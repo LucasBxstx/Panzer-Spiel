@@ -130,7 +130,7 @@ function getBasicTank(): TankVariant {
   };
 }
 
-function getBasicBullet(): BulletVariant {
+export function getBasicBullet(): BulletVariant {
   return {
     id: uuidv4(),
     name: 'BasicBullet',

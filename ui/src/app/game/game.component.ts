@@ -25,6 +25,7 @@ import { catchError, finalize, throwError } from 'rxjs';
 import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
 import { getCliffLandscape } from './game.utils.ts/create-map-helper';
+import { Vector3D } from '../shared/models/vector.model';
 
 @Component({
   selector: 'app-game',
@@ -56,6 +57,8 @@ export class GameComponent implements OnInit, OnDestroy {
   private readonly TURRET_SEND_INTERVAL = 50;
   private lastTankSendTime = 0;
   private readonly TANK_SEND_INTERVAL = 50;
+  private lastShotTime = 0;
+  private SHOOT_SEND_INTERVAL = 500;
 
   private tanks: TankGroup[] = [];
   private myTank?: TankGroup;
@@ -178,6 +181,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.updateMyTankPosition(deltaTime);
     this.updateMyTurretRotation();
     this.updateOtherTankPositions();
+    this.updateFireBullets();
 
     this.renderer.render(this.scene, this.camera);
   }
@@ -262,6 +266,29 @@ export class GameComponent implements OnInit, OnDestroy {
     this.pendingInputs.push({ seq, input, deltaTime });
 
     this.gameService.updateTankPosition({ seq, input, deltaTime, timestamp: Date.now() });
+  }
+
+  private updateFireBullets(): void {
+    const isSpacePressed = this.keyboardService.isKeyPressed('Space');
+
+    if (!isSpacePressed || !this.myTank) return;
+
+    const now = Date.now();
+    if (now - this.lastShotTime < this.SHOOT_SEND_INTERVAL) return;
+    this.lastShotTime = now;
+
+    const position = this.myTank.tankGroup.position;
+    const turretRotationY = this.myTank.tankTurret.rotation.y;
+
+    const direction: Vector3D = {
+      x: Math.sin(turretRotationY),
+      y: 0,
+      z: Math.cos(turretRotationY),
+    };
+
+    console.log('fire!', position, direction);
+
+    this.gameService.fireBullet({ position, direction });
   }
 
   private onWindowResize(): void {

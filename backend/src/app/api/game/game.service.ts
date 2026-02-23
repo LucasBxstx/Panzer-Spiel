@@ -2,9 +2,13 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
-import { EntityManager, PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { v4 as uuidv4 } from 'uuid';
-import { createTanks, createTeams, getPlayers } from './game.utils';
+import {
+  createTanks,
+  createTeams,
+  getBasicBullet,
+  getPlayers,
+} from './game.utils';
 import { Game } from '../../common/models/game.model';
 import { Lobby } from '../../common/models/lobby.model';
 import { JoinGameDto } from './webservice/dto/join-game.dto';
@@ -16,12 +20,16 @@ import { WsException } from '@nestjs/websockets';
 import { UpdateTankPositionDto } from './webservice/dto/update-tank-position.dto';
 import { calculateTankMovement } from './update-tank-position.utils';
 import {
+  FireBulletResponseDto,
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
-} from './webservice/dto/update-tank-response.dto';
+} from './webservice/dto/game-state.response';
 import { Server } from 'socket.io';
 import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation.dto';
 import { tankCollidesObstacle, tankCollidesTank } from './collision';
+import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
+import { Bullet } from '../../common/models/bullet.model';
+import { updateGameState } from './update-bullet-positions';
 
 @Injectable()
 export class GameService {
@@ -34,9 +42,6 @@ export class GameService {
   constructor(
     @Inject(UserRepository)
     private readonly userRepository: EntityRepository<User>,
-
-    @Inject(EntityManager)
-    private readonly entityManager: EntityManager<PostgreSqlDriver>,
   ) {}
 
   setServer(server: Server) {
@@ -104,6 +109,8 @@ export class GameService {
   private broadcastGameState(gameId: string) {
     const game = this.games.get(gameId);
     if (!game || !this.server) return;
+
+    updateGameState(game);
 
     const stateUpdate = GameStateResponseDto.mapFromEntity(game);
 
@@ -192,6 +199,54 @@ export class GameService {
     tank.turretRotation = dto.rotation;
 
     // this.logger.log(`Turret rotation for tank ${tank.id} was updated`);
+
+    return { success: true };
+  }
+
+  fireBullet(
+    userId: string,
+    gameId: string,
+    dto: FireBulletDto,
+  ): FireBulletResponseDto {
+    const game = this.games.get(gameId);
+
+    if (!game) {
+      throw new WsException('Game not found');
+    }
+
+    const player = game.players.get(userId);
+
+    if (!player) {
+      throw new WsException('Player not found');
+    }
+
+    const tank = game.tanks.get(player.tankId);
+
+    if (!tank) {
+      throw new WsException('Tank not found');
+    }
+
+    if (tank.maxBullets >= tank.bulletIds.length) {
+      throw new WsException(
+        'Cannot fire bullet. Tank has reached shooting rate',
+      );
+    }
+
+    const basicBullet = getBasicBullet();
+
+    const bullet: Bullet = {
+      ...basicBullet,
+      tankId: tank.id,
+      position: dto.position,
+      direction: dto.direction,
+      bounceCount: 0,
+      rotation: tank.turretRotation,
+    };
+
+    game.bullets.set(bullet.id, bullet);
+    tank.bulletIds.push(bullet.id);
+
+    this.logger.log(`Tank ${tank.id} has fired a bullet ${bullet.id}`);
 
     return { success: true };
   }

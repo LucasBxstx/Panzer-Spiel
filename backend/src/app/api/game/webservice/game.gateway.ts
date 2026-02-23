@@ -9,13 +9,10 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { Inject, Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { GameService } from '../game.service';
-import { UserRepository } from '../../user/user.repository';
-import { EntityRepository } from '@mikro-orm/core';
-import { User } from '../../user/user.entity';
 import { extractTokenFromHandshake } from '../../../common/utils/ws.utils';
 import { WsCurrentUserId } from '../../../common/decorators/ws-current-user.decorator';
 import { JoinGameDto } from './dto/join-game.dto';
@@ -25,8 +22,9 @@ import { UpdateTankPositionDto } from './dto/update-tank-position.dto';
 import {
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
-} from './dto/update-tank-response.dto';
+} from './dto/game-state.response';
 import { UpdateTurretRotationDto } from './dto/update-turret-rotation.dto';
+import { FireBulletDto } from './dto/fire-bullet.dto';
 
 @WebSocketGateway({
   cors: true,
@@ -49,9 +47,6 @@ export class GameGateway
   constructor(
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
-
-    @Inject(UserRepository)
-    private readonly userRepository: EntityRepository<User>,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -149,6 +144,29 @@ export class GameGateway
       return this.gameService.updateTurretRotation(userId, gameId, dto);
     } catch (error) {
       console.error('Error in handleUpdateTurretRotation:', error);
+      this.logger.log(`User ${userId} disconnected`);
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
+    }
+  }
+
+  @SubscribeMessage('fireBullet')
+  handleFireBullet(
+    @MessageBody() dto: FireBulletDto,
+    @WsCurrentUserId() userId: string,
+  ): UpdateTankPositionResponseDto {
+    try {
+      const gameId = this.playerGameMap.get(userId);
+
+      if (!gameId) {
+        throw new WsException('Player is not part of any game');
+      }
+
+      return this.gameService.fireBullet(userId, gameId, dto);
+    } catch (error) {
       this.logger.log(`User ${userId} disconnected`);
       if (error instanceof WsException) {
         throw error;
