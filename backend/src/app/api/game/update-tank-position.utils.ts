@@ -1,17 +1,17 @@
-import { Tank } from '../../common/models/tank.model';
+import { Tank, TankMovement } from '../../common/models/tank.model';
 import { InputStateDto } from './webservice/dto/update-tank-position.dto';
-import { Vector3D } from '../../common/models/vector.model';
+import { create3DVector, Vector3D } from '../../common/models/vector.model';
 import { Position } from '../../common/models/position.model';
 
-export function updateTankPosition(
+export function calculateTankMovement(
   tank: Tank,
   input: InputStateDto,
   deltaTime: number,
-) {
+): TankMovement {
   const moveDirection: Position = { x: 0, y: 0, z: 0 };
   let targetRotation: number | null = null;
-  const position = tank.position;
-  let rotation = tank.rotation;
+  const position = structuredClone(tank.position);
+  let rotation = structuredClone(tank.rotation);
 
   if (input.w) {
     moveDirection.z -= 1;
@@ -42,12 +42,11 @@ export function updateTankPosition(
 
   if (moveDirection.x !== 0 || moveDirection.z !== 0) {
     normalizeInPlace(moveDirection);
-    tank.position.x += moveDirection.x * tank.speed * deltaTime * 60;
-    tank.position.z += moveDirection.z * tank.speed * deltaTime * 60;
+    position.z += moveDirection.z * tank.speed * deltaTime * 60;
+    position.x += moveDirection.x * tank.speed * deltaTime * 60;
   }
 
-  tank.position = position;
-  tank.rotation = rotation;
+  return { position, rotation: create3DVector(0, rotation, 0) };
 }
 
 export function isRotationNear(

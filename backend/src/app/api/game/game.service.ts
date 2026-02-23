@@ -14,13 +14,14 @@ import {
 } from './webservice/dto/game-state-response.dto';
 import { WsException } from '@nestjs/websockets';
 import { UpdateTankPositionDto } from './webservice/dto/update-tank-position.dto';
-import { updateTankPosition } from './update-tank-position.utils';
+import { calculateTankMovement } from './update-tank-position.utils';
 import {
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
 } from './webservice/dto/update-tank-response.dto';
 import { Server } from 'socket.io';
 import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation.dto';
+import { tankCollidesObstacle, tankCollidesTank } from './collision';
 
 @Injectable()
 export class GameService {
@@ -143,9 +144,24 @@ export class GameService {
       throw new WsException('Tank not found');
     }
 
-    updateTankPosition(tank, dto.input, dto.deltaTime);
+    const obstacles = game.gameSettings.map.obstacles;
+    const tanks = Array.from(game.tanks.values()).filter(
+      (t) => t.id !== tank.id,
+    );
 
-    this.logger.log(`Position for tank ${tank.id} was updated`);
+    const tankMovement = calculateTankMovement(tank, dto.input, dto.deltaTime);
+    const collidesObstacle = tankCollidesObstacle(
+      tank,
+      tankMovement,
+      obstacles,
+    );
+    const collidesTank = tankCollidesTank(tank, tankMovement, tanks);
+    if (!collidesObstacle && !collidesTank) {
+      tank.position = tankMovement.position;
+      tank.rotation = tankMovement.rotation.y;
+    }
+
+    // this.logger.log(`Position for tank ${tank.id} was updated`);
 
     return { success: true };
   }
@@ -175,7 +191,7 @@ export class GameService {
 
     tank.turretRotation = dto.rotation;
 
-    this.logger.log(`Turret rotation for tank ${tank.id} was updated`);
+    // this.logger.log(`Turret rotation for tank ${tank.id} was updated`);
 
     return { success: true };
   }

@@ -24,6 +24,7 @@ import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRota
 import { catchError, finalize, throwError } from 'rxjs';
 import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
+import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 
 @Component({
   selector: 'app-game',
@@ -142,8 +143,8 @@ export class GameComponent implements OnInit, OnDestroy {
     // obstacles.push(getDesertGround());
     // const walls = getWalls();
     // walls.forEach((w) => createObstacleWithTexture(this.scene, w));
-    // const cliffs = getCliffLandscape();
-    // cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
+    const cliffs = getCliffLandscape();
+    cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 
   private addTanks(): void {
@@ -154,7 +155,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     gameState.tanks.forEach((tank) => {
-      addTank(this.scene, tank).then((tankObj) => {
+      addTank(this.scene, tank, false).then((tankObj) => {
         this.tanks.push(tankObj);
 
         if (tankObj.tankId === gameState.myTankId) {
@@ -192,15 +193,18 @@ export class GameComponent implements OnInit, OnDestroy {
     );
 
     this.myTank.tankTurret.rotation.y = rotation;
-    if (Math.abs(this.lastUpdatedTurretRotation - rotation) < 0.001) return;
+
+    const worldRotation = rotation + this.myTank.tankBody.rotation.y;
+
+    if (Math.abs(this.lastUpdatedTurretRotation - worldRotation) < 0.001) return;
 
     const now = Date.now();
     if (now - this.lastTurretSendTime < this.TURRET_SEND_INTERVAL) return;
 
-    this.lastUpdatedTurretRotation = rotation;
+    this.lastUpdatedTurretRotation = worldRotation;
     this.lastTurretSendTime = now;
 
-    this.gameService.updateTurretRotation({ rotation });
+    this.gameService.updateTurretRotation({ rotation: worldRotation });
   }
 
   private updateOtherTankPositions(): void {
@@ -217,7 +221,8 @@ export class GameComponent implements OnInit, OnDestroy {
         tankGroup.tankGroup.position.y = newTankState.position.y;
         tankGroup.tankGroup.position.z = newTankState.position.z;
         tankGroup.tankBody.rotation.y = newTankState.rotation;
-        if (!isMyTank) tankGroup.tankTurret.rotation.y = newTankState.turretRotation;
+        if (!isMyTank)
+          tankGroup.tankTurret.rotation.y = newTankState.turretRotation - newTankState.rotation;
       }
     });
   }

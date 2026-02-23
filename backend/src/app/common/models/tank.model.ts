@@ -1,5 +1,6 @@
 import { Scale } from './scale.model';
 import { Position } from './position.model';
+import { Vector3D } from './vector.model';
 
 export interface Tank {
   id: string;
@@ -34,4 +35,9 @@ export interface TankVariant {
   maxHp: number;
   maxBullets: number;
   rotationSpeed: number;
+}
+
+export interface TankMovement {
+  position: Position;
+  rotation: Vector3D;
 }

@@ -33,9 +33,9 @@ export function getDesertMap(): GameMap {
         point: [
           {
             position: {
-              x: -40,
+              x: 0,
               y: 0,
-              z: -40,
+              z: 40,
             },
             rotation: 2 * Math.PI,
           },
@@ -58,7 +58,7 @@ export function getDesertMap(): GameMap {
     obstacles: [
       // getDamagedWall(),
       ...getWalls(),
-      ...getSandHillLandscale(),
+      // ...getSandHillLandscale(),
     ],
   };
 }
@@ -66,15 +66,15 @@ export function getDesertMap(): GameMap {
 export function getWalls(): Obstacle[] {
   return [
     getWall({
-      position: create3DVector(0, 0, 0),
-      scale: create3DVector(8, 15, 30),
+      position: create3DVector(0, 5, 0),
+      scale: create3DVector(20, 10, 20),
       rotation: create3DVector(0, 0, 0),
     }),
-    getWall({
-      position: create3DVector(-15, 0, 0),
-      scale: create3DVector(8, 15, 30),
-      rotation: create3DVector(0, 1.5 * Math.PI, 0),
-    }),
+    // getWall({
+    //   position: create3DVector(-15, 0, 0),
+    //   scale: create3DVector(8, 15, 30),
+    //   rotation: create3DVector(0, 1.5 * Math.PI, 0),
+    // }),
   ];
 }
 

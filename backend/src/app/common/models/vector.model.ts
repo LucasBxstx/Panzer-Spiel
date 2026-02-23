@@ -1,3 +1,8 @@
+export interface PlaneVector {
+  x: number;
+  z: number;
+}
+
 export interface Vector2D {
   x: number;
   y: number;
