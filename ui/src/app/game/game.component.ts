@@ -303,13 +303,23 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.bullets = this.bullets.filter((b) => {
       const stillExists = bullets.find((bullet) => bullet.id === b.id);
+
       if (!stillExists) {
         this.scene.remove(b.object);
+        const mesh = b.object as THREE.Mesh;
+        mesh.geometry?.dispose();
+
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((mat) => {
+            this.disposeMaterial(mat);
+          });
+        } else {
+          this.disposeMaterial(mesh.material);
+        }
       }
+
       return !!stillExists;
     });
-
-    console.log('bisherige bullets', this.bullets);
 
     bullets.forEach(async (bullet) => {
       const existingBullet = this.bullets.find((b) => b.id === bullet.id);
@@ -325,6 +335,18 @@ export class GameComponent implements OnInit, OnDestroy {
     });
   }
 
+  private disposeMaterial(material: THREE.Material) {
+    // Texturen im Material finden und freigeben
+    Object.keys(material).forEach((key) => {
+      const value = (material as any)[key];
+      if (value && typeof value === 'object' && 'dispose' in value) {
+        value.dispose();
+      }
+    });
+
+    material.dispose();
+  }
+
   private onWindowResize(): void {
     const canvas = this.canvasRef.nativeElement;
     this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -336,6 +358,18 @@ export class GameComponent implements OnInit, OnDestroy {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
+
+    this.scene.traverse((object: any) => {
+      if (object.isMesh) {
+        object.geometry?.dispose();
+
+        if (Array.isArray(object.material)) {
+          object.material.forEach((mat: any) => this.disposeMaterial(mat));
+        } else if (object.material) {
+          this.disposeMaterial(object.material);
+        }
+      }
+    });
 
     this.renderer.dispose();
     this.scene.clear();
