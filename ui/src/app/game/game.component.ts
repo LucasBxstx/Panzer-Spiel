@@ -26,7 +26,7 @@ import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
 import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 import { Vector3D } from '../shared/models/vector.model';
-import { BulletObject, BulletResponse } from '../shared/models/bullet.model';
+import { BulletObject } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
 import { NgOptimizedImage } from '@angular/common';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
@@ -70,6 +70,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public bullets: BulletObject[] = [];
   private animationId?: number;
   private localPosition!: TankPosition;
+  private pendingBullets = new Set<string>();
   private pendingInputs: {
     seq: number;
     input: InputState;
@@ -180,14 +181,6 @@ export class GameComponent implements OnInit, OnDestroy {
     });
   }
 
-  private addBullet(bullet: BulletResponse): void {
-    const bulletObj = createBullet(this.scene, bullet);
-    this.bullets.push({
-      id: bullet.id,
-      object: bulletObj,
-    });
-  }
-
   private animate(): void {
     this.animationId = requestAnimationFrame(() => this.animate());
     const deltaTime = this.clock.getDelta();
@@ -293,24 +286,21 @@ export class GameComponent implements OnInit, OnDestroy {
     this.lastShotTime = now;
 
     const position = this.myTank.tankGroup.position;
-    const turretRotationY = this.myTank.tankTurret.rotation.y;
+    const rotation = this.myTank.tankTurret.rotation.y;
 
     const direction: Vector3D = {
-      x: Math.sin(turretRotationY),
+      x: Math.sin(rotation),
       y: 0,
-      z: Math.cos(turretRotationY),
+      z: Math.cos(rotation),
     };
 
-    // console.log('fire!', position, direction);
-
-    this.gameService.fireBullet({ position, direction });
+    this.gameService.fireBullet({ position, direction, rotation });
   }
 
   private updateBulletPositions(): void {
     const bullets = this.gameService.gameState()?.bullets;
     if (!bullets) return;
 
-    // Entferne Bullets die nicht mehr im gameState sind
     this.bullets = this.bullets.filter((b) => {
       const stillExists = bullets.find((bullet) => bullet.id === b.id);
       if (!stillExists) {
@@ -319,14 +309,17 @@ export class GameComponent implements OnInit, OnDestroy {
       return !!stillExists;
     });
 
-    bullets.forEach((bullet) => {
+    console.log('bisherige bullets', this.bullets);
+
+    bullets.forEach(async (bullet) => {
       const existingBullet = this.bullets.find((b) => b.id === bullet.id);
       if (existingBullet) {
         existingBullet.object.position.set(bullet.position.x, bullet.position.y, bullet.position.z);
         existingBullet.object.rotation.y = bullet.rotation;
-      } else {
-        console.log('creating bullet', bullet.id, bullet.position, bullet.renderScale);
-        const newBullet = createBullet(this.scene, bullet);
+      } else if (!this.pendingBullets.has(bullet.id)) {
+        this.pendingBullets.add(bullet.id);
+        const newBullet = await createBullet(this.scene, bullet);
+        this.pendingBullets.delete(bullet.id);
         this.bullets.push({ id: bullet.id, object: newBullet });
       }
     });

@@ -80,7 +80,7 @@ export function updateGameState(game: Game) {
 
     if (destroyBullet) {
       console.log('destroy bullet');
-      game.bullets.delete(game.id);
+      game.bullets.delete(bullet.id);
       const tank = game.tanks.get(bullet.tankId);
       if (tank) {
         const index = tank.bulletIds.findIndex(

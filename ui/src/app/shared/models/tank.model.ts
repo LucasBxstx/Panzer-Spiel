@@ -81,4 +81,5 @@ export interface TankPositionResponse {
 export interface FireBulletRequest {
   position: Position;
   direction: Vector3D;
+  rotation: number;
 }

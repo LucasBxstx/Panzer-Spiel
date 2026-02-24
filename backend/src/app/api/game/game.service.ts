@@ -23,7 +23,7 @@ import {
   FireBulletResponseDto,
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
-} from './webservice/dto/game-state.response';
+} from './webservice/dto/game-response.dto';
 import { Server } from 'socket.io';
 import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation.dto';
 import { tankCollidesObstacle, tankCollidesTank } from './collision';
@@ -240,11 +240,13 @@ export class GameService {
       position: dto.position,
       direction: dto.direction,
       bounceCount: 0,
-      rotation: tank.turretRotation,
+      rotation: dto.rotation,
     };
 
-    bullet.position.x += bullet.direction.x * 10;
-    bullet.position.z += bullet.direction.z * 10;
+    const turretLength = 8;
+    bullet.position.x += bullet.direction.x * turretLength;
+    bullet.position.y = 4;
+    bullet.position.z += bullet.direction.z * turretLength;
 
     game.bullets.set(bullet.id, bullet);
     tank.bulletIds.push(bullet.id);

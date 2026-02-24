@@ -9,7 +9,7 @@ export function updateGameState(
     bullets: newState.bullets,
   };
   const tanks = update.tanks;
-  console.log('new State', newState);
+  // console.log('new State', newState);
   newState.tanks.forEach((tank) => {
     const oldTankState = tanks.get(tank.id);
 
@@ -22,6 +22,6 @@ export function updateGameState(
       oldTankState.seq = tank.seq;
     }
   });
-
+  console.log('complete gamestate', update);
   return update;
 }

@@ -20,11 +20,16 @@ export class BulletResponseDto {
   @Type(() => ScaleResponseDto)
   renderScale: ScaleResponseDto;
 
+  @Expose()
+  @Type(() => ScaleResponseDto)
+  scale: ScaleResponseDto;
+
   static mapFromEntity(bullet: Bullet): BulletResponseDto {
     return {
       id: bullet.id,
       position: PositionResponseDto.mapFromEntity(bullet.position),
       renderScale: ScaleResponseDto.mapFromEntity(bullet.renderScale),
+      scale: ScaleResponseDto.mapFromEntity(bullet.scale),
       modelUrl: bullet.modelUrl,
       rotation: bullet.rotation,
     };

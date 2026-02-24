@@ -23,7 +23,7 @@ import {
   FireBulletResponseDto,
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
-} from './dto/game-state.response';
+} from './dto/game-response.dto';
 import { UpdateTurretRotationDto } from './dto/update-turret-rotation.dto';
 import { FireBulletDto } from './dto/fire-bullet.dto';
 
