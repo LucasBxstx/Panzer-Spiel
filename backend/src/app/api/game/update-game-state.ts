@@ -1,81 +1,124 @@
 import { Game } from '../../common/models/game.model';
 import {
   checkCollision,
+  CollisionObject,
   getBulletCollisionObject,
   getTankCollisionObject,
 } from './collision';
 import { create3DVector } from '../../common/models/vector.model';
-import { BulletMovement } from '../../common/models/bullet.model';
+import { Bullet, BulletMovement } from '../../common/models/bullet.model';
+
+export function calculateNewBulletPosition(bullet: Bullet): CollisionObject {
+  const bulletMovement: BulletMovement = {
+    position: {
+      x: bullet.position.x + bullet.direction.x * bullet.speed,
+      y: bullet.position.y,
+      z: bullet.position.z + bullet.direction.z * bullet.speed,
+    },
+    rotation: create3DVector(0, bullet.rotation, 0),
+  };
+  console.log('updated position', bulletMovement);
+  return getBulletCollisionObject(bullet, bulletMovement);
+}
+
+export function checkAndHandleBulletCollisionWithObstacles(
+  game: Game,
+  updatedBullet: CollisionObject,
+): boolean {
+  for (const obstacle of game.gameSettings.map.obstacles) {
+    const collidesObstacle = checkCollision(updatedBullet, obstacle);
+    if (collidesObstacle) {
+      // ToDo: let bullet bounce
+      console.log('bullet collides with obstacle', obstacle);
+      return true;
+    }
+  }
+  return false;
+}
+
+export function checkAndHandleBulletCollisionWithTank(
+  game: Game,
+  updatedBullet: CollisionObject,
+): boolean {
+  for (const tank of Array.from(game.tanks.values())) {
+    const collidesTank = checkCollision(
+      updatedBullet,
+      getTankCollisionObject(tank),
+    );
+    if (collidesTank) {
+      console.log('bullet collides with tank', tank);
+
+      return true;
+    }
+  }
+  return false;
+}
+
+export function checkAndHandleBulletCollisionWithOtherBullets(
+  game: Game,
+  bullet: Bullet,
+  updatedBullet: CollisionObject,
+): boolean {
+  for (const otherBullet of Array.from(game.bullets.values())) {
+    if (bullet.id !== otherBullet.id) {
+      const collidesOtherBullet = checkCollision(
+        updatedBullet,
+        getBulletCollisionObject(otherBullet),
+      );
+      if (collidesOtherBullet) {
+        console.log('bullet collides with other bullet', otherBullet);
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function checkBulletOutOfMap(
+  game: Game,
+  updatedBullet: CollisionObject,
+): boolean {
+  const mapScale = game.gameSettings.map.scale;
+  const outOfMapX = Math.abs(updatedBullet.position.x) > mapScale.x / 2;
+  const outOfMapZ = Math.abs(updatedBullet.position.z) > mapScale.z / 2;
+
+  return outOfMapX || outOfMapZ;
+}
 
 export function updateGameState(game: Game) {
   Array.from(game.bullets.values()).forEach((bullet) => {
     // update Position
-    console.log('update bullet position,', bullet.id, bullet);
-    const bulletMovement: BulletMovement = {
-      position: {
-        x: bullet.position.x + bullet.direction.x * bullet.speed,
-        y: bullet.position.y,
-        z: bullet.position.z + bullet.direction.z * bullet.speed,
-      },
-      rotation: create3DVector(0, bullet.rotation, 0),
-    };
-    console.log('updated position', bulletMovement);
-    const updatedBullet = getBulletCollisionObject(bullet, bulletMovement);
+
+    const updatedBullet = calculateNewBulletPosition(bullet);
 
     let destroyBullet = false;
     // check collision with all Obstacles
-    for (const obstacle of game.gameSettings.map.obstacles) {
-      const collidesObstacle = checkCollision(updatedBullet, obstacle);
-      if (collidesObstacle) {
-        destroyBullet = true;
-        // ToDo: let bullet bounce
-        console.log('bullet collides with obstacle', obstacle);
-        break;
-      }
-    }
+    destroyBullet = checkAndHandleBulletCollisionWithObstacles(
+      game,
+      updatedBullet,
+    );
 
     // check collision with tanks
     if (!destroyBullet) {
-      for (const tank of Array.from(game.tanks.values())) {
-        const collidesTank = checkCollision(
-          updatedBullet,
-          getTankCollisionObject(tank),
-        );
-        if (collidesTank) {
-          destroyBullet = true;
-          console.log('bullet collides with tank', tank);
-
-          break;
-        }
-      }
+      destroyBullet = checkAndHandleBulletCollisionWithTank(
+        game,
+        updatedBullet,
+      );
     }
 
     // check collision with other bullets
     if (!destroyBullet) {
-      for (const otherBullet of Array.from(game.bullets.values())) {
-        if (bullet.id !== otherBullet.id) {
-          const collidesOtherBullet = checkCollision(
-            updatedBullet,
-            getBulletCollisionObject(otherBullet),
-          );
-          if (collidesOtherBullet) {
-            destroyBullet = true;
-
-            console.log('bullet collides with other bullet', otherBullet);
-            break;
-          }
-        }
-      }
+      destroyBullet = checkAndHandleBulletCollisionWithOtherBullets(
+        game,
+        bullet,
+        updatedBullet,
+      );
     }
 
     // check out of map
-    const mapScale = game.gameSettings.map.scale;
-    const outOfMapX = Math.abs(updatedBullet.position.x) > mapScale.x / 2;
-    const outOfMapZ = Math.abs(updatedBullet.position.z) > mapScale.z / 2;
-    if (outOfMapX || outOfMapZ) {
-      destroyBullet = true;
-
-      console.log('bullet out of map');
+    if (!destroyBullet) {
+      destroyBullet = checkBulletOutOfMap(game, updatedBullet);
     }
 
     if (destroyBullet) {
