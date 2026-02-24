@@ -113,7 +113,7 @@ export class GameService {
     const game = this.games.get(gameId);
     if (!game || !this.server) return;
 
-    this.logger.log('---update Gamestate---');
+    // this.logger.log('---update Gamestate---');
     updateGameState(game);
 
     const stateUpdate = GameStateResponseDto.mapFromEntity(game);

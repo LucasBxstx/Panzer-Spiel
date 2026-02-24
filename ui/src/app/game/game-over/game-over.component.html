@@ -10,25 +10,26 @@
               <div class="">
                 <div class="font-bold text-lg my-1"> Team {{ team.name }}</div>
                 @for (player of team.playerStats; track player.id) {
-                  <div class="flex justify-between my-1">
-                    <div class="flex-[20%] text-start">{{ player.name }}</div>
-                    <div class="flex gap-2 flex-[20%] justify-start align-center">
-                      <div>Kills</div>
-                      @for (kill of getKills(player.kills); track kill) {
-                        <img ngSrc="assets/icons/tank-icon.svg" width="25" height="25" alt="alive">
-                      }
+                  <app-chip class="player-chip">
+                    <div class="flex justify-between my-1">
+                      <div class="flex-[20%] text-start">{{ player.name }}</div>
 
+                      <div class="flex gap-2 flex-[20%] justify-start align-center">
+                        <div>Kills: {{ player.kills }}</div>
+                        @for (kill of getKills(player.kills); track kill) {
+                          <img ngSrc="assets/icons/tank-icon.svg" width="25" height="25" alt="alive">
+                        }
+                      </div>
 
+                      <div class="flex gap-2 flex-[20%] justify-start align-center">
+                        <div>{{ player.isDead ? 'Dead' : 'Alive' }}</div>
+                        <img ngSrc="assets/icons/tank-icon.svg" width="25" height="25" alt="alive"
+                             [class.opacity-50]="player.isDead"
+                             [class.opacity-100]="!player.isDead">
+
+                      </div>
                     </div>
-                    <div class="flex gap-2 flex-[20%] justify-start align-center">
-                      <div>{{ player.isDead ? 'Dead' : 'Alive' }}</div>
-                      <img ngSrc="assets/icons/tank-icon.svg" width="25" height="25" alt="alive"
-                           [class.opacity-50]="player.isDead"
-                           [class.opacity-100]="!player.isDead">
-
-                    </div>
-
-                  </div>
+                  </app-chip>
                 }
               </div>
             </app-chip>

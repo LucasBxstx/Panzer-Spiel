@@ -36,7 +36,8 @@ export class GameOverComponent {
   public readonly winnerTeam = computed(() => {
     const gameState = this.gameService.gameState();
     if (!gameState) return undefined;
-    return gameState.teams.find((t) => t.id === gameState.winningTeamId);
+    const winningTeamId = gameState.winningTeamId ?? this.gameService.winningTeamId();
+    return gameState.teams.find((t) => t.id === winningTeamId);
   });
 
   public readonly teamWithStats: Signal<TeamStats[] | null> = computed(() => {
