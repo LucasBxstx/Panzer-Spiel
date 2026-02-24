@@ -1,21 +1,9 @@
 <div class="game-container">
   <canvas #gameCanvas></canvas>
 </div>
-<div class="top-bar">
-  <div class="left">
 
-  </div>
-  <div class="center">
-    <img ngSrc="assets/pictures/tank-game-heading.png" alt="title" width="300"
-         height="100" priority>
-    <!--    <div class="time">-->
-    <!--      {{ '10:30' }}-->
-    <!--    </div>-->
+<app-ingame-score></app-ingame-score>
 
-  </div>
-
-  <div class="right"></div>
-</div>
 @if (showError() || showSpinner()) {
   <div class="center-container">
     @if (showError()) {
@@ -34,6 +22,12 @@
 @if (youHaveBeenKilled()) {
   <div class="center-container">
     <div class="killed">You have been killed</div>
+  </div>
+}
+
+@if (gameService.timeUntilGameStarts(); as countdown) {
+  <div class="center-container">
+    <div class="game-starts">The Game will start in {{ countdown }}</div>
   </div>
 }
 

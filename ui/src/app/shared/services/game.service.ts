@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -144,4 +144,14 @@ export class GameService {
       this.winningTeamId.set(null);
     }
   }
+
+  public readonly timeUntilGameStarts: Signal<number | null> = computed(() => {
+    const gamestate = this.gameState();
+    if (!gamestate) return null;
+
+    const gameStart = new Date(gamestate.startingAt).getTime();
+    const now = new Date().getTime();
+
+    return Math.max(0, Math.floor((gameStart - now) / 1000));
+  });
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, Signal } from '@angular/core';
+import { Component, computed, inject, OnInit, Signal } from '@angular/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { PageWrapperComponent } from '../../shared/components/page-wrapper/page-wrapper.component';
 import { Router } from '@angular/router';
@@ -24,9 +24,16 @@ export interface PlayerStats {
   templateUrl: './game-over.component.html',
   styleUrl: './game-over.component.scss',
 })
-export class GameOverComponent {
+export class GameOverComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly gameService = inject(GameService);
+
+  public ngOnInit() {
+    setTimeout(() => {
+      this.gameService.disconnect();
+      this.router.navigate(['/multiplayer']);
+    }, 25000);
+  }
 
   public leaveGame(): void {
     this.gameService.disconnect();

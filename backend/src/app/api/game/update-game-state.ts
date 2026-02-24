@@ -17,7 +17,7 @@ export function calculateNewBulletPosition(bullet: Bullet): CollisionObject {
     },
     rotation: create3DVector(0, bullet.rotation, 0),
   };
-  console.log('updated position', bulletMovement);
+
   return getBulletCollisionObject(bullet, bulletMovement);
 }
 
@@ -29,7 +29,6 @@ export function checkAndHandleBulletCollisionWithObstacles(
     const collidesObstacle = checkCollision(updatedBullet, obstacle);
     if (collidesObstacle) {
       // ToDo: let bullet bounce
-      console.log('bullet collides with obstacle', obstacle);
       return true;
     }
   }
@@ -49,7 +48,6 @@ export function checkAndHandleBulletCollisionWithTank(
       getTankCollisionObject(tank),
     );
     if (collidesTank) {
-      console.log('bullet collides with tank', tank);
       tank.hp -= bullet.damage;
       tank.isDead = tank.hp <= 0;
 
@@ -76,7 +74,6 @@ export function checkAndHandleBulletCollisionWithOtherBullets(
         getBulletCollisionObject(otherBullet),
       );
       if (collidesOtherBullet) {
-        console.log('bullet collides with other bullet', otherBullet);
         removeBullet(game, otherBullet);
         return true;
       }
@@ -139,15 +136,11 @@ export function updateGameState(game: Game) {
       bullet.position.x = updatedBullet.position.x;
       bullet.position.y = updatedBullet.position.y;
       bullet.position.z = updatedBullet.position.z;
-      console.log('update bullet position', bullet);
     }
-
-    console.log('bullet update completed', bullet.id);
   });
 }
 
 function removeBullet(game: Game, bullet: Bullet): void {
-  console.log('destroy bullet');
   game.bullets.delete(bullet.id);
   const tank = game.tanks.get(bullet.tankId);
   if (tank) {

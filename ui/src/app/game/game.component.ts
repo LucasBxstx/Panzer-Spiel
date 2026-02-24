@@ -28,13 +28,13 @@ import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 import { Vector3D } from '../shared/models/vector.model';
 import { BulletObject } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
-import { NgOptimizedImage } from '@angular/common';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { ChipComponent } from '../shared/components/chip/chip.component';
+import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 
 @Component({
   selector: 'app-game',
-  imports: [NgOptimizedImage, SpinnerComponent, ChipComponent, RouterOutlet],
+  imports: [SpinnerComponent, ChipComponent, RouterOutlet, IngameScoreComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -44,7 +44,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
 
   private readonly keyboardService = inject(KeyboardInputService);
-  private readonly gameService = inject(GameService);
+  public readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
@@ -89,6 +89,10 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.joinOrRejoinGame();
+  }
+
+  private joinOrRejoinGame(): void {
     const gameId = this.route.snapshot.paramMap.get('id');
     if (!gameId) {
       this.showError.set(true);

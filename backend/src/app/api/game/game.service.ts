@@ -59,7 +59,7 @@ export class GameService {
 
     const game: Game = {
       id: uuidv4(),
-      startingAt: new Date(Date.now() + 20 * 1000),
+      startingAt: new Date(Date.now() + 10 * 1000),
       gameSettings: lobby.gameSettings,
       players,
       teams,
@@ -113,8 +113,12 @@ export class GameService {
     const game = this.games.get(gameId);
     if (!game || !this.server) return;
 
-    // this.logger.log('---update Gamestate---');
-    updateGameState(game);
+    const gameAlreadyStarted =
+      new Date().getTime() >= game.startingAt.getTime();
+
+    if (gameAlreadyStarted) {
+      updateGameState(game);
+    }
 
     const stateUpdate = GameStateResponseDto.mapFromEntity(game);
 
@@ -132,9 +136,6 @@ export class GameService {
     const noPlayerInGame = Array.from(game.players.values()).every(
       (player) => player.isRejoining || !player.isConnected,
     );
-
-    const gameAlreadyStarted =
-      new Date().getTime() >= game.startingAt.getTime();
 
     if (gameAlreadyStarted && noPlayerInGame) {
       this.logger.log('--- No one is in the game. it should stop now ---');
@@ -161,6 +162,13 @@ export class GameService {
 
     if (!game) {
       throw new WsException('Game not found');
+    }
+
+    const gameAlreadyStarted =
+      new Date().getTime() >= game.startingAt.getTime();
+
+    if (!gameAlreadyStarted) {
+      return { success: false };
     }
 
     const player = game.players.get(userId);
@@ -236,6 +244,13 @@ export class GameService {
 
     if (!game) {
       throw new WsException('Game not found');
+    }
+
+    const gameAlreadyStarted =
+      new Date().getTime() >= game.startingAt.getTime();
+
+    if (!gameAlreadyStarted) {
+      return { success: false };
     }
 
     const player = game.players.get(userId);

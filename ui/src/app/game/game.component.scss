@@ -20,42 +20,6 @@
   }
 }
 
-.top-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  width: 100%;
-  background-color: $light-card-color;
-  color: $button-color-dark;
-  background-image: url("/assets/pictures/tank-game-bg.png");
-  background-size: cover;
-  background-position: center center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-
-  .left, .right {
-    flex: 30%;
-  }
-
-  .center {
-    flex: 40%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    .time {
-      width: 200px;
-      height: 50px;
-      background-color: $button-color-dark-hover;
-      font-size: 25px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  }
-}
 
 .center-container {
   position: absolute;
@@ -70,21 +34,22 @@
   font-weight: bold;
   font-size: 35px;
   justify-content: center;
-  animation: fade-in-out 6s ease-in-out forwards;
+  animation: fade-in-out 6s ease-in-out;
   color: $red;
 
-  @keyframes fade-in-out {
-    0% {
-      opacity: 0;
-    }
-    20% {
-      opacity: 1;
-    }
-    80% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
+  @include fade-in-out();
+
+}
+
+.game-starts {
+  display: flex;
+  width: 100%;
+  font-weight: bold;
+  font-size: 35px;
+  justify-content: center;
+  animation: fade-in-out 6s ease-in-out;
+  color: $selection-color;
+
+  @include fade-in-out();
+
 }
