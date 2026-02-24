@@ -19,6 +19,7 @@ import {
 } from '../models/tank.model';
 import { updateGameState } from '../../game/game.utils.ts/update-game-state';
 import { Router } from '@angular/router';
+import { PlayerStats, TeamStats } from '../models/team.model';
 
 @Injectable({
   providedIn: 'root',
@@ -118,13 +119,13 @@ export class GameService {
   }
 
   public updateTankPosition(dto: UpdateTankPosition) {
-    this.socket?.emit('updateTankPosition', dto, (response: { confirmed: boolean }) => {
+    this.socket?.emit('updateTankPosition', dto, () => {
       // console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
     });
   }
 
   public updateTurretRotation(dto: UpdateTurretRotation) {
-    this.socket?.emit('updateTurretRotation', dto, (response: { confirmed: boolean }) => {
+    this.socket?.emit('updateTurretRotation', dto, () => {
       // console.log('Update turret rotation successful', response.confirmed);
     });
   }
@@ -153,5 +154,42 @@ export class GameService {
     const now = new Date().getTime();
 
     return Math.max(0, Math.floor((gameStart - now) / 1000));
+  });
+
+  public readonly timeSinceGameStarted: Signal<number | null> = computed(() => {
+    const gamestate = this.gameState();
+    if (!gamestate) return null;
+
+    const gameStart = new Date(gamestate.startingAt).getTime();
+    const now = new Date().getTime();
+
+    return Math.max(0, Math.floor((now - gameStart) / 1000));
+  });
+
+  public readonly teamsWithStats: Signal<TeamStats[] | null> = computed(() => {
+    const gamestate = this.gameState();
+
+    if (!gamestate) {
+      return null;
+    }
+
+    return gamestate.teams.map((team) => {
+      const playerStats = team.players.map((player) => {
+        const playerTank = gamestate.tanks.get(player.tankId);
+        return {
+          id: player.userId,
+          name: player.name,
+          isDead: playerTank?.idDead ?? true,
+          kills: playerTank?.kills ?? 0,
+        } as PlayerStats;
+      });
+
+      console.log('playerStats', playerStats, gamestate);
+      return {
+        id: team.id,
+        name: team.name,
+        playerStats,
+      } as TeamStats;
+    });
   });
 }

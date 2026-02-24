@@ -12,7 +12,7 @@ import {
 import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
 import { GameService } from '../shared/services/game.service';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addLight } from './game.utils.ts/add-light';
 import { setupCamera } from './game.utils.ts/setup-camera';
@@ -46,6 +46,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private readonly keyboardService = inject(KeyboardInputService);
   public readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
 
@@ -96,6 +97,9 @@ export class GameComponent implements OnInit, OnDestroy {
     const gameId = this.route.snapshot.paramMap.get('id');
     if (!gameId) {
       this.showError.set(true);
+      setTimeout(() => {
+        this.router.navigate(['/multiplayer']);
+      }, 2000);
       return;
     }
 
@@ -105,6 +109,9 @@ export class GameComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           this.showError.set(true);
+          setTimeout(() => {
+            this.router.navigate(['/multiplayer']);
+          }, 2000);
           return throwError(() => error);
         }),
         finalize(() => {
