@@ -1,8 +1,11 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { GameService } from '../../shared/services/game.service';
 import { TeamScoreComponent } from './team-score/team-score.component';
 import { TeamStats } from '../../shared/models/team.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-ingame-score',
@@ -12,6 +15,8 @@ import { TeamStats } from '../../shared/models/team.model';
 })
 export class IngameScoreComponent {
   public readonly gameService = inject(GameService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   public readonly teamScoreLeft = signal<TeamStats[]>([]);
   public readonly teamScoreRight = signal<TeamStats[]>([]);
@@ -34,5 +39,15 @@ export class IngameScoreComponent {
         nextLeft = !nextLeft;
       }
     });
+  }
+
+  public leaveGame(): void {
+    this.gameService
+      .leaveGame()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.router.navigate(['/multiplayer'])),
+      )
+      .subscribe(() => {});
   }
 }

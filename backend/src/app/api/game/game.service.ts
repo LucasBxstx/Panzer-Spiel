@@ -22,6 +22,7 @@ import { calculateTankMovement } from './update-tank-position.utils';
 import {
   FireBulletResponseDto,
   GameOverResponseDto,
+  LeaveGameResponseDto,
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
 } from './webservice/dto/game-response.dto';
@@ -116,14 +117,16 @@ export class GameService {
     const gameAlreadyStarted =
       new Date().getTime() >= game.startingAt.getTime();
 
-    if (gameAlreadyStarted) {
-      updateGameState(game);
-    }
+    updateGameState(game);
 
     const stateUpdate = GameStateResponseDto.mapFromEntity(game);
 
     this.server.to(gameId).emit('stateUpdate', stateUpdate);
     // this.logger.log(`Gamestate was broadcasted for game ${gameId}`);
+
+    if (!gameAlreadyStarted) {
+      return;
+    }
 
     if (!game.winningTeamId && isGameOver(game)) {
       const gameOverDto: GameOverResponseDto = {
@@ -290,6 +293,27 @@ export class GameService {
     tank.bulletIds.push(bullet.id);
 
     this.logger.log(`Tank ${tank.id} has fired a bullet ${bullet.id}`);
+
+    return { success: true };
+  }
+
+  leaveGame(gameId: string, userId: string): LeaveGameResponseDto {
+    const game = this.games.get(gameId);
+
+    if (!game) {
+      throw new WsException('Game not found');
+    }
+
+    const player = game.players.get(userId);
+
+    if (!player) {
+      throw new WsException('Player not found');
+    }
+
+    player.isConnected = false;
+    player.isRejoining = true;
+
+    this.logger.log(`User ${userId} left the game`);
 
     return { success: true };
   }

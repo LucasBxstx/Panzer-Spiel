@@ -118,6 +118,26 @@ export class GameService {
     });
   }
 
+  public leaveGame(): Observable<{ success: boolean }> {
+    return new Observable<{ success: boolean }>((observer) => {
+      const timeout = setTimeout(() => {
+        console.error('Timeout waiting for leaveGame response');
+        observer.error(new Error('Timeout: Server antwortet nicht'));
+      }, 5000);
+
+      this.socket?.emit('leaveGame', {}, (response: { success: boolean }) => {
+        clearTimeout(timeout); // Timeout stoppen
+        observer.next(response); // Antwort weitergeben
+        observer.complete(); // Observable beenden
+        this.disconnect(); // Danach disconnect
+      });
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    });
+  }
+
   public updateTankPosition(dto: UpdateTankPosition) {
     this.socket?.emit('updateTankPosition', dto, () => {
       // console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
@@ -184,7 +204,6 @@ export class GameService {
         } as PlayerStats;
       });
 
-      console.log('playerStats', playerStats, gamestate);
       return {
         id: team.id,
         name: team.name,

@@ -6,8 +6,15 @@ export function isGameOver(game: Game): boolean {
     const isAtLeastOneAlive = team.tankIds.some((tankId) => {
       const tank = game.tanks.get(tankId);
 
-      return tank ? !tank.isDead : false;
+      if (!tank) return false;
+      const player = game.players.get(tank.userId);
+      if (!player) return false;
+      const isTankAlive = !tank.isDead;
+      const isPlayerInGame = player.isConnected;
+
+      return isTankAlive && isPlayerInGame;
     });
+
     isTeamAlive.set(team.id, isAtLeastOneAlive);
   });
 

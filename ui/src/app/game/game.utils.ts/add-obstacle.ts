@@ -36,7 +36,6 @@ export function createObstacleWithModel(
   obstacle: ObstacleResponse,
 ): Promise<THREE.Object3D> | undefined {
   if (!obstacle.modelUrl) return;
-  console.log(obstacle);
 
   const loader = new GLTFLoader();
 
@@ -51,7 +50,6 @@ export function createObstacleWithModel(
           if (child instanceof THREE.Mesh) {
             child.castShadow = true;
             child.receiveShadow = true;
-            console.log('mesh found:', child.name, 'material:', child.material); // material ok?
           }
         });
 

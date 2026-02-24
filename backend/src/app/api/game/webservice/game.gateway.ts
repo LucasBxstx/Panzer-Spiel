@@ -21,6 +21,7 @@ import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 import { UpdateTankPositionDto } from './dto/update-tank-position.dto';
 import {
   FireBulletResponseDto,
+  LeaveGameResponseDto,
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
 } from './dto/game-response.dto';
@@ -194,6 +195,31 @@ export class GameGateway
         error,
       );
       if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
+    }
+  }
+
+  @SubscribeMessage('leaveGame')
+  handleLeaveGame(@WsCurrentUserId() userId: string): LeaveGameResponseDto {
+    try {
+      const gameId = this.playerGameMap.get(userId);
+
+      if (!gameId) {
+        throw new WsException('Player is not part of any game');
+      }
+
+      const { success } = this.gameService.leaveGame(gameId, userId);
+      if (success) {
+        this.playerGameMap.delete(userId);
+      }
+
+      return { success };
+    } catch (error) {
+      if (error instanceof WsException) {
+        console.log(error);
         throw error;
       }
 
