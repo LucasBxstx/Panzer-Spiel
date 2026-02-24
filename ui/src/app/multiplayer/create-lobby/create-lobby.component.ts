@@ -32,6 +32,7 @@ export class CreateLobbyComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
+  public isAlreadyCreatingLobby = false;
   public readonly selectedMapId = signal<string>('1');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
   public readonly availableMaps = signal<MapPreviewResponse[]>([
@@ -85,6 +86,7 @@ export class CreateLobbyComponent {
       return;
     }
 
+    this.isAlreadyCreatingLobby = true;
     const { numberOfTeams, teamSize } = this.formGroup.getRawValue();
 
     const request: CreateLobbyRequest = {
