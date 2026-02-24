@@ -227,7 +227,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           .catch((err) => {
             this.logger.error('Error disconnecting players:', err);
           });
-      }, 10000);
+      }, 3000);
     }, 2000);
   }
 }

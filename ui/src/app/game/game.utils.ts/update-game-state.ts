@@ -1,7 +1,15 @@
 import { GameStateResponse, InitialGameStateResponse } from '../../shared/models/game.model';
 
-export function updateGameState(oldState: InitialGameStateResponse, newState: GameStateResponse) {
-  const tanks = oldState.tanks;
+export function updateGameState(
+  oldState: InitialGameStateResponse,
+  newState: GameStateResponse,
+): InitialGameStateResponse {
+  const update: InitialGameStateResponse = {
+    ...oldState,
+    bullets: newState.bullets,
+  };
+  const tanks = update.tanks;
+  // console.log('new State', newState);
   newState.tanks.forEach((tank) => {
     const oldTankState = tanks.get(tank.id);
 
@@ -14,4 +22,6 @@ export function updateGameState(oldState: InitialGameStateResponse, newState: Ga
       oldTankState.seq = tank.seq;
     }
   });
+  console.log('complete gamestate', update);
+  return update;
 }

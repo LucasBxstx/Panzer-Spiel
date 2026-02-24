@@ -1,33 +1,40 @@
 <div class="game-container">
   <canvas #gameCanvas></canvas>
 </div>
-<!--<div class="top-bar">-->
-<!--  <div class="left">-->
+<div class="top-bar">
+  <div class="left">
 
-<!--  </div>-->
-<!--  <div class="center">-->
-<!--    <img ngSrc="assets/pictures/tank-game-heading.png" alt="title" width="300"-->
-<!--         height="100" priority>-->
-<!--    &lt;!&ndash;    <div class="time">&ndash;&gt;-->
-<!--    &lt;!&ndash;      {{ '10:30' }}&ndash;&gt;-->
-<!--    &lt;!&ndash;    </div>&ndash;&gt;-->
+  </div>
+  <div class="center">
+    <img ngSrc="assets/pictures/tank-game-heading.png" alt="title" width="300"
+         height="100" priority>
+    <!--    <div class="time">-->
+    <!--      {{ '10:30' }}-->
+    <!--    </div>-->
 
-<!--  </div>-->
+  </div>
 
-<!--  <div class="right"></div>-->
-<!--</div>-->
-<!--@if (showError() || showSpinner()) {-->
-<!--  <div class="center-container">-->
-<!--    @if (showError()) {-->
-<!--      <div class="w-full flex justify-center text-red-500">-->
-<!--        <app-chip class="w-[500px] text-center">Error Occurred. Please reload</app-chip>-->
-<!--      </div>-->
-<!--    }-->
-<!--    @if (showSpinner()) {-->
-<!--      <div class="w-full flex justify-center align-center">-->
-<!--        <app-spinner></app-spinner>-->
-<!--      </div>-->
-<!--    }-->
-<!--  </div>-->
+  <div class="right"></div>
+</div>
+@if (showError() || showSpinner()) {
+  <div class="center-container">
+    @if (showError()) {
+      <div class="w-full flex justify-center text-red-500">
+        <app-chip class="w-[500px] text-center">Error Occurred. Please reload</app-chip>
+      </div>
+    }
+    @if (showSpinner()) {
+      <div class="w-full flex justify-center align-center">
+        <app-spinner></app-spinner>
+      </div>
+    }
+  </div>
+}
 
-<!--}-->
+@if (youHaveBeenKilled()) {
+  <div class="center-container">
+    <div class="killed">You have been killed</div>
+  </div>
+}
+
+<router-outlet></router-outlet>

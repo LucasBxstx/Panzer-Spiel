@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import {
+  GameOverResponse,
   GameStateResponse,
   InitialGameStateResponse,
   InitialGameStateResponseDto,
@@ -10,23 +11,27 @@ import {
 } from '../models/game.model';
 import { Observable } from 'rxjs';
 import {
+  FireBulletRequest,
   getMyTankProps,
   TankProps,
   UpdateTankPosition,
   UpdateTurretRotation,
 } from '../models/tank.model';
 import { updateGameState } from '../../game/game.utils.ts/update-game-state';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   private socket: Socket | null = null;
   public readonly connected = signal(false);
   public readonly gameState = signal<InitialGameStateResponse | null>(null);
   public readonly myTankProps = signal<TankProps | null>(null);
+  public readonly winningTeamId = signal<string | null>(null);
 
   connect() {
     const token = this.authService.getToken();
@@ -69,7 +74,14 @@ export class GameService {
       const oldState = this.gameState();
 
       if (!oldState) return;
-      updateGameState(oldState, newState);
+      this.gameState.set(updateGameState(oldState, newState));
+    });
+
+    this.socket.on('gameOver', (response: GameOverResponse) => {
+      this.winningTeamId.set(response.winningTeamId);
+      const gameId = this.gameState()?.id;
+
+      this.router.navigate(['/game', gameId, 'gameover']);
     });
   }
 
@@ -107,13 +119,29 @@ export class GameService {
 
   public updateTankPosition(dto: UpdateTankPosition) {
     this.socket?.emit('updateTankPosition', dto, (response: { confirmed: boolean }) => {
-      console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
+      // console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
     });
   }
 
   public updateTurretRotation(dto: UpdateTurretRotation) {
     this.socket?.emit('updateTurretRotation', dto, (response: { confirmed: boolean }) => {
-      console.log('Update turret rotation successful', response.confirmed);
+      // console.log('Update turret rotation successful', response.confirmed);
     });
+  }
+
+  public fireBullet(dto: FireBulletRequest) {
+    this.socket?.emit('fireBullet', dto, (response: any) => {
+      console.log('fireBullet', response);
+    });
+  }
+
+  public disconnect(): void {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+      this.connected.set(false);
+      this.gameState.set(null);
+      this.winningTeamId.set(null);
+    }
   }
 }

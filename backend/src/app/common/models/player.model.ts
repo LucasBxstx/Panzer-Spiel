@@ -8,4 +8,5 @@ export interface LobbyPlayer {
 export interface Player extends LobbyPlayer {
   teamId: string;
   tankId: string;
+  isRejoining: boolean;
 }

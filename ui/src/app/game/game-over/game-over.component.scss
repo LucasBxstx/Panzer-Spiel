@@ -1,0 +1,25 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+
+:host {
+  @include page-centered;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+@include page-sizing;
+
+app-card {
+  backdrop-filter: blur(2px);
+}
+
+.player-chip {
+  background-color: rgba(0, 0, 0, 0.18);
+  border: 1px solid $button-color-dark;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}

@@ -9,13 +9,10 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { Inject, Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { GameService } from '../game.service';
-import { UserRepository } from '../../user/user.repository';
-import { EntityRepository } from '@mikro-orm/core';
-import { User } from '../../user/user.entity';
 import { extractTokenFromHandshake } from '../../../common/utils/ws.utils';
 import { WsCurrentUserId } from '../../../common/decorators/ws-current-user.decorator';
 import { JoinGameDto } from './dto/join-game.dto';
@@ -23,10 +20,12 @@ import { InitialGameStateResponseDto } from './dto/game-state-response.dto';
 import { WsJwtGuard } from '../../../common/guards/ws-jwt-auth.guard';
 import { UpdateTankPositionDto } from './dto/update-tank-position.dto';
 import {
+  FireBulletResponseDto,
   UpdateTankPositionResponseDto,
   UpdateTurretRotationResponseDto,
-} from './dto/update-tank-response.dto';
+} from './dto/game-response.dto';
 import { UpdateTurretRotationDto } from './dto/update-turret-rotation.dto';
+import { FireBulletDto } from './dto/fire-bullet.dto';
 
 @WebSocketGateway({
   cors: true,
@@ -49,9 +48,6 @@ export class GameGateway
   constructor(
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
-
-    @Inject(UserRepository)
-    private readonly userRepository: EntityRepository<User>,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -78,8 +74,23 @@ export class GameGateway
   handleDisconnect(client: Socket) {
     const userId = client.data.userId;
     this.logger.log(`User ${userId} disconnected`);
-    // start timeout for user to reconnect
-    // if user does not reconnect in the next 10 seconds, the user is kicked
+
+    const gameId = this.playerGameMap.get(userId);
+
+    if (!gameId) {
+      return;
+    }
+
+    try {
+      const { playerLeftGame } = this.gameService.handleDisconnect(
+        gameId,
+        userId,
+      );
+
+      if (playerLeftGame) this.playerGameMap.delete(userId);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   @SubscribeMessage('joinGame')
@@ -125,7 +136,10 @@ export class GameGateway
 
       return this.gameService.updateTankPosition(userId, gameId, dto);
     } catch (error) {
-      this.logger.log(`User ${userId} disconnected`);
+      this.logger.log(
+        `An error occured when updating tank position for user ${userId}`,
+        error,
+      );
       if (error instanceof WsException) {
         throw error;
       }
@@ -148,8 +162,37 @@ export class GameGateway
 
       return this.gameService.updateTurretRotation(userId, gameId, dto);
     } catch (error) {
-      console.error('Error in handleUpdateTurretRotation:', error);
-      this.logger.log(`User ${userId} disconnected`);
+      this.logger.log(
+        `An error occurred when updating the turret rotation for user ${userId}`,
+        error,
+      );
+      if (error instanceof WsException) {
+        throw error;
+      }
+
+      throw new WsException('Internal server error');
+    }
+  }
+
+  @SubscribeMessage('fireBullet')
+  handleFireBullet(
+    @MessageBody() dto: FireBulletDto,
+    @WsCurrentUserId() userId: string,
+  ): FireBulletResponseDto {
+    try {
+      const gameId = this.playerGameMap.get(userId);
+
+      if (!gameId) {
+        throw new WsException('Player is not part of any game');
+      }
+
+      this.logger.log(`User ${userId} requested to fire bullet`);
+      return this.gameService.fireBullet(userId, gameId, dto);
+    } catch (error) {
+      this.logger.log(
+        `An error occured when requesting to fire a bullet`,
+        error,
+      );
       if (error instanceof WsException) {
         throw error;
       }
