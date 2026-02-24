@@ -5,3 +5,15 @@ export interface TeamResponse {
   name: string;
   players: PlayerResponse[];
 }
+
+export interface TeamStats {
+  id: string;
+  name: string;
+  playerStats: PlayerStats[];
+}
+export interface PlayerStats {
+  id: string;
+  name: string;
+  kills: number;
+  isDead: boolean;
+}

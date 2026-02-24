@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -19,6 +19,7 @@ import {
 } from '../models/tank.model';
 import { updateGameState } from '../../game/game.utils.ts/update-game-state';
 import { Router } from '@angular/router';
+import { PlayerStats, TeamStats } from '../models/team.model';
 
 @Injectable({
   providedIn: 'root',
@@ -117,14 +118,34 @@ export class GameService {
     });
   }
 
+  public leaveGame(): Observable<{ success: boolean }> {
+    return new Observable<{ success: boolean }>((observer) => {
+      const timeout = setTimeout(() => {
+        console.error('Timeout waiting for leaveGame response');
+        observer.error(new Error('Timeout: Server antwortet nicht'));
+      }, 5000);
+
+      this.socket?.emit('leaveGame', {}, (response: { success: boolean }) => {
+        clearTimeout(timeout); // Timeout stoppen
+        observer.next(response); // Antwort weitergeben
+        observer.complete(); // Observable beenden
+        this.disconnect(); // Danach disconnect
+      });
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    });
+  }
+
   public updateTankPosition(dto: UpdateTankPosition) {
-    this.socket?.emit('updateTankPosition', dto, (response: { confirmed: boolean }) => {
+    this.socket?.emit('updateTankPosition', dto, () => {
       // console.log('Update ' + dto.seq + 'tank position successful', response.confirmed);
     });
   }
 
   public updateTurretRotation(dto: UpdateTurretRotation) {
-    this.socket?.emit('updateTurretRotation', dto, (response: { confirmed: boolean }) => {
+    this.socket?.emit('updateTurretRotation', dto, () => {
       // console.log('Update turret rotation successful', response.confirmed);
     });
   }
@@ -144,4 +165,50 @@ export class GameService {
       this.winningTeamId.set(null);
     }
   }
+
+  public readonly timeUntilGameStarts: Signal<number | null> = computed(() => {
+    const gamestate = this.gameState();
+    if (!gamestate) return null;
+
+    const gameStart = new Date(gamestate.startingAt).getTime();
+    const now = new Date().getTime();
+
+    return Math.max(0, Math.floor((gameStart - now) / 1000));
+  });
+
+  public readonly timeSinceGameStarted: Signal<number | null> = computed(() => {
+    const gamestate = this.gameState();
+    if (!gamestate) return null;
+
+    const gameStart = new Date(gamestate.startingAt).getTime();
+    const now = new Date().getTime();
+
+    return Math.max(0, Math.floor((now - gameStart) / 1000));
+  });
+
+  public readonly teamsWithStats: Signal<TeamStats[] | null> = computed(() => {
+    const gamestate = this.gameState();
+
+    if (!gamestate) {
+      return null;
+    }
+
+    return gamestate.teams.map((team) => {
+      const playerStats = team.players.map((player) => {
+        const playerTank = gamestate.tanks.get(player.tankId);
+        return {
+          id: player.userId,
+          name: player.name,
+          isDead: playerTank?.idDead ?? true,
+          kills: playerTank?.kills ?? 0,
+        } as PlayerStats;
+      });
+
+      return {
+        id: team.id,
+        name: team.name,
+        playerStats,
+      } as TeamStats;
+    });
+  });
 }

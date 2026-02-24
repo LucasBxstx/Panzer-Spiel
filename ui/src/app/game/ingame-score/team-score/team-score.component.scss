@@ -1,0 +1,23 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: $light-card-color;
+  border: 1px solid $button-color-dark;
+  padding: 10px 30px;
+  border-radius: 3px;
+}
+
+.chip {
+  background-color: $light-card-color;
+  border-radius: 4px;
+  border: 1px solid $button-color-dark;
+
+  &.selected {
+    border: 2px solid $selection-color;
+  }
+}

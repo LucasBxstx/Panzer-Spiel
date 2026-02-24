@@ -44,7 +44,9 @@
 
         <div class="mt-10 flex justify-center">
 
-          <button class="w-[80%]" (click)="createLobby()" [disabled]="formGroup.invalid">Create Lobby</button>
+          <button class="w-[80%]" (click)="createLobby()" [disabled]="formGroup.invalid || isAlreadyCreatingLobby">
+            Create Lobby
+          </button>
         </div>
 
       </div>

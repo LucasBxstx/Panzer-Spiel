@@ -22,6 +22,6 @@ export function updateGameState(
       oldTankState.seq = tank.seq;
     }
   });
-  console.log('complete gamestate', update);
+
   return update;
 }

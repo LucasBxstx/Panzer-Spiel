@@ -12,7 +12,7 @@ import {
 import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
 import { GameService } from '../shared/services/game.service';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addLight } from './game.utils.ts/add-light';
 import { setupCamera } from './game.utils.ts/setup-camera';
@@ -28,13 +28,13 @@ import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 import { Vector3D } from '../shared/models/vector.model';
 import { BulletObject } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
-import { NgOptimizedImage } from '@angular/common';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { ChipComponent } from '../shared/components/chip/chip.component';
+import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 
 @Component({
   selector: 'app-game',
-  imports: [NgOptimizedImage, SpinnerComponent, ChipComponent, RouterOutlet],
+  imports: [SpinnerComponent, ChipComponent, RouterOutlet, IngameScoreComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -44,8 +44,9 @@ export class GameComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
 
   private readonly keyboardService = inject(KeyboardInputService);
-  private readonly gameService = inject(GameService);
+  public readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
 
@@ -89,9 +90,16 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.joinOrRejoinGame();
+  }
+
+  private joinOrRejoinGame(): void {
     const gameId = this.route.snapshot.paramMap.get('id');
     if (!gameId) {
       this.showError.set(true);
+      setTimeout(() => {
+        this.router.navigate(['/multiplayer']);
+      }, 2000);
       return;
     }
 
@@ -101,6 +109,9 @@ export class GameComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           this.showError.set(true);
+          setTimeout(() => {
+            this.router.navigate(['/multiplayer']);
+          }, 2000);
           return throwError(() => error);
         }),
         finalize(() => {

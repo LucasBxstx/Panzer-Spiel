@@ -1,5 +1,5 @@
 export interface PlayerResponse {
-  id: string;
+  userId: string;
   name: string;
   tankId: string;
 }
