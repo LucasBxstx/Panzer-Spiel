@@ -13,6 +13,7 @@ export interface InitialGameStateResponseDto {
   bullets: BulletResponse[];
   myTankId: string;
   startingAt: Date;
+  winningTeamId?: string;
 }
 
 export interface InitialGameStateResponse {
@@ -24,6 +25,7 @@ export interface InitialGameStateResponse {
   bullets: BulletResponse[];
   myTankId: string;
   startingAt: Date;
+  winningTeamId?: string;
 }
 
 export function mapGameDtoToResponse(dto: InitialGameStateResponseDto): InitialGameStateResponse {
@@ -37,4 +39,8 @@ export interface GameStateResponse {
   id: string;
   tanks: TankPositionResponse[];
   bullets: BulletResponse[];
+}
+
+export interface GameOverResponse {
+  winningTeamId: string;
 }

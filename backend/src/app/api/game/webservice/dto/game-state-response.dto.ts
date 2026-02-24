@@ -39,6 +39,9 @@ export class InitialGameStateResponseDto {
   @Expose()
   startingAt: Date;
 
+  @Expose()
+  winningTeamId?: string;
+
   static mapFromEntity(
     game: Game,
     myTankId: string,
@@ -63,6 +66,7 @@ export class InitialGameStateResponseDto {
       ),
       startingAt: game.startingAt,
       myTankId,
+      winningTeamId: game.winningTeamId,
     };
   }
 }
@@ -79,6 +83,9 @@ export class GameStateResponseDto {
   @Type(() => BulletResponseDto)
   bullets: BulletResponseDto[];
 
+  @Expose()
+  winningTeamId?: string;
+
   static mapFromEntity(game: Game): GameStateResponseDto {
     return {
       id: game.id,
@@ -88,6 +95,7 @@ export class GameStateResponseDto {
       bullets: Array.from(game.bullets.values()).map((b) =>
         BulletResponseDto.mapFromEntity(b),
       ),
+      winningTeamId: game.winningTeamId,
     };
   }
 }

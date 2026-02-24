@@ -42,6 +42,8 @@ export function checkAndHandleBulletCollisionWithTank(
   updatedBullet: CollisionObject,
 ): boolean {
   for (const tank of Array.from(game.tanks.values())) {
+    if (tank.isDead) continue;
+
     const collidesTank = checkCollision(
       updatedBullet,
       getTankCollisionObject(tank),
@@ -50,6 +52,11 @@ export function checkAndHandleBulletCollisionWithTank(
       console.log('bullet collides with tank', tank);
       tank.hp -= bullet.damage;
       tank.isDead = tank.hp <= 0;
+
+      if (tank.isDead) {
+        const killerTank = game.tanks.get(bullet.tankId);
+        if (killerTank) killerTank.kills += 1;
+      }
 
       return true;
     }
@@ -70,6 +77,7 @@ export function checkAndHandleBulletCollisionWithOtherBullets(
       );
       if (collidesOtherBullet) {
         console.log('bullet collides with other bullet', otherBullet);
+        removeBullet(game, otherBullet);
         return true;
       }
     }
@@ -126,17 +134,7 @@ export function updateGameState(game: Game) {
     }
 
     if (destroyBullet) {
-      console.log('destroy bullet');
-      game.bullets.delete(bullet.id);
-      const tank = game.tanks.get(bullet.tankId);
-      if (tank) {
-        const index = tank.bulletIds.findIndex(
-          (bulletId) => bulletId === bullet.id,
-        );
-        if (index > -1) {
-          tank.bulletIds.splice(index, 1);
-        }
-      }
+      removeBullet(game, bullet);
     } else {
       bullet.position.x = updatedBullet.position.x;
       bullet.position.y = updatedBullet.position.y;
@@ -146,4 +144,18 @@ export function updateGameState(game: Game) {
 
     console.log('bullet update completed', bullet.id);
   });
+}
+
+function removeBullet(game: Game, bullet: Bullet): void {
+  console.log('destroy bullet');
+  game.bullets.delete(bullet.id);
+  const tank = game.tanks.get(bullet.tankId);
+  if (tank) {
+    const index = tank.bulletIds.findIndex(
+      (bulletId) => bulletId === bullet.id,
+    );
+    if (index > -1) {
+      tank.bulletIds.splice(index, 1);
+    }
+  }
 }

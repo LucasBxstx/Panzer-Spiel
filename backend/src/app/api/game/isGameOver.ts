@@ -1,6 +1,6 @@
 import { Game } from '../../common/models/game.model';
 
-export function determineGameOver(game: Game): boolean {
+export function isGameOver(game: Game): boolean {
   const isTeamAlive = new Map<string, boolean>();
   Array.from(game.teams.values()).forEach((team) => {
     const isAtLeastOneAlive = team.tankIds.some((tankId) => {
@@ -11,5 +11,13 @@ export function determineGameOver(game: Game): boolean {
     isTeamAlive.set(team.id, isAtLeastOneAlive);
   });
 
-  return Array.from(isTeamAlive.values()).filter((t) => t).length === 1;
+  const remainingTeams = Array.from(isTeamAlive.entries())
+    .filter(([team, alive]) => alive)
+    .map(([team]) => team);
+
+  if (remainingTeams.length === 1) {
+    game.winningTeamId = remainingTeams[0];
+    return true;
+  }
+  return false;
 }

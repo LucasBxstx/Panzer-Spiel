@@ -74,8 +74,23 @@ export class GameGateway
   handleDisconnect(client: Socket) {
     const userId = client.data.userId;
     this.logger.log(`User ${userId} disconnected`);
-    // start timeout for user to reconnect
-    // if user does not reconnect in the next 10 seconds, the user is kicked
+
+    const gameId = this.playerGameMap.get(userId);
+
+    if (!gameId) {
+      return;
+    }
+
+    try {
+      const { playerLeftGame } = this.gameService.handleDisconnect(
+        gameId,
+        userId,
+      );
+
+      if (playerLeftGame) this.playerGameMap.delete(userId);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   @SubscribeMessage('joinGame')

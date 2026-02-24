@@ -12,4 +12,5 @@ export interface Game {
   tanks: Map<string, Tank>;
   bullets: Map<string, Bullet>;
   startingAt: Date;
+  winningTeamId?: string;
 }

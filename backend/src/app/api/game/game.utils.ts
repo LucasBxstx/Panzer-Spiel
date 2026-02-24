@@ -16,6 +16,7 @@ export function getPlayers(lobby: Lobby): Map<string, Player> {
         isConnected: false,
         teamId: '',
         tankId: '',
+        isRejoining: false,
       },
     ]),
   );

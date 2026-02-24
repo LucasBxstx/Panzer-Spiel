@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import {
+  GameOverResponse,
   GameStateResponse,
   InitialGameStateResponse,
   InitialGameStateResponseDto,
@@ -17,17 +18,20 @@ import {
   UpdateTurretRotation,
 } from '../models/tank.model';
 import { updateGameState } from '../../game/game.utils.ts/update-game-state';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   private socket: Socket | null = null;
   public readonly connected = signal(false);
   public readonly gameState = signal<InitialGameStateResponse | null>(null);
   public readonly myTankProps = signal<TankProps | null>(null);
+  public readonly winningTeamId = signal<string | null>(null);
 
   connect() {
     const token = this.authService.getToken();
@@ -71,6 +75,13 @@ export class GameService {
 
       if (!oldState) return;
       this.gameState.set(updateGameState(oldState, newState));
+    });
+
+    this.socket.on('gameOver', (response: GameOverResponse) => {
+      this.winningTeamId.set(response.winningTeamId);
+      const gameId = this.gameState()?.id;
+
+      this.router.navigate(['/game', gameId, 'gameover']);
     });
   }
 
@@ -122,5 +133,15 @@ export class GameService {
     this.socket?.emit('fireBullet', dto, (response: any) => {
       console.log('fireBullet', response);
     });
+  }
+
+  public disconnect(): void {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+      this.connected.set(false);
+      this.gameState.set(null);
+      this.winningTeamId.set(null);
+    }
   }
 }

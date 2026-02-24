@@ -12,7 +12,7 @@ import {
 import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
 import { GameService } from '../shared/services/game.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addLight } from './game.utils.ts/add-light';
 import { setupCamera } from './game.utils.ts/setup-camera';
@@ -34,7 +34,7 @@ import { ChipComponent } from '../shared/components/chip/chip.component';
 
 @Component({
   selector: 'app-game',
-  imports: [NgOptimizedImage, SpinnerComponent, ChipComponent],
+  imports: [NgOptimizedImage, SpinnerComponent, ChipComponent, RouterOutlet],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -404,20 +404,22 @@ export class GameComponent implements OnInit, OnDestroy {
       cancelAnimationFrame(this.animationId);
     }
 
-    this.scene.traverse((object: any) => {
-      if (object.isMesh) {
-        object.geometry?.dispose();
+    if (this.scene) {
+      this.scene.traverse((object: any) => {
+        if (object.isMesh) {
+          object.geometry?.dispose();
 
-        if (Array.isArray(object.material)) {
-          object.material.forEach((mat: any) => this.disposeMaterial(mat));
-        } else if (object.material) {
-          this.disposeMaterial(object.material);
+          if (Array.isArray(object.material)) {
+            object.material.forEach((mat: any) => this.disposeMaterial(mat));
+          } else if (object.material) {
+            this.disposeMaterial(object.material);
+          }
         }
-      }
-    });
+      });
+      this.scene.clear();
+    }
 
-    this.renderer.dispose();
-    this.scene.clear();
+    if (this.renderer) this.renderer.dispose();
 
     window.removeEventListener('resize', this.onWindowResize.bind(this));
   }
