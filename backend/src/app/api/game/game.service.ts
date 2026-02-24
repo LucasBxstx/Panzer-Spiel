@@ -30,6 +30,7 @@ import { tankCollidesObstacle, tankCollidesTank } from './collision';
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { Bullet } from '../../common/models/bullet.model';
 import { updateGameState } from './update-game-state';
+import { determineGameOver } from './determineGameOver';
 
 @Injectable()
 export class GameService {
@@ -112,6 +113,11 @@ export class GameService {
 
     this.logger.log('---update Gamestate---');
     updateGameState(game);
+
+    const isGameOver = determineGameOver(game);
+    if (isGameOver) {
+      this.stopGame(gameId);
+    }
 
     const stateUpdate = GameStateResponseDto.mapFromEntity(game);
 

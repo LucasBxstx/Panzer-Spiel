@@ -63,3 +63,28 @@
   top: 0;
   @include page-centered
 }
+
+.killed {
+  display: flex;
+  width: 100%;
+  font-weight: bold;
+  font-size: 35px;
+  justify-content: center;
+  animation: fade-in-out 6s ease-in-out forwards;
+  color: $red;
+
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}

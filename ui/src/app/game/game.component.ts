@@ -77,6 +77,8 @@ export class GameComponent implements OnInit, OnDestroy {
     deltaTime: number;
   }[] = [];
 
+  public youHaveBeenKilled = signal(false);
+
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     const canvas = this.canvasRef.nativeElement;
@@ -187,7 +189,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.updateMyTankPosition(deltaTime);
     this.updateMyTurretRotation();
-    this.updateOtherTankPositions();
+    this.updateAllTankPositions();
     this.updateFireBullets();
     this.updateBulletPositions();
 
@@ -219,7 +221,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.updateTurretRotation({ rotation: worldRotation });
   }
 
-  private updateOtherTankPositions(): void {
+  private updateAllTankPositions(): void {
     const data = this.gameService.gameState();
 
     if (!data) return;
@@ -227,8 +229,28 @@ export class GameComponent implements OnInit, OnDestroy {
     this.tanks.forEach((tankGroup) => {
       const newTankState = data.tanks.get(tankGroup.tankId);
       const isMyTank = tankGroup.tankId === this.myTank?.tankId;
+      if (!newTankState || newTankState.idDead) {
+        this.scene.remove(tankGroup.tankGroup);
 
-      if (newTankState) {
+        tankGroup.tankGroup.traverse((object: any) => {
+          if (object.isMesh) {
+            object.geometry?.dispose();
+
+            if (Array.isArray(object.material)) {
+              object.material.forEach((mat: any) => this.disposeMaterial(mat));
+            } else if (object.material) {
+              this.disposeMaterial(object.material);
+            }
+          }
+        });
+
+        if (isMyTank) {
+          this.myTank = undefined;
+          this.showYouHaveBeenKilled();
+        }
+
+        this.tanks = this.tanks.filter((t) => t !== tankGroup);
+      } else if (newTankState) {
         tankGroup.tankGroup.position.x = newTankState.position.x;
         tankGroup.tankGroup.position.y = newTankState.position.y;
         tankGroup.tankGroup.position.z = newTankState.position.z;
@@ -336,11 +358,27 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private disposeMaterial(material: THREE.Material) {
-    // Texturen im Material finden und freigeben
-    Object.keys(material).forEach((key) => {
-      const value = (material as any)[key];
-      if (value && typeof value === 'object' && 'dispose' in value) {
-        value.dispose();
+    // Array von möglichen Textur-Properties, die dispose() haben
+    const textureProps = [
+      'map',
+      'alphaMap',
+      'aoMap',
+      'bumpMap',
+      'displacementMap',
+      'emissiveMap',
+      'envMap',
+      'lightMap',
+      'metalnessMap',
+      'normalMap',
+      'roughnessMap',
+      'specularMap',
+      'gradientMap',
+    ];
+
+    textureProps.forEach((prop) => {
+      const tex = (material as any)[prop];
+      if (tex && typeof tex.dispose === 'function') {
+        tex.dispose();
       }
     });
 
@@ -352,6 +390,13 @@ export class GameComponent implements OnInit, OnDestroy {
     this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  }
+
+  private showYouHaveBeenKilled(): void {
+    this.youHaveBeenKilled.set(true);
+    setTimeout(() => {
+      this.youHaveBeenKilled.set(false);
+    }, 5000);
   }
 
   ngOnDestroy(): void {

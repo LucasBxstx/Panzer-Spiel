@@ -38,6 +38,7 @@ export function checkAndHandleBulletCollisionWithObstacles(
 
 export function checkAndHandleBulletCollisionWithTank(
   game: Game,
+  bullet: Bullet,
   updatedBullet: CollisionObject,
 ): boolean {
   for (const tank of Array.from(game.tanks.values())) {
@@ -47,6 +48,8 @@ export function checkAndHandleBulletCollisionWithTank(
     );
     if (collidesTank) {
       console.log('bullet collides with tank', tank);
+      tank.hp -= bullet.damage;
+      tank.isDead = tank.hp <= 0;
 
       return true;
     }
@@ -103,6 +106,7 @@ export function updateGameState(game: Game) {
     if (!destroyBullet) {
       destroyBullet = checkAndHandleBulletCollisionWithTank(
         game,
+        bullet,
         updatedBullet,
       );
     }

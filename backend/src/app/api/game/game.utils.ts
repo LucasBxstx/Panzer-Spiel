@@ -65,8 +65,9 @@ export function createTanks(
 
       if (player) {
         const tank = createTank(player, getBasicTank(), entryPoint);
-        player.tankId = tank.id;
         tanks.set(tank.id, tank);
+        player.tankId = tank.id;
+        team.tankIds.push(tank.id);
       }
     });
   });
