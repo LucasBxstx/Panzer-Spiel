@@ -354,6 +354,17 @@ export class GameComponent implements OnInit, OnDestroy {
       const stillExists = bullets.find((bullet) => bullet.id === b.id);
 
       if (!stillExists) {
+        const config: ExplosionResponse = {
+          id: `explosion-${b.id}`,
+          scale: { x: 1, y: 1, z: 1 }, // größer = stärkere Explosion
+          position: {
+            x: b.object.position.x,
+            y: b.object.position.y,
+            z: b.object.position.z,
+          },
+        };
+        this.explosionService.createExplosion(config);
+
         this.scene.remove(b.object);
         const mesh = b.object as THREE.Mesh;
         mesh.geometry?.dispose();
