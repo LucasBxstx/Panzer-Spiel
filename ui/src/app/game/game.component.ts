@@ -351,7 +351,14 @@ export class GameComponent implements OnInit, OnDestroy {
       z: Math.cos(rotation),
     };
 
-    this.gameService.fireBullet({ position, direction, rotation });
+    const playerMovement: InputState = {
+      w: this.keyboardService.isKeyPressed('KeyW'),
+      a: this.keyboardService.isKeyPressed('KeyA'),
+      s: this.keyboardService.isKeyPressed('KeyS'),
+      d: this.keyboardService.isKeyPressed('KeyD'),
+    };
+
+    this.gameService.fireBullet({ position, direction, rotation, playerMovement });
   }
 
   private updateBulletPositions(): void {
