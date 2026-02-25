@@ -11,6 +11,9 @@ export class TeamResponseDto {
   name: string;
 
   @Expose()
+  color: string;
+
+  @Expose()
   @Type(() => PlayerResponseDto)
   players: PlayerResponseDto[];
 
@@ -21,6 +24,7 @@ export class TeamResponseDto {
     return {
       id: team.id,
       name: team.name,
+      color: team.color,
       players: Array.from(players.values())
         .filter((p) => p.teamId === team.id)
         .map((p) => PlayerResponseDto.mapFromEntity(p)),

@@ -10,6 +10,9 @@ export class TankResponseDto {
   playerName: string;
 
   @Expose()
+  teamColor: string;
+
+  @Expose()
   modelUrl: string;
 
   @Expose()
@@ -49,6 +52,7 @@ export class TankResponseDto {
     return {
       id: tank.id,
       playerName: tank.playerName,
+      teamColor: tank.teamColor,
       modelUrl: tank.modelUrl,
       position: PositionResponseDto.mapFromEntity(tank.position),
       renderScale: ScaleResponseDto.mapFromEntity(tank.renderScale),

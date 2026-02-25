@@ -35,17 +35,17 @@ export function getDesertMap(): GameMap {
             position: {
               x: 45,
               y: 0,
-              z: 45,
+              z: -45,
             },
             rotation: 2 * Math.PI,
           },
           {
             position: {
-              x: 45,
+              x: -45,
               y: 0,
               z: -45,
             },
-            rotation: 2 * Math.PI,
+            rotation: Math.PI,
           },
         ],
       },
@@ -62,11 +62,11 @@ export function getDesertMap(): GameMap {
           },
           {
             position: {
-              x: -45,
+              x: 45,
               y: 0,
-              z: -45,
+              z: 45,
             },
-            rotation: Math.PI,
+            rotation: 2 * Math.PI,
           },
         ],
       },

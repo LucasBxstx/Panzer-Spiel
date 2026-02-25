@@ -31,6 +31,9 @@ import { createBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { ChipComponent } from '../shared/components/chip/chip.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
+import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
+import { setupCss2dRenderer } from './game.utils.ts/setup-css-2d-renderer';
+import { CSS2DRenderer } from 'three-stdlib';
 
 @Component({
   selector: 'app-game',
@@ -49,11 +52,13 @@ export class GameComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
-
   private scene!: THREE.Scene;
+
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
   private clock = new THREE.Clock();
+  private labelRenderer!: CSS2DRenderer;
+  private explosionService!: ExplosionService;
 
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
@@ -138,8 +143,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.camera = setupCamera(canvas);
     this.renderer = setupRenderer(canvas);
+    this.labelRenderer = setupCss2dRenderer();
+    document.body.appendChild(this.labelRenderer.domElement);
 
     addLight(this.scene);
+
+    this.explosionService = new ExplosionService(this.scene);
 
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
@@ -203,8 +212,10 @@ export class GameComponent implements OnInit, OnDestroy {
     this.updateAllTankPositions();
     this.updateFireBullets();
     this.updateBulletPositions();
+    this.explosionService.update();
 
     this.renderer.render(this.scene, this.camera);
+    this.labelRenderer.render(this.scene, this.camera);
   }
 
   private updateMyTurretRotation(): void {
@@ -241,6 +252,19 @@ export class GameComponent implements OnInit, OnDestroy {
       const newTankState = data.tanks.get(tankGroup.tankId);
       const isMyTank = tankGroup.tankId === this.myTank?.tankId;
       if (!newTankState || newTankState.idDead) {
+        const config: ExplosionResponse = {
+          id: `explosion-${tankGroup.tankId}`,
+          scale: { x: 3, y: 3, z: 3 }, // größer = stärkere Explosion
+          position: {
+            x: tankGroup.tankGroup.position.x,
+            y: tankGroup.tankGroup.position.y,
+            z: tankGroup.tankGroup.position.z,
+          },
+        };
+        this.explosionService.createExplosion(config);
+
+        tankGroup.nameLabel.element.style.setProperty('display', 'none');
+
         this.scene.remove(tankGroup.tankGroup);
 
         tankGroup.tankGroup.traverse((object: any) => {
@@ -338,6 +362,17 @@ export class GameComponent implements OnInit, OnDestroy {
       const stillExists = bullets.find((bullet) => bullet.id === b.id);
 
       if (!stillExists) {
+        const config: ExplosionResponse = {
+          id: `explosion-${b.id}`,
+          scale: { x: 1, y: 1, z: 1 }, // größer = stärkere Explosion
+          position: {
+            x: b.object.position.x,
+            y: b.object.position.y,
+            z: b.object.position.z,
+          },
+        };
+        this.explosionService.createExplosion(config);
+
         this.scene.remove(b.object);
         const mesh = b.object as THREE.Mesh;
         mesh.geometry?.dispose();
@@ -401,6 +436,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   private showYouHaveBeenKilled(): void {
@@ -417,6 +453,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
     if (this.scene) {
       this.scene.traverse((object: any) => {
+        if (object.isCSS2DObject) {
+          object.element?.remove();
+        }
+
         if (object.isMesh) {
           object.geometry?.dispose();
 
@@ -431,6 +471,10 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     if (this.renderer) this.renderer.dispose();
+
+    if (this.labelRenderer) {
+      this.labelRenderer.domElement.remove();
+    }
 
     window.removeEventListener('resize', this.onWindowResize.bind(this));
   }

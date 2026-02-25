@@ -7,6 +7,7 @@ export interface Tank {
   playerName: string;
   userId: string;
   teamId: string;
+  teamColor: string;
   modelUrl: string;
   position: Position;
   scale: Scale;

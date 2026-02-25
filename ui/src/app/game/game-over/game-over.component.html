@@ -4,11 +4,14 @@
                       [headingLabel]="'Game Over'" (leavePage)="leaveGame()">
       <div content>
         @if (winnerTeam()) {
-          <div class="text-center text-xl font-bold">Team {{ winnerTeam()?.name }} has won the Game!</div>
+          <div class="flex gap-1 text-xl font-bold">Team
+            <div [style]="{color: winnerTeam()?.color}"> {{ winnerTeam()?.name }}</div>
+            has won the Game!
+          </div>
           @for (team of gameService.teamsWithStats(); track team.id) {
             <app-chip class="mt-1">
               <div class="">
-                <div class="font-bold text-lg my-1"> Team {{ team.name }}</div>
+                <div class="font-bold text-lg my-1" [style]="{color: team.color}"> Team {{ team.name }}</div>
                 @for (player of team.playerStats; track player.id) {
                   <app-chip class="player-chip">
                     <div class="flex justify-between my-1">
