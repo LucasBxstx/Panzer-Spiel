@@ -72,7 +72,7 @@ export function createTanks(
       const player = players.get(playerId);
 
       if (player) {
-        const tank = createTank(player, getBasicTank(), entryPoint);
+        const tank = createTank(player, team, getBasicTank(), entryPoint);
         tanks.set(tank.id, tank);
         player.tankId = tank.id;
         team.tankIds.push(tank.id);
@@ -85,6 +85,7 @@ export function createTanks(
 
 function createTank(
   player: Player,
+  team: Team,
   tankVariant: TankVariant,
   entryPoint: EntryPoint,
 ): Tank {
@@ -98,6 +99,7 @@ function createTank(
     playerName: player.name,
     userId: player.userId,
     teamId: player.teamId,
+    teamColor: team.color,
     tankVariantId: tankVariant.id,
     modelUrl: tankVariant.modelUrl,
     scale: tankVariant.scale,

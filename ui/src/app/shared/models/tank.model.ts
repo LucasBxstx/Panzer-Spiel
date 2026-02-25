@@ -1,9 +1,11 @@
 import { Position, Scale, Vector3D } from './vector.model';
 import * as THREE from 'three';
+import { CSS2DObject } from 'three-stdlib';
 
 export interface TankResponse {
   id: string;
   playerName: string;
+  teamColor: string;
   modelUrl: string;
   position: Position;
   renderScale: Scale;
@@ -43,6 +45,7 @@ export interface TankGroup {
   tankGroup: THREE.Group;
   tankBody: THREE.Object3D;
   tankTurret: THREE.Object3D;
+  nameLabel: CSS2DObject;
 }
 
 export interface InputState {

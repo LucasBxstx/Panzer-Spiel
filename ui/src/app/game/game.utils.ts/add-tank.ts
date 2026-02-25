@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Scene } from 'three';
 import { TankGroup, TankResponse } from '../../shared/models/tank.model';
-import { GLTF, GLTFLoader } from 'three-stdlib';
+import { CSS2DObject, GLTF, GLTFLoader } from 'three-stdlib';
 
 export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): Promise<TankGroup> {
   const loader = new GLTFLoader();
@@ -50,11 +50,34 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
 
         scene.add(tankGroup);
 
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = tank.playerName;
+        labelDiv.style.cssText = `
+  color: ${tank.teamColor};
+  font-size: 14px;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000,
+     0    0   6px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+`;
+
+        const label = new CSS2DObject(labelDiv);
+        label.position.set(0, s.y / rs.y + 1, 0);
+        tankBody.add(label);
+
         resolve({
           tankId: tank.id,
           tankGroup,
           tankBody,
           tankTurret: modelTankTurret,
+          nameLabel: label,
         });
       },
       (progress) => {
