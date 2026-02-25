@@ -31,6 +31,7 @@ import { createBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { ChipComponent } from '../shared/components/chip/chip.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
+import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
 
 @Component({
   selector: 'app-game',
@@ -47,6 +48,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private explosionService!: ExplosionService;
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
 
@@ -141,6 +143,8 @@ export class GameComponent implements OnInit, OnDestroy {
 
     addLight(this.scene);
 
+    this.explosionService = new ExplosionService(this.scene);
+
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
 
@@ -203,6 +207,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.updateAllTankPositions();
     this.updateFireBullets();
     this.updateBulletPositions();
+    this.explosionService.update();
 
     this.renderer.render(this.scene, this.camera);
   }
@@ -241,6 +246,17 @@ export class GameComponent implements OnInit, OnDestroy {
       const newTankState = data.tanks.get(tankGroup.tankId);
       const isMyTank = tankGroup.tankId === this.myTank?.tankId;
       if (!newTankState || newTankState.idDead) {
+        const config: ExplosionResponse = {
+          id: `explosion-${tankGroup.tankId}`,
+          scale: { x: 3, y: 3, z: 3 }, // größer = stärkere Explosion
+          position: {
+            x: tankGroup.tankGroup.position.x,
+            y: tankGroup.tankGroup.position.y,
+            z: tankGroup.tankGroup.position.z,
+          },
+        };
+        this.explosionService.createExplosion(config);
+
         this.scene.remove(tankGroup.tankGroup);
 
         tankGroup.tankGroup.traverse((object: any) => {
