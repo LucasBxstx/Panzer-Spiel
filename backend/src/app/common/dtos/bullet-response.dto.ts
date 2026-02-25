@@ -14,9 +14,6 @@ export class BulletResponseDto {
   rotation: number;
 
   @Expose()
-  modelUrl: string;
-
-  @Expose()
   @Type(() => ScaleResponseDto)
   renderScale: ScaleResponseDto;
 
@@ -30,7 +27,6 @@ export class BulletResponseDto {
       position: PositionResponseDto.mapFromEntity(bullet.position),
       renderScale: ScaleResponseDto.mapFromEntity(bullet.renderScale),
       scale: ScaleResponseDto.mapFromEntity(bullet.scale),
-      modelUrl: bullet.modelUrl,
       rotation: bullet.rotation,
     };
   }

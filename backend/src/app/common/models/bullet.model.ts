@@ -15,7 +15,6 @@ export interface Bullet {
   maxBounceCount: number;
   bounceCount: number;
   rotation: number;
-  modelUrl: string;
 }
 
 export interface BulletVariant {
@@ -24,7 +23,6 @@ export interface BulletVariant {
   speed: number;
   damage: number;
   maxBounceCount: number;
-  modelUrl: string;
   scale: Scale;
   renderScale: Scale;
 }

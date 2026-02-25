@@ -150,6 +150,5 @@ export function getBasicBullet(): BulletVariant {
     maxBounceCount: 0,
     scale: { x: 1, y: 1, z: 1 },
     renderScale: { x: 1, y: 1, z: 1 },
-    modelUrl: 'assets/models/tank_bullet.glb',
   };
 }
