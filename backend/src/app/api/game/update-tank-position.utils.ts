@@ -1,6 +1,9 @@
 import { Tank, TankMovement } from '../../common/models/tank.model';
 import { InputStateDto } from './webservice/dto/update-tank-position.dto';
-import { create3DVector, Vector3D } from '../../common/models/vector.model';
+import {
+  create3DVector,
+  normalizeInPlace,
+} from '../../common/models/vector.model';
 import { Position } from '../../common/models/position.model';
 
 export function calculateTankMovement(
@@ -65,14 +68,4 @@ export function shortestRotation(current: number, target: number): number {
   while (diff < -Math.PI) diff += Math.PI * 2;
 
   return diff;
-}
-
-function normalizeInPlace(vec: Vector3D) {
-  const length = Math.sqrt(vec.x ** 2 + vec.y ** 2 + vec.z ** 2);
-
-  if (length === 0) return;
-
-  vec.x /= length;
-  vec.y /= length;
-  vec.z /= length;
 }

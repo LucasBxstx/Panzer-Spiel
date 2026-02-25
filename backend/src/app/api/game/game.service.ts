@@ -33,6 +33,7 @@ import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { Bullet } from '../../common/models/bullet.model';
 import { updateGameState } from './update-game-state';
 import { isGameOver } from './isGameOver';
+import { calculateBulletStartingPosition } from './calculate-bullet-starting-position';
 
 @Injectable()
 export class GameService {
@@ -273,21 +274,17 @@ export class GameService {
       return { success: false };
     }
 
+    const position = calculateBulletStartingPosition(dto, tank);
     const basicBullet = getBasicBullet();
 
     const bullet: Bullet = {
       ...basicBullet,
       tankId: tank.id,
-      position: dto.position,
+      position,
       direction: dto.direction,
       bounceCount: 0,
       rotation: dto.rotation,
     };
-
-    const turretLength = 8;
-    bullet.position.x += bullet.direction.x * turretLength;
-    bullet.position.y = 4;
-    bullet.position.z += bullet.direction.z * turretLength;
 
     game.bullets.set(bullet.id, bullet);
     tank.bulletIds.push(bullet.id);

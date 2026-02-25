@@ -58,4 +58,12 @@
   position: fixed;
   top: 10px;
   right: 10px;
+
+  button {
+    background-color: rgba(218, 41, 41, 0.72);
+
+    &:hover {
+      background-color: rgba(234, 21, 21, 0.64);
+    }
+  }
 }

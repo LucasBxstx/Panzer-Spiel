@@ -1,6 +1,7 @@
 import { IsNumber, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PositionDto, Vector3DDto } from '../../../../common/dtos/vector.dto';
+import { InputStateDto } from './update-tank-position.dto';
 
 export class FireBulletDto {
   @ValidateNested()
@@ -13,4 +14,8 @@ export class FireBulletDto {
 
   @IsNumber()
   rotation: number;
+
+  @ValidateNested()
+  @Type(() => InputStateDto)
+  playerMovement: InputStateDto;
 }

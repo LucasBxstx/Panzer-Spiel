@@ -5,7 +5,6 @@ export interface BulletResponse {
   id: string;
   position: Position;
   rotation: number;
-  modelUrl: string;
   renderScale: Scale;
   scale: Scale;
 }
