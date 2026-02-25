@@ -389,14 +389,14 @@ export class GameComponent implements OnInit, OnDestroy {
       return !!stillExists;
     });
 
-    bullets.forEach(async (bullet) => {
+    bullets.forEach((bullet) => {
       const existingBullet = this.bullets.find((b) => b.id === bullet.id);
       if (existingBullet) {
         existingBullet.object.position.set(bullet.position.x, bullet.position.y, bullet.position.z);
         existingBullet.object.rotation.y = bullet.rotation;
       } else if (!this.pendingBullets.has(bullet.id)) {
         this.pendingBullets.add(bullet.id);
-        const newBullet = await createBullet(this.scene, bullet);
+        const newBullet = createBullet(this.scene, bullet);
         this.pendingBullets.delete(bullet.id);
         this.bullets.push({ id: bullet.id, object: newBullet });
       }
