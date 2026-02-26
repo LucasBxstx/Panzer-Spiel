@@ -69,10 +69,17 @@ export function createTanks(
 
     team.playersIds.forEach((playerId, playerIndex) => {
       const entryPoint = teamEntryPoints.point[playerIndex];
+      const cameraPosition = teamEntryPoints.cameraPosition;
       const player = players.get(playerId);
 
       if (player) {
-        const tank = createTank(player, team, getBasicTank(), entryPoint);
+        const tank = createTank(
+          player,
+          team,
+          getBasicTank(),
+          entryPoint,
+          cameraPosition,
+        );
         tanks.set(tank.id, tank);
         player.tankId = tank.id;
         team.tankIds.push(tank.id);
@@ -88,6 +95,7 @@ function createTank(
   team: Team,
   tankVariant: TankVariant,
   entryPoint: EntryPoint,
+  cameraPosition: Position,
 ): Tank {
   const position: Position = {
     ...entryPoint.position,
@@ -105,6 +113,7 @@ function createTank(
     scale: tankVariant.scale,
     renderScale: tankVariant.renderScale,
     position,
+    cameraPosition,
     crossHair: { x: 0, y: 0, z: 0 },
     speed: tankVariant.speed,
     rotationSpeed: tankVariant.rotationSpeed,

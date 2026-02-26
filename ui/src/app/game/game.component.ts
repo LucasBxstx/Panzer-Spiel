@@ -33,6 +33,7 @@ import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
 import { setupCss2dRenderer } from './game.utils.ts/setup-css-2d-renderer';
 import { CSS2DRenderer } from 'three-stdlib';
+import { InitialGameStateResponse } from '../shared/models/game.model';
 
 @Component({
   selector: 'app-game',
@@ -72,6 +73,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private tanks: TankGroup[] = [];
   private myTank?: TankGroup;
+  private myTankId!: string;
   public bullets: BulletObject[] = [];
   private animationId?: number;
   private localPosition!: TankPosition;
@@ -128,7 +130,8 @@ export class GameComponent implements OnInit, OnDestroy {
           this.showSpinner.set(false);
         }),
       )
-      .subscribe(() => {
+      .subscribe((response: InitialGameStateResponse) => {
+        this.myTankId = response.myTankId;
         this.drawGame();
       });
   }
@@ -146,7 +149,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffdea6);
 
-    this.camera = setupCamera(canvas);
+    const cameraPosition = this.gameService.gameState()?.tanks.get(this.myTankId)?.cameraPosition;
+    this.camera = setupCamera(canvas, cameraPosition);
     this.renderer = setupRenderer(canvas);
     this.labelRenderer = setupCss2dRenderer();
     document.body.appendChild(this.labelRenderer.domElement);

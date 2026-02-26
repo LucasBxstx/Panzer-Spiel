@@ -8,6 +8,7 @@ export interface TankResponse {
   teamColor: string;
   modelUrl: string;
   position: Position;
+  cameraPosition: Position;
   renderScale: Scale;
   scale: Scale;
   speed: number;

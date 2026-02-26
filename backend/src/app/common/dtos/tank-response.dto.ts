@@ -48,6 +48,10 @@ export class TankResponseDto {
   @Expose()
   seq: number;
 
+  @Expose()
+  @Type(() => PositionResponseDto)
+  cameraPosition: PositionResponseDto;
+
   static mapFromEntity(tank: Tank): TankResponseDto {
     return {
       id: tank.id,
@@ -57,6 +61,7 @@ export class TankResponseDto {
       position: PositionResponseDto.mapFromEntity(tank.position),
       renderScale: ScaleResponseDto.mapFromEntity(tank.renderScale),
       scale: ScaleResponseDto.mapFromEntity(tank.scale),
+      cameraPosition: PositionResponseDto.mapFromEntity(tank.cameraPosition),
       rotation: tank.rotation,
       rotationSpeed: tank.rotationSpeed,
       turretRotation: tank.turretRotation,

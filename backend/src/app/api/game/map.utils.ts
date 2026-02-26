@@ -30,6 +30,11 @@ export function getDesertMap(): GameMap {
     teamEntryPoints: [
       {
         team: 1,
+        cameraPosition: {
+          x: 0,
+          y: 70,
+          z: -85,
+        },
         point: [
           {
             position: {
@@ -51,6 +56,11 @@ export function getDesertMap(): GameMap {
       },
       {
         team: 2,
+        cameraPosition: {
+          x: 0,
+          y: 70,
+          z: 85,
+        },
         point: [
           {
             position: {
