@@ -25,20 +25,19 @@ import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRota
 import { catchError, finalize, throwError } from 'rxjs';
 import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
-import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 import { Vector3D } from '../shared/models/vector.model';
 import { BulletObject } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
-import { ChipComponent } from '../shared/components/chip/chip.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
 import { setupCss2dRenderer } from './game.utils.ts/setup-css-2d-renderer';
 import { CSS2DRenderer } from 'three-stdlib';
+import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 
 @Component({
   selector: 'app-game',
-  imports: [SpinnerComponent, ChipComponent, RouterOutlet, IngameScoreComponent],
+  imports: [SpinnerComponent, RouterOutlet, IngameScoreComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
