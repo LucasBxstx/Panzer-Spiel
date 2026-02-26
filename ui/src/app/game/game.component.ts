@@ -25,7 +25,7 @@ import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRota
 import { catchError, finalize, throwError } from 'rxjs';
 import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
-import { Vector3D } from '../shared/models/vector.model';
+import { Position, Vector3D } from '../shared/models/vector.model';
 import { BulletObject } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
@@ -77,6 +77,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public bullets: BulletObject[] = [];
   private animationId?: number;
   private localPosition!: TankPosition;
+  private cameraPosition!: Position;
   private pendingBullets = new Set<string>();
   private pendingInputs: {
     seq: number;
@@ -132,6 +133,7 @@ export class GameComponent implements OnInit, OnDestroy {
       )
       .subscribe((response: InitialGameStateResponse) => {
         this.myTankId = response.myTankId;
+        this.cameraPosition = response.tanks.get(this.myTankId)!.cameraPosition;
         this.drawGame();
       });
   }
@@ -149,8 +151,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffdea6);
 
-    const cameraPosition = this.gameService.gameState()?.tanks.get(this.myTankId)?.cameraPosition;
-    this.camera = setupCamera(canvas, cameraPosition);
+    this.camera = setupCamera(canvas, this.cameraPosition);
     this.renderer = setupRenderer(canvas);
     this.labelRenderer = setupCss2dRenderer();
     document.body.appendChild(this.labelRenderer.domElement);
@@ -323,17 +324,13 @@ export class GameComponent implements OnInit, OnDestroy {
 
     const seq = myTankProps.seq;
 
-    const cameraPerspective = this.gameService
-      .gameState()
-      ?.tanks.get(this.myTankId)?.cameraPosition;
-
     this.localPosition = applyInput(
       this.localPosition,
       input,
       myTankProps.speed,
       myTankProps.rotationSpeed,
       deltaTime,
-      cameraPerspective,
+      this.cameraPosition,
     );
 
     // If tank movement is too laggy in production, we can assign the new position directly
