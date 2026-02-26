@@ -82,8 +82,8 @@ export function getDesertMap(): GameMap {
       },
     ],
     obstacles: [
-      // getDamagedWall(),
-      ...getWalls(),
+      ...getDamagedWalls(),
+      // ...getWalls(),
       ...getCliffLandscape(),
       // ...getSandHillLandscale(),
     ],
@@ -136,52 +136,56 @@ export function getStoneWallTexture(): Texture {
   };
 }
 
-export function getDamagedWall(): Obstacle {
-  return {
-    id: uuidv4(),
-    name: 'damaged-wall',
-    modelUrl: 'assets/models/damaged_wall.glb',
-    position: {
-      x: 0,
-      y: 0,
-      z: 0,
-    },
-    scale: {
-      x: 20,
-      y: 20,
-      z: 30,
-    },
-    renderScale: {
-      x: 0.1,
-      y: 0.1,
-      z: 0.1,
-    },
-    rotation: {
-      x: 0,
-      y: 0.3 * Math.PI,
-      z: 0,
-    },
-  };
-}
-
-export function getSandHillLandscale(): Obstacle[] {
+export function getDamagedWalls(): Obstacle[] {
   return [
-    getSandHill({
-      position: create3DVector(50, 6, 0),
-      scale: create3DVector(20, 20, 20),
-      rotation: create3DVector(0, 0, 0),
-      renderScale: create3DVector(20, 20, 20),
+    getDamagedWall({
+      position: {
+        x: 0,
+        y: 0,
+        z: -27,
+      },
+      scale: {
+        x: 60,
+        y: 6,
+        z: 4,
+      },
+      renderScale: {
+        x: 0.15,
+        y: 0.2,
+        z: 0.2,
+      },
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     }),
-    getSandHill({
-      position: create3DVector(0, 6, 50),
-      scale: create3DVector(80, 20, 40),
-      rotation: create3DVector(0, 0, 0),
-      renderScale: create3DVector(80, 20, 40),
+    getDamagedWall({
+      position: {
+        x: 0,
+        y: 0,
+        z: 27,
+      },
+      scale: {
+        x: 60,
+        y: 6,
+        z: 4,
+      },
+      renderScale: {
+        x: 0.15,
+        y: 0.2,
+        z: 0.2,
+      },
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     }),
   ];
 }
 
-export function getSandHill({
+export function getDamagedWall({
   position,
   renderScale,
   scale,
@@ -195,11 +199,11 @@ export function getSandHill({
   return {
     id: uuidv4(),
     name: 'damaged-wall',
-    modelUrl: 'assets/models/sand_hill.glb',
+    modelUrl: 'assets/models/outdoor_stone_wall.glb',
     position,
+    renderScale,
     scale,
     rotation,
-    renderScale,
   };
 }
 

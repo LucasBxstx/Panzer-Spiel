@@ -34,6 +34,7 @@ export function createObstacleWithTexture(scene: Scene, obstacle: ObstacleRespon
 export function createObstacleWithModel(
   scene: THREE.Scene,
   obstacle: ObstacleResponse,
+  showHitbox: boolean = false,
 ): Promise<THREE.Object3D> | undefined {
   if (!obstacle.modelUrl) return;
 
@@ -42,7 +43,6 @@ export function createObstacleWithModel(
   return new Promise((resolve, reject) => {
     loader.load(
       obstacle.modelUrl!,
-      // 'assets/models/desert_mesa.glb',
       (gltf: GLTF) => {
         const newObstacle = gltf.scene;
 
@@ -61,21 +61,24 @@ export function createObstacleWithModel(
         newObstacle.position.set(px, py, pz);
         newObstacle.rotation.set(rx, ry, rz);
 
-        // newObstacle.scale.set(20, 20, 20);
-        // newObstacle.position.set(50, 6, 0);
-        // newObstacle.rotation.set(0, 0.3 * Math.PI, 0);
+        if (showHitbox) {
+          const { x: hx, y: hy, z: hz } = obstacle.scale;
+          const hitboxGeo = new THREE.BoxGeometry(hx, hy, hz);
+          const hitboxEdges = new THREE.EdgesGeometry(hitboxGeo);
+          const hitbox = new THREE.LineSegments(
+            hitboxEdges,
+            new THREE.LineBasicMaterial({ color: 0xff0000, depthTest: true }),
+          );
+          // Position/Rotation separat setzen — unabhängig von renderScale
+          hitbox.position.set(px, py, pz);
+          hitbox.rotation.set(rx, ry + 2, rz);
+          scene.add(hitbox);
+        }
 
         scene.add(newObstacle);
         resolve(newObstacle);
       },
-      (progress) => {
-        // console.log(
-        //   'Loading progress obstacle model: ',
-        //   obstacle.name,
-        //   ' ',
-        //   (progress.loaded / progress.total) * 100 + '%',
-        // );
-      },
+      (progress) => {},
       (error) => {
         reject(error);
       },
