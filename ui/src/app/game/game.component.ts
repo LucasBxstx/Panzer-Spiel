@@ -33,7 +33,6 @@ import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
 import { setupCss2dRenderer } from './game.utils.ts/setup-css-2d-renderer';
 import { CSS2DRenderer } from 'three-stdlib';
-import { getCliffLandscape } from './game.utils.ts/create-map-helper';
 
 @Component({
   selector: 'app-game',
@@ -181,8 +180,8 @@ export class GameComponent implements OnInit, OnDestroy {
     // obstacles.push(getDesertGround());
     // const walls = getWalls();
     // walls.forEach((w) => createObstacleWithTexture(this.scene, w));
-    const cliffs = getCliffLandscape();
-    cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
+    // const cliffs = getCliffLandscape();
+    // cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 
   private addTanks(): void {

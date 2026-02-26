@@ -74,7 +74,7 @@ export function getDesertMap(): GameMap {
     obstacles: [
       // getDamagedWall(),
       ...getWalls(),
-      // ...getCliffLandscape(),
+      ...getCliffLandscape(),
       // ...getSandHillLandscale(),
     ],
   };
@@ -83,15 +83,15 @@ export function getDesertMap(): GameMap {
 export function getWalls(): Obstacle[] {
   return [
     getWall({
-      position: create3DVector(0, 5, 0),
-      scale: create3DVector(20, 10, 20),
+      position: create3DVector(0, 5, 30),
+      scale: create3DVector(60, 10, 6),
       rotation: create3DVector(0, 0, 0),
     }),
-    // getWall({
-    //   position: create3DVector(-15, 0, 0),
-    //   scale: create3DVector(8, 15, 30),
-    //   rotation: create3DVector(0, 1.5 * Math.PI, 0),
-    // }),
+    getWall({
+      position: create3DVector(0, 5, -30),
+      scale: create3DVector(60, 10, 6),
+      rotation: create3DVector(0, 0, 0),
+    }),
   ];
 }
 
@@ -196,27 +196,45 @@ export function getSandHill({
 export function getCliffLandscape(): Obstacle[] {
   return [
     getCliff({
-      position: create3DVector(65, 12, 10),
+      position: create3DVector(-45, 12, 61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(0, 12, 61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(50, 12, 61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(70, 12, 10),
       scale: create3DVector(20, 0, 20),
       rotation: create3DVector(0, 1.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(60, 12, -40),
+      position: create3DVector(70, 12, -40),
       scale: create3DVector(20, 0, 20),
-      rotation: create3DVector(0, 1.8 * Math.PI, 0),
+      rotation: create3DVector(0, 1.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(20, 12, -80),
+      position: create3DVector(30, 12, -70),
       scale: create3DVector(20, 0, 20),
-      rotation: create3DVector(0, 2 * Math.PI, 0),
+      rotation: create3DVector(0, 2.1 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(-30, 12, -70),
       scale: create3DVector(20, 0, 20),
-      rotation: create3DVector(0, 2.3 * Math.PI, 0),
+      rotation: create3DVector(0, 2.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
