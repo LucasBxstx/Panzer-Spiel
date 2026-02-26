@@ -57,10 +57,10 @@ export class CreateLobbyComponent {
       name: 'Team vs Team',
       value: GameMode.TeamVsTeam,
     },
-    {
-      name: 'Team vs Bots',
-      value: GameMode.TeamVsBots,
-    },
+    // {
+    //   name: 'Team vs Bots',
+    //   value: GameMode.TeamVsBots,
+    // },
   ]);
 
   public readonly formGroup = new FormGroup({

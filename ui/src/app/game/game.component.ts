@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  effect,
   ElementRef,
   HostListener,
   inject,
@@ -92,6 +93,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  }
+
+  constructor() {
+    effect(() => {
+      this.showError.set(!this.gameService.connected());
+    });
   }
 
   ngOnInit(): void {

@@ -34,6 +34,7 @@ import { Bullet } from '../../common/models/bullet.model';
 import { updateGameState } from './update-game-state';
 import { isGameOver } from './isGameOver';
 import { calculateBulletStartingPosition } from './calculate-bullet-starting-position';
+import { tankOutOfMap } from './out-of-map';
 
 @Injectable()
 export class GameService {
@@ -199,7 +200,9 @@ export class GameService {
       obstacles,
     );
     const collidesTank = tankCollidesTank(tank, tankMovement, tanks);
-    if (!collidesObstacle && !collidesTank) {
+    const outOfMap = tankOutOfMap(tank, tankMovement, game.gameSettings.map);
+
+    if (!collidesObstacle && !collidesTank && !outOfMap) {
       tank.position = tankMovement.position;
       tank.rotation = tankMovement.rotation.y;
     }

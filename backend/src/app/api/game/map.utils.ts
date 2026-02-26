@@ -12,9 +12,9 @@ export function getDesertMap(): GameMap {
     name: 'Desert',
     pictureUrl: 'assets/pictures/map-desert.png',
     scale: {
-      x: 100,
+      x: 110,
       y: 100,
-      z: 100,
+      z: 110,
     },
     groundTexture: {
       id: uuidv4(),
@@ -33,17 +33,17 @@ export function getDesertMap(): GameMap {
         point: [
           {
             position: {
-              x: 45,
+              x: 40,
               y: 0,
-              z: -45,
+              z: -40,
             },
             rotation: 2 * Math.PI,
           },
           {
             position: {
-              x: -45,
+              x: -40,
               y: 0,
-              z: -45,
+              z: -40,
             },
             rotation: Math.PI,
           },
@@ -54,17 +54,17 @@ export function getDesertMap(): GameMap {
         point: [
           {
             position: {
-              x: -45,
+              x: -40,
               y: 0,
-              z: 45,
+              z: 40,
             },
             rotation: Math.PI,
           },
           {
             position: {
-              x: 45,
+              x: 40,
               y: 0,
-              z: 45,
+              z: 40,
             },
             rotation: 2 * Math.PI,
           },

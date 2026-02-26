@@ -6,9 +6,15 @@
 
 @if (showError() || showSpinner()) {
   <div class="center-container">
-    @if (showError()) {
+    @if (!showSpinner() && showError()) {
       <div class="w-full flex justify-center text-red-500">
-        <app-chip class="w-[500px] text-center">Error Occurred. Please reload</app-chip>
+
+        <div class="chip flex flex-col justify-center align-center text-center h-full p-5 rounded">
+          <span>You have been disconnected. </span>
+          <span>If the game
+            still runs you can reload. If not you can leave</span>
+        </div>
+
       </div>
     }
     @if (showSpinner()) {
@@ -18,6 +24,7 @@
     }
   </div>
 }
+
 
 @if (youHaveBeenKilled()) {
   <div class="center-container">
