@@ -323,12 +323,17 @@ export class GameComponent implements OnInit, OnDestroy {
 
     const seq = myTankProps.seq;
 
+    const cameraPerspective = this.gameService
+      .gameState()
+      ?.tanks.get(this.myTankId)?.cameraPosition;
+
     this.localPosition = applyInput(
       this.localPosition,
       input,
       myTankProps.speed,
       myTankProps.rotationSpeed,
       deltaTime,
+      cameraPerspective,
     );
 
     // If tank movement is too laggy in production, we can assign the new position directly

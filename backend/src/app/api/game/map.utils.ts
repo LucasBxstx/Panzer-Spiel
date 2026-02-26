@@ -236,13 +236,13 @@ export function getCliffLandscape(): Obstacle[] {
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(30, 12, -70),
+      position: create3DVector(30, 12, -61),
       scale: create3DVector(20, 0, 20),
-      rotation: create3DVector(0, 2.1 * Math.PI, 0),
+      rotation: create3DVector(0, 2.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(-30, 12, -70),
+      position: create3DVector(-30, 12, -61),
       scale: create3DVector(20, 0, 20),
       rotation: create3DVector(0, 2.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
@@ -250,7 +250,7 @@ export function getCliffLandscape(): Obstacle[] {
     getCliff({
       position: create3DVector(-70, 12, -30),
       scale: create3DVector(20, 0, 20),
-      rotation: create3DVector(0, 0.6 * Math.PI, 0),
+      rotation: create3DVector(0, 0.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
