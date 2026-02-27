@@ -12,14 +12,14 @@ export function addLight(scene: Scene): void {
   directionalLight.shadow.mapSize.width = 2048;
   directionalLight.shadow.mapSize.height = 2048;
   directionalLight.shadow.camera.near = 0.1;
-  directionalLight.shadow.camera.far = 150;
-  directionalLight.shadow.camera.left = -50;
-  directionalLight.shadow.camera.right = 50;
-  directionalLight.shadow.camera.top = 50;
+  directionalLight.shadow.camera.far = 300;
+  directionalLight.shadow.camera.left = -150;
+  directionalLight.shadow.camera.right = 150;
+  directionalLight.shadow.camera.top = 100;
   directionalLight.shadow.camera.bottom = -50;
   scene.add(directionalLight);
 
-  const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
-  backLight.position.set(-10, 10, -10);
-  scene.add(backLight);
+  // const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+  // backLight.position.set(-10, 10, -10);
+  // scene.add(backLight);
 }
