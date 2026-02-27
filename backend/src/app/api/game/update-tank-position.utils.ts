@@ -16,20 +16,23 @@ export function calculateTankMovement(
   const position = structuredClone(tank.position);
   let rotation = structuredClone(tank.rotation);
 
+  const cameraDependentMovementHorizontally =
+    tank.cameraPosition.z > 0 ? 1 : -1;
+
   if (input.w) {
-    moveDirection.z -= 1;
+    moveDirection.z -= cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, 0)) targetRotation = Math.PI;
   }
   if (input.s) {
-    moveDirection.z += 1;
+    moveDirection.z += cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, Math.PI)) targetRotation = 0;
   }
   if (input.a) {
-    moveDirection.x -= 1;
+    moveDirection.x -= cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, Math.PI / 2)) targetRotation = Math.PI * 1.5;
   }
   if (input.d) {
-    moveDirection.x += 1;
+    moveDirection.x += cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, Math.PI * 1.5)) targetRotation = Math.PI / 2;
   }
 

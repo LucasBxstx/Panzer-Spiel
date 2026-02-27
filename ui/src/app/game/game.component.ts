@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  effect,
   ElementRef,
   HostListener,
   inject,
@@ -24,20 +25,19 @@ import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRota
 import { catchError, finalize, throwError } from 'rxjs';
 import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
-import { getCliffLandscape } from './game.utils.ts/create-map-helper';
-import { Vector3D } from '../shared/models/vector.model';
+import { Position, Vector3D } from '../shared/models/vector.model';
 import { BulletObject } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
-import { ChipComponent } from '../shared/components/chip/chip.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
 import { setupCss2dRenderer } from './game.utils.ts/setup-css-2d-renderer';
 import { CSS2DRenderer } from 'three-stdlib';
+import { InitialGameStateResponse } from '../shared/models/game.model';
 
 @Component({
   selector: 'app-game',
-  imports: [SpinnerComponent, ChipComponent, RouterOutlet, IngameScoreComponent],
+  imports: [SpinnerComponent, RouterOutlet, IngameScoreComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -73,9 +73,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private tanks: TankGroup[] = [];
   private myTank?: TankGroup;
+  private myTankId!: string;
   public bullets: BulletObject[] = [];
   private animationId?: number;
   private localPosition!: TankPosition;
+  private cameraPosition!: Position;
   private pendingBullets = new Set<string>();
   private pendingInputs: {
     seq: number;
@@ -92,6 +94,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  }
+
+  constructor() {
+    effect(() => {
+      this.showError.set(!this.gameService.connected());
+    });
   }
 
   ngOnInit(): void {
@@ -123,7 +131,9 @@ export class GameComponent implements OnInit, OnDestroy {
           this.showSpinner.set(false);
         }),
       )
-      .subscribe(() => {
+      .subscribe((response: InitialGameStateResponse) => {
+        this.myTankId = response.myTankId;
+        this.cameraPosition = response.tanks.get(this.myTankId)!.cameraPosition;
         this.drawGame();
       });
   }
@@ -141,7 +151,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffdea6);
 
-    this.camera = setupCamera(canvas);
+    this.camera = setupCamera(canvas, this.cameraPosition);
     this.renderer = setupRenderer(canvas);
     this.labelRenderer = setupCss2dRenderer();
     document.body.appendChild(this.labelRenderer.domElement);
@@ -175,8 +185,8 @@ export class GameComponent implements OnInit, OnDestroy {
     // obstacles.push(getDesertGround());
     // const walls = getWalls();
     // walls.forEach((w) => createObstacleWithTexture(this.scene, w));
-    const cliffs = getCliffLandscape();
-    cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
+    // const cliffs = getCliffLandscape();
+    // cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 
   private addTanks(): void {
@@ -320,6 +330,7 @@ export class GameComponent implements OnInit, OnDestroy {
       myTankProps.speed,
       myTankProps.rotationSpeed,
       deltaTime,
+      this.cameraPosition,
     );
 
     // If tank movement is too laggy in production, we can assign the new position directly

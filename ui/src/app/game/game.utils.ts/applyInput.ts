@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { isRotationNear, shortestRotation } from './calculateMyTurretRotation';
 import { InputState, TankPosition } from '../../shared/models/tank.model';
+import { Position } from '../../shared/models/vector.model';
 
 export function applyInput(
   tank: TankPosition,
@@ -8,26 +9,29 @@ export function applyInput(
   speed: number,
   rotationSpeed: number,
   deltaTime: number,
+  cameraPosition: Position,
 ): TankPosition {
   const moveDirection = new THREE.Vector3();
   let targetRotation: number | null = null;
   let position = tank.position;
   let rotation = tank.rotation;
 
+  const cameraDependentMovementHorizontally = cameraPosition.z > 0 ? 1 : -1;
+
   if (input.w) {
-    moveDirection.z -= 1;
+    moveDirection.z -= cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, 0)) targetRotation = Math.PI;
   }
   if (input.s) {
-    moveDirection.z += 1;
+    moveDirection.z += cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, Math.PI)) targetRotation = 0;
   }
   if (input.a) {
-    moveDirection.x -= 1;
+    moveDirection.x -= cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, Math.PI / 2)) targetRotation = Math.PI * 1.5;
   }
   if (input.d) {
-    moveDirection.x += 1;
+    moveDirection.x += cameraDependentMovementHorizontally;
     if (!isRotationNear(rotation, Math.PI * 1.5)) targetRotation = Math.PI / 2;
   }
 

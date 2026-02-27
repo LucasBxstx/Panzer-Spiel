@@ -12,9 +12,9 @@ export function getDesertMap(): GameMap {
     name: 'Desert',
     pictureUrl: 'assets/pictures/map-desert.png',
     scale: {
-      x: 100,
+      x: 110,
       y: 100,
-      z: 100,
+      z: 110,
     },
     groundTexture: {
       id: uuidv4(),
@@ -30,20 +30,25 @@ export function getDesertMap(): GameMap {
     teamEntryPoints: [
       {
         team: 1,
+        cameraPosition: {
+          x: 0,
+          y: 70,
+          z: -85,
+        },
         point: [
           {
             position: {
-              x: 45,
+              x: 40,
               y: 0,
-              z: -45,
+              z: -40,
             },
             rotation: 2 * Math.PI,
           },
           {
             position: {
-              x: -45,
+              x: -40,
               y: 0,
-              z: -45,
+              z: -40,
             },
             rotation: Math.PI,
           },
@@ -51,20 +56,25 @@ export function getDesertMap(): GameMap {
       },
       {
         team: 2,
+        cameraPosition: {
+          x: 0,
+          y: 70,
+          z: 85,
+        },
         point: [
           {
             position: {
-              x: -45,
+              x: -40,
               y: 0,
-              z: 45,
+              z: 40,
             },
             rotation: Math.PI,
           },
           {
             position: {
-              x: 45,
+              x: 40,
               y: 0,
-              z: 45,
+              z: 40,
             },
             rotation: 2 * Math.PI,
           },
@@ -72,8 +82,9 @@ export function getDesertMap(): GameMap {
       },
     ],
     obstacles: [
-      // getDamagedWall(),
-      ...getWalls(),
+      ...getDamagedWalls(),
+      // ...getWalls(),
+      ...getCliffLandscape(),
       // ...getSandHillLandscale(),
     ],
   };
@@ -82,15 +93,15 @@ export function getDesertMap(): GameMap {
 export function getWalls(): Obstacle[] {
   return [
     getWall({
-      position: create3DVector(0, 5, 0),
-      scale: create3DVector(20, 10, 20),
+      position: create3DVector(0, 5, 30),
+      scale: create3DVector(60, 10, 6),
       rotation: create3DVector(0, 0, 0),
     }),
-    // getWall({
-    //   position: create3DVector(-15, 0, 0),
-    //   scale: create3DVector(8, 15, 30),
-    //   rotation: create3DVector(0, 1.5 * Math.PI, 0),
-    // }),
+    getWall({
+      position: create3DVector(0, 5, -30),
+      scale: create3DVector(60, 10, 6),
+      rotation: create3DVector(0, 0, 0),
+    }),
   ];
 }
 
@@ -125,52 +136,56 @@ export function getStoneWallTexture(): Texture {
   };
 }
 
-export function getDamagedWall(): Obstacle {
-  return {
-    id: uuidv4(),
-    name: 'damaged-wall',
-    modelUrl: 'assets/models/damaged_wall.glb',
-    position: {
-      x: 0,
-      y: 0,
-      z: 0,
-    },
-    scale: {
-      x: 20,
-      y: 20,
-      z: 30,
-    },
-    renderScale: {
-      x: 0.1,
-      y: 0.1,
-      z: 0.1,
-    },
-    rotation: {
-      x: 0,
-      y: 0.3 * Math.PI,
-      z: 0,
-    },
-  };
-}
-
-export function getSandHillLandscale(): Obstacle[] {
+export function getDamagedWalls(): Obstacle[] {
   return [
-    getSandHill({
-      position: create3DVector(50, 6, 0),
-      scale: create3DVector(20, 20, 20),
-      rotation: create3DVector(0, 0, 0),
-      renderScale: create3DVector(20, 20, 20),
+    getDamagedWall({
+      position: {
+        x: 0,
+        y: 0,
+        z: -27,
+      },
+      scale: {
+        x: 60,
+        y: 6,
+        z: 4,
+      },
+      renderScale: {
+        x: 0.15,
+        y: 0.2,
+        z: 0.2,
+      },
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     }),
-    getSandHill({
-      position: create3DVector(0, 6, 50),
-      scale: create3DVector(80, 20, 40),
-      rotation: create3DVector(0, 0, 0),
-      renderScale: create3DVector(80, 20, 40),
+    getDamagedWall({
+      position: {
+        x: 0,
+        y: 0,
+        z: 27,
+      },
+      scale: {
+        x: 60,
+        y: 6,
+        z: 4,
+      },
+      renderScale: {
+        x: 0.15,
+        y: 0.2,
+        z: 0.2,
+      },
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     }),
   ];
 }
 
-export function getSandHill({
+export function getDamagedWall({
   position,
   renderScale,
   scale,
@@ -184,10 +199,91 @@ export function getSandHill({
   return {
     id: uuidv4(),
     name: 'damaged-wall',
-    modelUrl: 'assets/models/sand_hill.glb',
+    modelUrl: 'assets/models/outdoor_stone_wall.glb',
     position,
+    renderScale,
     scale,
     rotation,
+  };
+}
+
+export function getCliffLandscape(): Obstacle[] {
+  return [
+    getCliff({
+      position: create3DVector(-45, 12, 61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(0, 12, 61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(50, 12, 61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(70, 12, 10),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.7 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(70, 12, -40),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 1.7 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(30, 12, -61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 2.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(-30, 12, -61),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 2.2 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(-70, 12, -30),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 0.7 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+    getCliff({
+      position: create3DVector(-70, 12, 30),
+      scale: create3DVector(20, 0, 20),
+      rotation: create3DVector(0, 0.7 * Math.PI, 0),
+      renderScale: create3DVector(0.8, 0.8, 0.8),
+    }),
+  ];
+}
+
+export function getCliff({
+  position,
+  renderScale,
+  scale,
+  rotation,
+}: {
+  position: Position;
+  rotation: Vector3D;
+  scale: Scale;
+  renderScale: Scale;
+}): Obstacle {
+  return {
+    id: 'ab',
+    name: 'desert-house',
+    modelUrl: 'assets/models/cliff.glb',
+    position,
     renderScale,
+    scale,
+    rotation,
   };
 }

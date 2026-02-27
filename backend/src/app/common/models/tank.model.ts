@@ -13,6 +13,7 @@ export interface Tank {
   scale: Scale;
   renderScale: Scale;
   tankVariantId: string;
+  cameraPosition: Position;
   hp: number;
   speed: number;
   rotation: number;

@@ -21,7 +21,7 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
         tankGroup.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.castShadow = true;
-            child.receiveShadow = true;
+            child.receiveShadow = false;
           }
         });
 
@@ -69,7 +69,7 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
 `;
 
         const label = new CSS2DObject(labelDiv);
-        label.position.set(0, s.y / rs.y + 1, 0);
+        label.position.set(-1, s.y / rs.y + 1, 0);
         tankBody.add(label);
 
         resolve({
