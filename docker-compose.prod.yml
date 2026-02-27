@@ -1,0 +1,115 @@
+services:
+  traefik:
+    image: traefik:v2.11
+    container_name: tank-traefik
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/traefik.yml:ro
+      - ./traefik/letsencrypt:/letsencrypt
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=false"
+      # Dashboard auskommentiert - aktiviere es nur wenn du DNS für traefik.myfinancestats.de hast
+      # - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      # - "traefik.http.routers.dashboard.service=api@internal"
+      # - "traefik.http.routers.dashboard.entrypoints=websecure"
+      # - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      # - "traefik.http.routers.dashboard.middlewares=auth"
+      # - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
+
+  db:
+    image: postgres:17
+    container_name: traefik-db
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_MAX_CONNECTIONS=${DB_MAX_CONNECTIONS}
+    volumes:
+      - tank-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tank-backend
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - /app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - traefik-network
+      - internal
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.${DOMAIN}`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=3000"
+      # Middleware für echte Client-IP
+      - "traefik.http.middlewares.backend-headers.headers.customrequestheaders.X-Real-IP=$$remote_addr"
+      - "traefik.http.middlewares.backend-headers.headers.customrequestheaders.X-Forwarded-For=$$proxy_add_x_forwarded_for"
+      # CORS Middleware
+      - "traefik.http.middlewares.backend-cors.headers.accessControlAllowMethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      - "traefik.http.middlewares.backend-cors.headers.accessControlAllowOriginList=https://${DOMAIN}"
+      - "traefik.http.middlewares.backend-cors.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.backend-cors.headers.accessControlAllowHeaders=*"
+      # Beide Middlewares aktivieren (Reihenfolge ist wichtig!)
+      - "traefik.http.routers.backend.middlewares=backend-headers,backend-cors"
+
+  frontend:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://api.${DOMAIN}
+    container_name: tank-frontend
+    depends_on:
+      - backend
+    networks:
+      - traefik-network
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      # Redirect www zu non-www (optional)
+      - "traefik.http.middlewares.redirect-www.redirectregex.regex=^https://www\\.(.+)"
+      - "traefik.http.middlewares.redirect-www.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.redirect-www.redirectregex.permanent=true"
+
+volumes:
+  tank-data:
+    driver: local
+
+networks:
+  traefik-network:
+    external: true
+  internal:
+    driver: bridge
