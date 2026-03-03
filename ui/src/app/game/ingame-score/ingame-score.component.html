@@ -7,12 +7,14 @@
   }
 </div>
 <div class="center">
-  <img ngSrc="assets/pictures/tank-game-heading.png" alt="title" width="300"
-       height="100" priority>
+  <img ngSrc="assets/pictures/tank-game-heading.png" alt="title" width="200"
+       height="73" priority>
   <div class="time">
     @if (gameService.timeSinceGameStarted(); as time) {
       <div> {{ time * 1000 | date:'mm:ss':'UTC' }}
       </div>
+    } @else {
+      <div>00:00</div>
     }
   </div>
 
@@ -27,6 +29,8 @@
   }
 </div>
 
-<div class="leave-game">
-  <button (click)="leaveGame()">Leave Game</button>
-</div>
+@if (!isGameOver()) {
+  <div class="leave-game">
+    <button (click)="leaveGame()">Leave Game</button>
+  </div>
+}

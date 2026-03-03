@@ -66,6 +66,7 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
   white-space: nowrap;
   user-select: none;
   pointer-events: none;
+  z-index: 1;
 `;
 
         const label = new CSS2DObject(labelDiv);

@@ -3,6 +3,7 @@ import { Lobby } from '../../../../common/models/lobby.model';
 import { PlayerPreviewResponseDto } from '../../../../common/dtos/player-preview-response.dto';
 import { GameSettingsResponseDto } from '../../../../common/dtos/game-settings-response.dto';
 import { GameModeOptionResponseDto } from '../../../../common/dtos/game-mode-option-response.dto';
+import { Game } from '../../../../common/models/game.model';
 
 export class LobbyPreviewResponseDto {
   @Expose()
@@ -34,6 +35,19 @@ export class LobbyPreviewResponseDto {
       ),
       playersCount: lobby.players.length,
       maxPlayersCount: lobby.gameSettings.maxPlayersCount,
+    };
+  }
+
+  static mapFromGameEntity(game: Game): LobbyPreviewResponseDto {
+    return {
+      id: game.id,
+      hostUserName: game.hostUserName,
+      mapName: game.gameSettings.map.name,
+      gameMode: GameModeOptionResponseDto.mapFromEntity(
+        game.gameSettings.gameMode,
+      ),
+      playersCount: game.players.size,
+      maxPlayersCount: game.gameSettings.maxPlayersCount,
     };
   }
 }

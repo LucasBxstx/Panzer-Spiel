@@ -2,5 +2,5 @@
 <div class="flex-[20%]">Map: {{ lobbyPreview().mapName }}</div>
 <div class="flex-[20%]">{{ lobbyPreview().playersCount }} / {{ lobbyPreview().maxPlayersCount }} Spieler</div>
 <div class="flex-[20%] hidden md:block">Hosted by {{ lobbyPreview().hostUserName }}</div>
-<button class="flex-[20%]" (click)="joinLobby()">Beitreten</button>
+<button class="flex-[20%]" (click)="isGame() ? joinGame() : joinLobby()">Beitreten</button>
 

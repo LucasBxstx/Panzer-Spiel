@@ -6,6 +6,7 @@ import { Tank } from './tank.model';
 
 export interface Game {
   id: string;
+  hostUserName: string;
   gameSettings: GameSettings;
   players: Map<string, Player>;
   teams: Map<string, Team>;

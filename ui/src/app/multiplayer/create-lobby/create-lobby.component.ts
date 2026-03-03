@@ -65,7 +65,7 @@ export class CreateLobbyComponent {
 
   public readonly formGroup = new FormGroup({
     numberOfTeams: new FormControl<number>(2, {
-      validators: [Validators.min(2), Validators.max(2)],
+      validators: [Validators.min(2), Validators.max(4)],
       nonNullable: true,
     }),
     teamSize: new FormControl<number>(1, {

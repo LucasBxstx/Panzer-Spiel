@@ -3,6 +3,7 @@ import { LobbyPreviewResponse } from '../../shared/models/lobby-preview.model';
 import { LobbyService } from '../../shared/services/lobby.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { GameService } from '../../shared/services/game.service';
 
 @Component({
   selector: 'app-lobby-preview',
@@ -12,9 +13,11 @@ import { Router } from '@angular/router';
 })
 export class LobbyPreviewComponent {
   private readonly lobbyService = inject(LobbyService);
+  private readonly gameService = inject(GameService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   public readonly lobbyPreview = input.required<LobbyPreviewResponse>();
+  public readonly isGame = input<boolean>(false);
 
   public joinLobby(): void {
     this.lobbyService
@@ -22,6 +25,15 @@ export class LobbyPreviewComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((lobby) => {
         this.router.navigate([`/lobby/${lobby.id}`]);
+      });
+  }
+
+  public joinGame(): void {
+    this.gameService
+      .joinGame(this.lobbyPreview().id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((resonse) => {
+        this.router.navigate([`/game/${resonse.id}`]);
       });
   }
 }
