@@ -20,6 +20,8 @@ import {
 import { updateGameState } from '../../game/game.utils.ts/update-game-state';
 import { Router } from '@angular/router';
 import { PlayerStats, TeamStats } from '../models/team.model';
+import { HttpClient } from '@angular/common/http';
+import { LobbyPreviewResponse } from '../models/lobby-preview.model';
 
 @Injectable({
   providedIn: 'root',
@@ -27,12 +29,17 @@ import { PlayerStats, TeamStats } from '../models/team.model';
 export class GameService {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly httpClient = inject(HttpClient);
 
   private socket: Socket | null = null;
   public readonly connected = signal(false);
   public readonly gameState = signal<InitialGameStateResponse | null>(null);
   public readonly myTankProps = signal<TankProps | null>(null);
   public readonly winningTeamId = signal<string | null>(null);
+
+  public getMyCurrentGame(): Observable<LobbyPreviewResponse | null> {
+    return this.httpClient.get<LobbyPreviewResponse>(`${environment.apiUrl}/game`);
+  }
 
   connect() {
     const token = this.authService.getToken();

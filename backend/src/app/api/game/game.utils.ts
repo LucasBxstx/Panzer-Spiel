@@ -144,8 +144,8 @@ function getBasicTank(): TankVariant {
       z: 0.5,
     },
     maxHp: 10,
-    speed: 0.4,
-    maxBullets: 5,
+    speed: 0.3,
+    maxBullets: 4,
     rotationSpeed: 0.3,
   };
 }
@@ -155,7 +155,7 @@ export function getBasicBullet(): BulletVariant {
     id: uuidv4(),
     name: 'BasicBullet',
     speed: 1.2,
-    damage: 10,
+    damage: 2,
     maxBounceCount: 0,
     scale: { x: 1, y: 1, z: 1 },
     renderScale: { x: 1, y: 1, z: 1 },

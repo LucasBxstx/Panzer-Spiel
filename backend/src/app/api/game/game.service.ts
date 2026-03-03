@@ -1,4 +1,9 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
@@ -35,6 +40,7 @@ import { updateGameState } from './update-game-state';
 import { isGameOver } from './isGameOver';
 import { calculateBulletStartingPosition } from './calculate-bullet-starting-position';
 import { tankOutOfMap } from './out-of-map';
+import { LobbyPreviewResponseDto } from '../lobby/webservice/dto/lobby-response.dto';
 
 @Injectable()
 export class GameService {
@@ -62,7 +68,8 @@ export class GameService {
 
     const game: Game = {
       id: uuidv4(),
-      startingAt: new Date(Date.now() + 10 * 1000),
+      hostUserName: lobby.hostUserName,
+      startingAt: new Date(Date.now() + 30 * 1000),
       gameSettings: lobby.gameSettings,
       players,
       teams,
@@ -316,6 +323,26 @@ export class GameService {
     this.logger.log(`User ${userId} left the game`);
 
     return { success: true };
+  }
+
+  async getMyRunningGame(
+    userId: string,
+  ): Promise<LobbyPreviewResponseDto | null> {
+    const user = await this.userRepository.findOne({ id: userId });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const game = Array.from(this.games.values()).find((g) => {
+      const player = g.players.get(userId);
+      return !!player && player.isConnected;
+    });
+
+    if (!game) {
+      return null;
+    }
+
+    return LobbyPreviewResponseDto.mapFromGameEntity(game);
   }
 
   handleDisconnect(

@@ -80,6 +80,42 @@ export function getDesertMap(): GameMap {
           },
         ],
       },
+      {
+        team: 3,
+        cameraPosition: {
+          x: 0,
+          y: 70,
+          z: -85,
+        },
+        point: [
+          {
+            position: {
+              x: -40,
+              y: 0,
+              z: -40,
+            },
+            rotation: Math.PI,
+          },
+        ],
+      },
+      {
+        team: 4,
+        cameraPosition: {
+          x: 0,
+          y: 70,
+          z: 85,
+        },
+        point: [
+          {
+            position: {
+              x: 40,
+              y: 0,
+              z: 40,
+            },
+            rotation: 2 * Math.PI,
+          },
+        ],
+      },
     ],
     obstacles: [
       ...getDamagedWalls(),
