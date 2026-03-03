@@ -3,7 +3,9 @@ import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { GameService } from '../../shared/services/game.service';
 import { TeamScoreComponent } from './team-score/team-score.component';
 import { TeamStats } from '../../shared/models/team.model';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 
 @Component({
   selector: 'app-ingame-score',
@@ -37,6 +39,17 @@ export class IngameScoreComponent {
       }
     });
   }
+
+  public isGameOver = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event: NavigationEnd) => {
+        console.log(event);
+        return event.urlAfterRedirects.endsWith('/gameover');
+      }),
+    ),
+    { initialValue: false },
+  );
 
   public leaveGame(): void {
     this.router.navigate(['/multiplayer']);

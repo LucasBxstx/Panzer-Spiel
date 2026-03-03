@@ -450,6 +450,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private onWindowResize(): void {
+    window.location.reload();
     const canvas = this.canvasRef.nativeElement;
     this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
     this.camera.updateProjectionMatrix();
