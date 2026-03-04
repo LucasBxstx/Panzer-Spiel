@@ -9,7 +9,7 @@ export function getDesertMap3(): GameMap {
   return {
     id: 'desert3',
     name: 'Desert 3',
-    pictureUrl: 'assets/pictures/map-desert.png',
+    pictureUrl: 'assets/pictures/map-desert-barricade.png',
     scale: {
       x: 110,
       y: 100,
@@ -218,28 +218,6 @@ export function getDamagedWalls(): Obstacle[] {
       rotation: {
         x: 0,
         y: Math.PI / 2,
-        z: 0,
-      },
-    }),
-    getDamagedWall({
-      position: {
-        x: 0,
-        y: 0,
-        z: 20,
-      },
-      scale: {
-        x: 30,
-        y: 3,
-        z: 4,
-      },
-      renderScale: {
-        x: 0.075,
-        y: 0.2,
-        z: 0.1,
-      },
-      rotation: {
-        x: 0,
-        y: 0,
         z: 0,
       },
     }),

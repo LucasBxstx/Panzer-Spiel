@@ -196,7 +196,7 @@ export class GameComponent implements OnInit, OnDestroy {
     // obstacles.push(getDesertGround());
     // const walls = getWalls();
     // walls.forEach((w) => createObstacleWithTexture(this.scene, w));
-    // const cliffs = getCliffLandscape();
+    // const cliffs = getContainers();
     // cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 

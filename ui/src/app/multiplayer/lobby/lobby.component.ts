@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { MapPreviewComponent } from '../../shared/components/map-preview/map-preview.component';
@@ -25,7 +25,7 @@ export const COUNT_DOWN_SECONDS = 3;
   templateUrl: './lobby.component.html',
   styleUrl: './lobby.component.scss',
 })
-export class LobbyComponent implements OnInit {
+export class LobbyComponent implements OnInit, OnDestroy {
   public readonly authService = inject(AuthService);
   public readonly lobbyService = inject(LobbyService);
   private readonly router = inject(Router);
@@ -111,5 +111,9 @@ export class LobbyComponent implements OnInit {
       .subscribe(() => {
         this.router.navigate(['/multiplayer']);
       });
+  }
+
+  public ngOnDestroy() {
+    this.lobbyService.disconnect();
   }
 }

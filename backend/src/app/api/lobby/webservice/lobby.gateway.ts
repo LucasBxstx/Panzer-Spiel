@@ -218,11 +218,11 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           .in(lobby.id)
           .fetchSockets()
           .then((clients) => {
-            lobby.players.forEach((player) => (player.isConnected = false));
-            clients.forEach((client) => client.disconnect(true));
-            this.logger.log(
-              `All players in lobby ${lobby.id} have been disconnected`,
-            );
+            // lobby.players.forEach((player) => (player.isConnected = false));
+            // clients.forEach((client) => client.disconnect(true));
+            // this.logger.log(
+            //   `All players in lobby ${lobby.id} have been disconnected`,
+            // );
           })
           .catch((err) => {
             this.logger.error('Error disconnecting players:', err);

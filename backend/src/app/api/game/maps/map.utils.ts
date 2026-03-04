@@ -1,10 +1,16 @@
 import { GameMap } from '../../../common/models/game-map.model';
-import { getDesertMap } from './desert-map-1.utils';
-import { getDesertMap2 } from './desert-map-2.utils';
+import { getDesertBarricadeMap } from './desert-barricade-map.utils';
+import { getWastelandDivideMap } from './desert-map-2.utils';
 import { getDesertMap3 } from './desert-map-3.utils';
+import { getContainerMap } from './container-map.utils';
 
 export function getAllMaps(): GameMap[] {
-  return [getDesertMap(), getDesertMap2(), getDesertMap3()];
+  return [
+    getDesertBarricadeMap(),
+    getWastelandDivideMap(),
+    getDesertMap3(),
+    getContainerMap(),
+  ];
 }
 
 export function findMap(id: string): GameMap | undefined {
