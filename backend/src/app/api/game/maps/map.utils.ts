@@ -1,6 +1,6 @@
 import { GameMap } from '../../../common/models/game-map.model';
 import { getDesertBarricadeMap } from './desert-barricade-map.utils';
-import { getWastelandDivideMap } from './desert-map-2.utils';
+import { getWastelandDivideMap } from './wasteland-divide-map.utils';
 import { getDesertMap3 } from './desert-map-3.utils';
 import { getContainerMap } from './container-map.utils';
 

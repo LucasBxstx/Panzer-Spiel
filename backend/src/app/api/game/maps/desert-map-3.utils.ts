@@ -7,9 +7,9 @@ import { Scale } from '../../../common/models/scale.model';
 
 export function getDesertMap3(): GameMap {
   return {
-    id: 'desert3',
-    name: 'Desert 3',
-    pictureUrl: 'assets/pictures/map-desert-barricade.png',
+    id: 'canyonclash',
+    name: 'Canyon Clash',
+    pictureUrl: 'assets/pictures/map-canyon-clash.png',
     scale: {
       x: 110,
       y: 100,
