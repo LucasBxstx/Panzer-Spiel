@@ -1,15 +1,14 @@
-import { GameMap } from '../../common/models/game-map.model';
+import { GameMap } from '../../../common/models/game-map.model';
 import { v4 as uuidv4 } from 'uuid';
-import { Obstacle } from '../../common/models/obstacle.model';
-import { create3DVector, Vector3D } from '../../common/models/vector.model';
-import { Position } from '../../common/models/position.model';
-import { Scale } from '../../common/models/scale.model';
-import { Texture } from '../../common/models/texture.model';
+import { Obstacle } from '../../../common/models/obstacle.model';
+import { create3DVector, Vector3D } from '../../../common/models/vector.model';
+import { Position } from '../../../common/models/position.model';
+import { Scale } from '../../../common/models/scale.model';
 
-export function getDesertMap(): GameMap {
+export function getDesertMap2(): GameMap {
   return {
-    id: uuidv4(),
-    name: 'Desert',
+    id: 'desert2',
+    name: 'Desert 2',
     pictureUrl: 'assets/pictures/map-desert.png',
     scale: {
       x: 110,
@@ -38,17 +37,17 @@ export function getDesertMap(): GameMap {
         point: [
           {
             position: {
-              x: 40,
+              x: 15,
               y: 0,
-              z: -40,
+              z: -15,
             },
             rotation: 2 * Math.PI,
           },
           {
             position: {
-              x: -40,
+              x: -15,
               y: 0,
-              z: -40,
+              z: -15,
             },
             rotation: Math.PI,
           },
@@ -64,17 +63,17 @@ export function getDesertMap(): GameMap {
         point: [
           {
             position: {
-              x: -40,
+              x: -15,
               y: 0,
-              z: 40,
+              z: 15,
             },
             rotation: Math.PI,
           },
           {
             position: {
-              x: 40,
+              x: 15,
               y: 0,
-              z: 40,
+              z: 15,
             },
             rotation: 2 * Math.PI,
           },
@@ -90,9 +89,9 @@ export function getDesertMap(): GameMap {
         point: [
           {
             position: {
-              x: -40,
+              x: -15,
               y: 0,
-              z: -40,
+              z: -15,
             },
             rotation: Math.PI,
           },
@@ -108,67 +107,16 @@ export function getDesertMap(): GameMap {
         point: [
           {
             position: {
-              x: 40,
+              x: 15,
               y: 0,
-              z: 40,
+              z: 15,
             },
             rotation: 2 * Math.PI,
           },
         ],
       },
     ],
-    obstacles: [
-      ...getDamagedWalls(),
-      // ...getWalls(),
-      ...getCliffLandscape(),
-      // ...getSandHillLandscale(),
-    ],
-  };
-}
-
-export function getWalls(): Obstacle[] {
-  return [
-    getWall({
-      position: create3DVector(0, 5, 30),
-      scale: create3DVector(60, 10, 6),
-      rotation: create3DVector(0, 0, 0),
-    }),
-    getWall({
-      position: create3DVector(0, 5, -30),
-      scale: create3DVector(60, 10, 6),
-      rotation: create3DVector(0, 0, 0),
-    }),
-  ];
-}
-
-export function getWall({
-  position,
-  scale,
-  rotation,
-}: {
-  position: Position;
-  scale: Scale;
-  rotation: Vector3D;
-}): Obstacle {
-  return {
-    id: uuidv4(),
-    name: 'stone-wall',
-    texture: getStoneWallTexture(),
-    position,
-    renderScale: scale,
-    scale,
-    rotation,
-  };
-}
-
-export function getStoneWallTexture(): Texture {
-  return {
-    id: uuidv4(),
-    name: 'Brick',
-    diffuseImageUrl: 'assets/textures/old_stone_wall_diff_1k.jpg',
-    normalImageUrl: 'assets/textures/old_stone_wall_nor_gl_1k.png',
-    roughnessImageUrl: 'assets/textures/old_stone_wall_rough_1k.exr',
-    repeat: { x: 20, y: 20 },
+    obstacles: [...getDamagedWalls(), ...getCliffLandscape()],
   };
 }
 
@@ -178,7 +126,7 @@ export function getDamagedWalls(): Obstacle[] {
       position: {
         x: 0,
         y: 0,
-        z: -27,
+        z: 0,
       },
       scale: {
         x: 60,
@@ -200,7 +148,7 @@ export function getDamagedWalls(): Obstacle[] {
       position: {
         x: 0,
         y: 0,
-        z: 27,
+        z: 0,
       },
       scale: {
         x: 60,
@@ -214,7 +162,7 @@ export function getDamagedWalls(): Obstacle[] {
       },
       rotation: {
         x: 0,
-        y: 0,
+        y: Math.PI / 2,
         z: 0,
       },
     }),

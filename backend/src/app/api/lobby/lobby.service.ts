@@ -12,7 +12,8 @@ import { WsException } from '@nestjs/websockets';
 import { GameSettings } from '../../common/models/game-settings.model';
 import { Lobby } from '../../common/models/lobby.model';
 import { LobbyPlayer } from '../../common/models/player.model';
-import { getDesertMap } from '../game/map.utils';
+import { MapPreviewResponseDto } from '../../common/dtos/map-preview-response.dto';
+import { findMap, getAllMaps } from '../game/maps/map.utils';
 
 @Injectable()
 export class LobbyService {
@@ -22,6 +23,12 @@ export class LobbyService {
     @Inject(UserRepository)
     private readonly userRepository: EntityRepository<User>,
   ) {}
+
+  getAvailableMaps(): MapPreviewResponseDto[] {
+    const maps = getAllMaps();
+
+    return maps.map((m) => MapPreviewResponseDto.mapFromEntity(m));
+  }
 
   async createLobby(
     userId: string,
@@ -34,8 +41,7 @@ export class LobbyService {
       throw new WsException('Unauthorized');
     }
 
-    // const map = await this.mapRepository...
-    const map = getDesertMap();
+    const map = findMap(dto.mapId);
 
     if (!map) {
       throw new WsException('Map not found');
