@@ -18,28 +18,60 @@ export function calculateTankMovement(
 
   const cameraDependentMovementHorizontally =
     tank.cameraPosition.z > 0 ? 1 : -1;
+  const cameraDependentMovementVertically = tank.cameraPosition.x > 0 ? 1 : -1;
+  const wrapAround = tank.cameraPosition.x !== 0;
 
-  if (input.w) {
-    moveDirection.z -= cameraDependentMovementHorizontally;
-    if (!isRotationNear(rotation, 0)) targetRotation = Math.PI;
-  }
-  if (input.s) {
-    moveDirection.z += cameraDependentMovementHorizontally;
-    if (!isRotationNear(rotation, Math.PI)) targetRotation = 0;
-  }
-  if (input.a) {
-    moveDirection.x -= cameraDependentMovementHorizontally;
-    if (!isRotationNear(rotation, Math.PI / 2)) targetRotation = Math.PI * 1.5;
-  }
-  if (input.d) {
-    moveDirection.x += cameraDependentMovementHorizontally;
-    if (!isRotationNear(rotation, Math.PI * 1.5)) targetRotation = Math.PI / 2;
+  if (!wrapAround) {
+    if (input.w) {
+      moveDirection.z -= cameraDependentMovementHorizontally;
+      if (!isRotationNear(rotation, 0)) targetRotation = Math.PI;
+    }
+    if (input.s) {
+      moveDirection.z += cameraDependentMovementHorizontally;
+      if (!isRotationNear(rotation, Math.PI)) targetRotation = 0;
+    }
+    if (input.a) {
+      moveDirection.x -= cameraDependentMovementHorizontally;
+      if (!isRotationNear(rotation, Math.PI / 2))
+        targetRotation = Math.PI * 1.5;
+    }
+    if (input.d) {
+      moveDirection.x += cameraDependentMovementHorizontally;
+      if (!isRotationNear(rotation, Math.PI * 1.5))
+        targetRotation = Math.PI / 2;
+    }
+  } else {
+    if (input.w) {
+      moveDirection.x -= cameraDependentMovementVertically;
+      if (!isRotationNear(rotation, Math.PI / 2))
+        targetRotation = Math.PI * 1.5;
+    }
+    if (input.s) {
+      moveDirection.x += cameraDependentMovementVertically;
+      if (!isRotationNear(rotation, Math.PI * 1.5))
+        targetRotation = Math.PI / 2;
+    }
+    if (input.a) {
+      moveDirection.z += cameraDependentMovementVertically;
+      if (!isRotationNear(rotation, Math.PI)) targetRotation = 0;
+    }
+    if (input.d) {
+      moveDirection.z -= cameraDependentMovementVertically;
+      if (!isRotationNear(rotation, 0)) targetRotation = Math.PI;
+    }
   }
 
-  if (input.w && input.a) targetRotation = Math.PI * 1.25;
-  else if (input.w && input.d) targetRotation = Math.PI * 0.75;
-  else if (input.s && input.a) targetRotation = Math.PI * 1.75;
-  else if (input.s && input.d) targetRotation = Math.PI * 0.25;
+  if (!wrapAround) {
+    if (input.s && input.a) targetRotation = Math.PI * 1.75;
+    else if (input.w && input.a) targetRotation = Math.PI * 1.25;
+    else if (input.w && input.d) targetRotation = Math.PI * 0.75;
+    else if (input.s && input.d) targetRotation = Math.PI * 0.25;
+  } else {
+    if (input.s && input.a) targetRotation = Math.PI * 0.25;
+    else if (input.w && input.a) targetRotation = Math.PI * 1.75;
+    else if (input.w && input.d) targetRotation = Math.PI * 1.25;
+    else if (input.s && input.d) targetRotation = Math.PI * 0.75;
+  }
 
   if (targetRotation !== null) {
     const diff = shortestRotation(rotation, targetRotation);

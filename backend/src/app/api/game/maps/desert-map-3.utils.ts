@@ -29,11 +29,6 @@ export function getDesertMap3(): GameMap {
     teamEntryPoints: [
       {
         team: 1,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: -85,
-        },
         point: [
           {
             position: {
@@ -42,24 +37,29 @@ export function getDesertMap3(): GameMap {
               z: 0,
             },
             rotation: Math.PI / 2,
+            cameraPosition: {
+              x: -85,
+              y: 70,
+              z: 0,
+            },
           },
           {
             position: {
               x: 0,
               y: 0,
-              z: 40,
+              z: -40,
             },
-            rotation: 2 * Math.PI,
+            rotation: 0,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: -85,
+            },
           },
         ],
       },
       {
         team: 2,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: 85,
-        },
         point: [
           {
             position: {
@@ -67,25 +67,31 @@ export function getDesertMap3(): GameMap {
               y: 0,
               z: 0,
             },
-            rotation: Math.PI * 2.5,
+            rotation: Math.PI * 1.5,
+            cameraPosition: {
+              x: 85,
+              y: 70,
+              z: 0,
+            },
           },
           {
             position: {
               x: 0,
               y: 0,
-              z: -40,
+              z: 40,
             },
-            rotation: 2 * Math.PI,
+            rotation: 0,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: 85,
+            },
           },
         ],
       },
       {
         team: 3,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: -85,
-        },
+
         point: [
           {
             position: {
@@ -93,17 +99,17 @@ export function getDesertMap3(): GameMap {
               y: 0,
               z: 40,
             },
-            rotation: Math.PI * 2.5,
+            rotation: Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: 85,
+            },
           },
         ],
       },
       {
         team: 4,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: 85,
-        },
         point: [
           {
             position: {
@@ -111,7 +117,12 @@ export function getDesertMap3(): GameMap {
               y: 0,
               z: -40,
             },
-            rotation: Math.PI / 2,
+            rotation: 0,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: -85,
+            },
           },
         ],
       },
@@ -207,6 +218,28 @@ export function getDamagedWalls(): Obstacle[] {
       rotation: {
         x: 0,
         y: Math.PI / 2,
+        z: 0,
+      },
+    }),
+    getDamagedWall({
+      position: {
+        x: 0,
+        y: 0,
+        z: 20,
+      },
+      scale: {
+        x: 30,
+        y: 3,
+        z: 4,
+      },
+      renderScale: {
+        x: 0.075,
+        y: 0.2,
+        z: 0.1,
+      },
+      rotation: {
+        x: 0,
+        y: 0,
         z: 0,
       },
     }),

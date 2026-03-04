@@ -79,6 +79,9 @@ export class LobbyService {
       (l) => l.players.length < l.gameSettings.maxPlayersCount,
     );
 
+    console.log(lobbies);
+    lobbies.forEach((l) => l.players.forEach((p) => console.log(p)));
+
     return lobbies.map((l) => LobbyPreviewResponseDto.mapFromEntity(l));
   }
 

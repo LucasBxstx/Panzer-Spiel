@@ -29,11 +29,6 @@ export function getDesertMap2(): GameMap {
     teamEntryPoints: [
       {
         team: 1,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: -85,
-        },
         point: [
           {
             position: {
@@ -42,6 +37,11 @@ export function getDesertMap2(): GameMap {
               z: -15,
             },
             rotation: 2 * Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: -85,
+            },
           },
           {
             position: {
@@ -50,16 +50,16 @@ export function getDesertMap2(): GameMap {
               z: -15,
             },
             rotation: Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: -85,
+            },
           },
         ],
       },
       {
         team: 2,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: 85,
-        },
         point: [
           {
             position: {
@@ -68,6 +68,11 @@ export function getDesertMap2(): GameMap {
               z: 15,
             },
             rotation: Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: 85,
+            },
           },
           {
             position: {
@@ -76,16 +81,16 @@ export function getDesertMap2(): GameMap {
               z: 15,
             },
             rotation: 2 * Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: 85,
+            },
           },
         ],
       },
       {
         team: 3,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: -85,
-        },
         point: [
           {
             position: {
@@ -94,16 +99,16 @@ export function getDesertMap2(): GameMap {
               z: -15,
             },
             rotation: Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: -85,
+            },
           },
         ],
       },
       {
         team: 4,
-        cameraPosition: {
-          x: 0,
-          y: 70,
-          z: 85,
-        },
         point: [
           {
             position: {
@@ -112,6 +117,11 @@ export function getDesertMap2(): GameMap {
               z: 15,
             },
             rotation: 2 * Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: 85,
+            },
           },
         ],
       },

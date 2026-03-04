@@ -16,10 +16,10 @@ export interface GameMap {
 export interface TeamEntryPoints {
   team: number;
   point: EntryPoint[];
-  cameraPosition: Position;
 }
 
 export interface EntryPoint {
   rotation: number;
   position: Position;
+  cameraPosition: Position;
 }

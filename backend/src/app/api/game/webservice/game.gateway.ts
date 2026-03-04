@@ -113,8 +113,8 @@ export class GameGateway
 
       return game;
     } catch (error) {
-      this.logger.log(`User ${userId} disconnected`);
-      client.disconnect();
+      // this.logger.log(`User ${userId} disconnected`);
+      // client.disconnect();
       if (error instanceof WsException) {
         throw error;
       }
