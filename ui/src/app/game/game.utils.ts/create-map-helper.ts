@@ -128,3 +128,52 @@ export function getStoneWallTexture(): TextureResponse {
     repeat: { x: 20, y: 20 },
   };
 }
+
+export function getContainers(): ObstacleResponse[] {
+  return [
+    getContainer({
+      position: {
+        x: 0,
+        y: 4,
+        z: 0,
+      },
+      scale: {
+        x: 20,
+        y: 10,
+        z: 25,
+      },
+      renderScale: {
+        x: 0.2,
+        y: 0.2,
+        z: 0.2,
+      },
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+    }),
+  ];
+}
+
+export function getContainer({
+  position,
+  renderScale,
+  scale,
+  rotation,
+}: {
+  position: Position;
+  rotation: Vector3D;
+  scale: Scale;
+  renderScale: Scale;
+}): ObstacleResponse {
+  return {
+    id: 'a',
+    name: 'damaged-wall',
+    modelUrl: 'assets/models/container.glb',
+    position,
+    renderScale,
+    scale,
+    rotation,
+  };
+}

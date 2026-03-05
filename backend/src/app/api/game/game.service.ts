@@ -69,7 +69,7 @@ export class GameService {
     const game: Game = {
       id: uuidv4(),
       hostUserName: lobby.hostUserName,
-      startingAt: new Date(Date.now() + 30 * 1000),
+      startingAt: new Date(Date.now() + 20 * 1000),
       gameSettings: lobby.gameSettings,
       players,
       teams,
@@ -206,7 +206,8 @@ export class GameService {
       tankMovement,
       obstacles,
     );
-    const collidesTank = tankCollidesTank(tank, tankMovement, tanks);
+    const aliveTanks = tanks.filter((t) => !t.isDead);
+    const collidesTank = tankCollidesTank(tank, tankMovement, aliveTanks);
     const outOfMap = tankOutOfMap(tank, tankMovement, game.gameSettings.map);
 
     if (!collidesObstacle && !collidesTank && !outOfMap) {

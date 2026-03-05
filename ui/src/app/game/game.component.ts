@@ -23,7 +23,6 @@ import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
 import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
-import { applyInput } from './game.utils.ts/applyInput';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
 import { BulletObject } from '../shared/models/bullet.model';
@@ -50,18 +49,21 @@ export class GameComponent implements OnInit, OnDestroy {
   public readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
-  private scene!: THREE.Scene;
 
+  private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
   private clock = new THREE.Clock();
   private labelRenderer!: CSS2DRenderer;
   private explosionService!: ExplosionService;
-
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
+
+  private boundResize = this.onWindowResize.bind(this);
+  private isInitialized = false;
 
   private lastTurretSendTime = 0;
   private lastUpdatedTurretRotation = 0;
@@ -139,6 +141,10 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private drawGame(): void {
+    if (this.isInitialized) {
+      this.resetEngine();
+    }
+
     this.initThreeJS();
     this.buildMap();
     this.addTanks();
@@ -146,6 +152,8 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private initThreeJS(): void {
+    if (this.isInitialized) return;
+
     const canvas = this.canvasRef.nativeElement;
 
     this.scene = new THREE.Scene();
@@ -153,6 +161,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.camera = setupCamera(canvas, this.cameraPosition);
     this.renderer = setupRenderer(canvas);
+
     this.labelRenderer = setupCss2dRenderer();
     document.body.appendChild(this.labelRenderer.domElement);
 
@@ -160,7 +169,9 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.explosionService = new ExplosionService(this.scene);
 
-    window.addEventListener('resize', this.onWindowResize.bind(this));
+    window.addEventListener('resize', this.boundResize);
+
+    this.isInitialized = true;
   }
 
   private buildMap() {
@@ -185,7 +196,7 @@ export class GameComponent implements OnInit, OnDestroy {
     // obstacles.push(getDesertGround());
     // const walls = getWalls();
     // walls.forEach((w) => createObstacleWithTexture(this.scene, w));
-    // const cliffs = getCliffLandscape();
+    // const cliffs = getContainers();
     // cliffs.forEach((o) => createObstacleWithModel(this.scene, o));
   }
 
@@ -214,18 +225,25 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private animate(): void {
-    this.animationId = requestAnimationFrame(() => this.animate());
-    const deltaTime = this.clock.getDelta();
+    if (this.animationId) return;
 
-    this.updateMyTankPosition(deltaTime);
-    this.updateMyTurretRotation();
-    this.updateAllTankPositions();
-    this.updateFireBullets();
-    this.updateBulletPositions();
-    this.explosionService.update();
+    const loop = () => {
+      this.animationId = requestAnimationFrame(loop);
 
-    this.renderer.render(this.scene, this.camera);
-    this.labelRenderer.render(this.scene, this.camera);
+      const deltaTime = this.clock.getDelta();
+
+      this.updateMyTankPosition(deltaTime);
+      this.updateMyTurretRotation();
+      this.updateAllTankPositions();
+      this.updateFireBullets();
+      this.updateBulletPositions();
+      this.explosionService.update();
+
+      this.renderer.render(this.scene, this.camera);
+      this.labelRenderer.render(this.scene, this.camera);
+    };
+
+    loop();
   }
 
   private updateMyTurretRotation(): void {
@@ -324,14 +342,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
     const seq = myTankProps.seq;
 
-    this.localPosition = applyInput(
-      this.localPosition,
-      input,
-      myTankProps.speed,
-      myTankProps.rotationSpeed,
-      deltaTime,
-      this.cameraPosition,
-    );
+    // this.localPosition = applyInput(
+    //   this.localPosition,
+    //   input,
+    //   myTankProps.speed,
+    //   myTankProps.rotationSpeed,
+    //   deltaTime,
+    //   this.cameraPosition,
+    // );
 
     // If tank movement is too laggy in production, we can assign the new position directly
     // But for now in development, the game is so smooth, that we don't need to do prediction
@@ -450,10 +468,13 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private onWindowResize(): void {
-    window.location.reload();
+    if (!this.renderer || !this.camera) return;
+
     const canvas = this.canvasRef.nativeElement;
+
     this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
     this.camera.updateProjectionMatrix();
+
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
   }
@@ -466,16 +487,22 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.resetEngine();
+  }
+
+  private resetEngine(): void {
+    // Stop animation loop
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
+      this.animationId = undefined;
     }
 
+    // Remove resize listener
+    window.removeEventListener('resize', this.boundResize);
+
+    // Dispose scene objects
     if (this.scene) {
       this.scene.traverse((object: any) => {
-        if (object.isCSS2DObject) {
-          object.element?.remove();
-        }
-
         if (object.isMesh) {
           object.geometry?.dispose();
 
@@ -485,16 +512,32 @@ export class GameComponent implements OnInit, OnDestroy {
             this.disposeMaterial(object.material);
           }
         }
+
+        if (object.isCSS2DObject) {
+          object.element?.remove();
+        }
       });
+
       this.scene.clear();
     }
 
-    if (this.renderer) this.renderer.dispose();
+    // Dispose renderer + FORCE context loss
+    if (this.renderer) {
+      this.renderer.dispose();
+      this.renderer.forceContextLoss();
+      (this.renderer.domElement as any) = null;
+    }
 
+    // Remove label renderer
     if (this.labelRenderer) {
       this.labelRenderer.domElement.remove();
     }
 
-    window.removeEventListener('resize', this.onWindowResize.bind(this));
+    // Reset arrays
+    this.tanks = [];
+    this.bullets = [];
+    this.pendingBullets.clear();
+
+    this.isInitialized = false;
   }
 }

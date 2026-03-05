@@ -12,7 +12,7 @@ import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LobbyService } from '../../shared/services/lobby.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-create-lobby',
@@ -33,21 +33,28 @@ export class CreateLobbyComponent {
   private readonly router = inject(Router);
 
   public isAlreadyCreatingLobby = false;
-  public readonly selectedMapId = signal<string>('1');
+  public readonly selectedMapId = signal<string>('desert1');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
-  public readonly availableMaps = signal<MapPreviewResponse[]>([
-    {
-      id: '1',
-      name: 'Desert',
-      pictureUrl: 'assets/pictures/map-desert.png',
-    },
-    {
-      id: '2',
-      name: 'Jungle',
 
-      pictureUrl: 'assets/pictures/map-jungle.png',
+  public readonly availableMaps = toSignal<MapPreviewResponse[] | null>(
+    this.lobbyService.getAvailableMaps().pipe(takeUntilDestroyed(this.destroyRef)),
+    {
+      initialValue: null,
     },
-  ]);
+  );
+  // public readonly availableMaps = signal<MapPreviewResponse[]>([
+  //   {
+  //     id: '1',
+  //     name: 'Desert',
+  //     pictureUrl: 'assets/pictures/map-desert.png',
+  //   },
+  //   {
+  //     id: '2',
+  //     name: 'Jungle',
+  //
+  //     pictureUrl: 'assets/pictures/map-jungle.png',
+  //   },
+  // ]);
   public readonly availableModes = signal<GameModeOption[]>([
     {
       name: '1 vs 1',

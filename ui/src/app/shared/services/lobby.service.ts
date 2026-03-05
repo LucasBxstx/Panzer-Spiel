@@ -1,7 +1,12 @@
 import { EventEmitter, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from './auth.service';
 import { io, Socket } from 'socket.io-client';
-import { CreateGameResponse, CreateLobbyRequest, LobbyResponse } from '../models/lobby.model';
+import {
+  CreateGameResponse,
+  CreateLobbyRequest,
+  LobbyResponse,
+  MapPreviewResponse,
+} from '../models/lobby.model';
 import { environment } from '../../../environments/environment';
 import { interval, Observable, startWith, switchMap } from 'rxjs';
 import { LobbyPreviewResponse } from '../models/lobby-preview.model';
@@ -24,6 +29,10 @@ export class LobbyService {
       startWith(0),
       switchMap(() => this.httpClient.get<LobbyPreviewResponse[]>(`${environment.apiUrl}/lobby`)),
     );
+  }
+
+  public getAvailableMaps(): Observable<MapPreviewResponse[]> {
+    return this.httpClient.get<MapPreviewResponse[]>(`${environment.apiUrl}/lobby/available-maps`);
   }
 
   connect() {

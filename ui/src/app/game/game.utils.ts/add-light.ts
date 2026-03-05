@@ -6,7 +6,7 @@ export function addLight(scene: Scene): void {
   scene.add(ambientLight);
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(10, 20, 10);
+  directionalLight.position.set(70, 80, 70);
   directionalLight.castShadow = true;
 
   directionalLight.shadow.mapSize.width = 2048;
