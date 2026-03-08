@@ -477,6 +477,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    window.location.reload();
   }
 
   private showYouHaveBeenKilled(): void {
