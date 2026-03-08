@@ -16,20 +16,22 @@
         </div>
 
 
-        <div class="mt-4">
-          <div class="input-container">
-            <div class="input-description">Name</div>
-            <input type="email" [formControl]="registerFormGroup.controls.name">
-          </div>
+        <div class="mt-4 w-full flex justify-center">
+          <div class="sm:w-[80%] w-full">
+            <div class="input-container">
+              <div class="input-description">Name</div>
+              <input type="email" [formControl]="registerFormGroup.controls.name">
+            </div>
 
-          <div class="input-container">
-            <div class="input-description">Email</div>
-            <input type="email" [formControl]="registerFormGroup.controls.email">
-          </div>
+            <div class="input-container">
+              <div class="input-description">Email</div>
+              <input type="email" [formControl]="registerFormGroup.controls.email">
+            </div>
 
-          <div class="input-container">
-            <div class="input-description">Password</div>
-            <input type="password" [formControl]="registerFormGroup.controls.password" (keyup.enter)="register()">
+            <div class="input-container">
+              <div class="input-description">Password</div>
+              <input type="password" [formControl]="registerFormGroup.controls.password" (keyup.enter)="register()">
+            </div>
           </div>
         </div>
 
@@ -39,8 +41,8 @@
           </div>
         }
       </div>
-      <div bottom>
-        <button (click)="register()" class="w-[300px]" [disabled]="registerFormGroup.invalid">Register</button>
+      <div bottom class="w-full flex justify-center">
+        <button (click)="register()" class="w-[70%]" [disabled]="registerFormGroup.invalid">Register</button>
       </div>
     </app-card-wrapper>
   </app-card>
