@@ -16,6 +16,10 @@
   img {
     border-radius: 3px;
     display: block;
+
+    @media screen and (max-width: 700px) {
+      width: 190px;
+    }
   }
 
   .description {
