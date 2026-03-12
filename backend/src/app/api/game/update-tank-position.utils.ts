@@ -9,7 +9,6 @@ import { Position } from '../../common/models/position.model';
 export function calculateTankMovement(
   tank: Tank,
   input: InputStateDto,
-  deltaTime: number,
 ): TankMovement {
   const moveDirection: Position = { x: 0, y: 0, z: 0 };
   let targetRotation: number | null = null;
@@ -72,16 +71,17 @@ export function calculateTankMovement(
     else if (input.w && input.d) targetRotation = Math.PI * 1.25;
     else if (input.s && input.d) targetRotation = Math.PI * 0.75;
   }
+  const FIXED_DELTA = 1 / 20;
 
   if (targetRotation !== null) {
     const diff = shortestRotation(rotation, targetRotation);
-    rotation += diff * tank.rotationSpeed * deltaTime * 60;
+    rotation += diff * tank.rotationSpeed * FIXED_DELTA;
   }
 
   if (moveDirection.x !== 0 || moveDirection.z !== 0) {
     normalizeInPlace(moveDirection);
-    position.z += moveDirection.z * tank.speed * deltaTime * 60;
-    position.x += moveDirection.x * tank.speed * deltaTime * 60;
+    position.z += moveDirection.z * tank.speed * FIXED_DELTA;
+    position.x += moveDirection.x * tank.speed * FIXED_DELTA;
   }
 
   return { position, rotation: create3DVector(0, rotation, 0) };

@@ -64,7 +64,6 @@ export interface TankPosition {
 export interface UpdateTankPosition {
   seq: number;
   input: InputState;
-  deltaTime: number;
   timestamp: number;
 }
 
