@@ -200,7 +200,7 @@ export class GameService {
       (t) => t.id !== tank.id,
     );
 
-    const tankMovement = calculateTankMovement(tank, dto.input, dto.deltaTime);
+    const tankMovement = calculateTankMovement(tank, dto.input);
     const collidesObstacle = tankCollidesObstacle(
       tank,
       tankMovement,

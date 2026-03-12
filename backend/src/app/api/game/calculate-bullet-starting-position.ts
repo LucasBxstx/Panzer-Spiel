@@ -10,23 +10,44 @@ export function calculateBulletStartingPosition(
   const moveDirection: Position = { x: 0, y: 0, z: 0 };
   const position = structuredClone(bullet.position);
 
-  if (bullet.playerMovement.w) {
-    moveDirection.z -= 1;
+  const cameraDependentMovementHorizontally =
+    tank.cameraPosition.z > 0 ? 1 : -1;
+  const cameraDependentMovementVertically = tank.cameraPosition.x > 0 ? 1 : -1;
+  const wrapAround = tank.cameraPosition.x !== 0;
+
+  if (!wrapAround) {
+    if (bullet.playerMovement.w) {
+      moveDirection.z -= cameraDependentMovementHorizontally;
+    }
+    if (bullet.playerMovement.s) {
+      moveDirection.z += cameraDependentMovementHorizontally;
+    }
+    if (bullet.playerMovement.a) {
+      moveDirection.x -= cameraDependentMovementHorizontally;
+    }
+    if (bullet.playerMovement.d) {
+      moveDirection.x += cameraDependentMovementHorizontally;
+    }
+  } else {
+    if (bullet.playerMovement.w) {
+      moveDirection.x -= cameraDependentMovementVertically;
+    }
+    if (bullet.playerMovement.s) {
+      moveDirection.x += cameraDependentMovementVertically;
+    }
+    if (bullet.playerMovement.a) {
+      moveDirection.z += cameraDependentMovementVertically;
+    }
+    if (bullet.playerMovement.d) {
+      moveDirection.z -= cameraDependentMovementVertically;
+    }
   }
-  if (bullet.playerMovement.s) {
-    moveDirection.z += 1;
-  }
-  if (bullet.playerMovement.a) {
-    moveDirection.x -= 1;
-  }
-  if (bullet.playerMovement.d) {
-    moveDirection.x += 1;
-  }
+  const FIXED_DELTA = 1 / 20;
 
   if (moveDirection.x !== 0 || moveDirection.z !== 0) {
     normalizeInPlace(moveDirection);
-    position.x += moveDirection.x * tank.speed * 2;
-    position.z += moveDirection.z * tank.speed * 2;
+    position.z += moveDirection.z * tank.speed * FIXED_DELTA * 2;
+    position.x += moveDirection.x * tank.speed * FIXED_DELTA * 2;
   }
 
   const turretLength = 8;

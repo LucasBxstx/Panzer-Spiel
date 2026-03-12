@@ -390,7 +390,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.pendingInputs.push({ seq, input, deltaTime });
 
-    this.gameService.updateTankPosition({ seq, input, deltaTime, timestamp: Date.now() });
+    this.gameService.updateTankPosition({ seq, input, timestamp: Date.now() });
   }
 
   private updateFireBullets(): void {

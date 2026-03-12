@@ -14,6 +14,6 @@ export class DeviceService {
     // iPadOS 13+ tarnt sich als macOS, aber hat Touch
     const isIPad = /Macintosh/i.test(navigator.userAgent) && hasTouch;
 
-    return true || (hasTouch && (isMobileAgent || isIPad));
+    return hasTouch && (isMobileAgent || isIPad);
   }
 }

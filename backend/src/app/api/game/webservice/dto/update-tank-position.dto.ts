@@ -24,8 +24,5 @@ export class UpdateTankPositionDto {
   input: InputStateDto;
 
   @IsNumber()
-  deltaTime: number;
-
-  @IsNumber()
   timestamp: number;
 }
