@@ -10,16 +10,25 @@
 
         <div class="font-bold mt-3">Map:</div>
 
-        <div class="flex flex-row gap-5 align-center">
-          @for (map of availableMaps(); track map.id) {
-            <app-map-preview [map]="map" [isSelected]="selectedMapId() === map.id"
-                             (click)="selectedMapId.set(map.id)"></app-map-preview>
-          }
+        <div class="relative">
+          <div #mapPreviewContainer class=" flex flex-row gap-5 items-center overflow-x-auto max-w-full">
+            @for (map of availableMaps(); track map.id) {
+              <app-map-preview [map]="map" [isSelected]="selectedMapId() === map.id" class="shrink-0"
+                               (click)="selectedMapId.set(map.id)"></app-map-preview>
+            }
+
+          </div>
+          <div class="absolute right-0 top-1/2 -translate-y-1/2">
+            <button (click)="scrollToRight()" class="no-button">
+
+              <img ngSrc="assets/icons/next.svg" alt="next" width="40" height="80" class="cursor-pointer">
+            </button>
+          </div>
         </div>
 
         <div class="font-bold mt-3">Mode:</div>
 
-        <div class="flex flex-row gap-5 align-center">
+        <div class="flex flex-row gap-5 items-center">
           @for (mode of availableModes(); track mode.name) {
             <app-chip [value]="mode.name" [class]="{selected: mode.value === selectedMode()}"
                       (click)="selectedMode.set(mode.value)"></app-chip>

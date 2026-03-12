@@ -1,4 +1,12 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { PageWrapperComponent } from '../../shared/components/page-wrapper/page-wrapper.component';
 import {
@@ -13,6 +21,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { LobbyService } from '../../shared/services/lobby.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-create-lobby',
@@ -22,6 +31,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
     MapPreviewComponent,
     ChipComponent,
     ReactiveFormsModule,
+    NgOptimizedImage,
   ],
   templateUrl: './create-lobby.component.html',
   styleUrl: './create-lobby.component.scss',
@@ -32,8 +42,10 @@ export class CreateLobbyComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
+  public readonly mapPreviewContainer = viewChild<ElementRef>('mapPreviewContainer');
+
   public isAlreadyCreatingLobby = false;
-  public readonly selectedMapId = signal<string>('desert1');
+  public readonly selectedMapId = signal<string>('desertbarricade');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
 
   public readonly availableMaps = toSignal<MapPreviewResponse[] | null>(
@@ -110,5 +122,9 @@ export class CreateLobbyComponent {
       .subscribe((lobby) => {
         this.router.navigate([`/lobby/${lobby.id}`]);
       });
+  }
+
+  public scrollToRight(): void {
+    this.mapPreviewContainer()?.nativeElement.scrollBy({ left: 300, behavior: 'smooth' });
   }
 }

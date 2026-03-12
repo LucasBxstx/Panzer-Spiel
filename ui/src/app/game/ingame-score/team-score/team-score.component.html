@@ -1,7 +1,8 @@
 <div class="font-bold text-xl text-center" [style]="{color: teamData().color}">Team {{ teamData().name }}</div>
-<div class="flex flex-row flex-wrap gap-3 justify-center align-center mt-2">
+<div class="flex flex-row flex-wrap gap-3 justify-center align-center">
   @for (player of teamData().playerStats; track player.id) {
-    <div class="flex text-lg my-1 mx-2 chip gap-2 px-6 py-1" [class.selected]="authService.user()?.id === player.id">
+    <div class="flex text-md  mx-2 chip gap-2 px-6 py-[1px]"
+         [class.selected]="authService.user()?.id === player.id">
       <div [class.text-black]="!player.isDead" [class.text-grey-500]="player.isDead">{{ player.name }}</div>
       <img ngSrc="assets/icons/tank-icon.svg" width="25" height="25" alt="tank" [class.opacity-50]="player.isDead"
            [class.opacity-100]="!player.isDead">

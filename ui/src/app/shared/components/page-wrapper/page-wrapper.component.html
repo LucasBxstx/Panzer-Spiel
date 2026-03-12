@@ -4,7 +4,7 @@
        alt="Tank Game Multiplayer" priority>
 </div>
 
-<div class="flex gap-4">
+<div class="flex gap-4 ">
   <button (click)="navigate()" [disabled]="disableLeavePage()"
           class="flex justify-center align-center gap-2 flex-[30%] ">
     <img ngSrc="assets/icons/arrow-left.svg" alt="back" width="24"
@@ -12,7 +12,7 @@
     <div class="hidden md:block">{{ backLabel() }}</div>
   </button>
 
-  <div class="flex-[60%] text-center font-bold text-3xl">
+  <div class="flex-[60%] flex justify-center items-center font-bold sm:text-3xl text-xl">
     {{ headingLabel() }}
   </div>
 

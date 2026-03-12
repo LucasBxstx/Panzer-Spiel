@@ -13,6 +13,11 @@
   &:hover {
     background-color: $light-card-hover-color;
   }
+
+  @media screen and (max-width: 600px) {
+    flex-direction: column;
+    gap: 3px;
+  }
 }
 
 button {

@@ -49,13 +49,14 @@
   font-size: 35px;
   justify-content: center;
   animation: fade-in-out 6s ease-in-out;
-  color: $selection-color;
+  color: #2c6ec6;
 
   @include fade-in-out();
 
 }
 
 .chip {
-  background-color: rgba(81, 86, 88, 0.69);
+  background-color: rgba(34, 35, 36, 0.86);
+  color: white;
 
 }

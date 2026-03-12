@@ -6,7 +6,7 @@
              height="146" priority>
       </div>
       <div content>
-        <div class="text-center mx-10">
+        <div class="text-center sm:mx-10">
           Willkommen beim dem legendären Panzer Spiel! Logge dich ein, oder
           <a
             routerLink="/register"
@@ -16,15 +16,17 @@
           , wenn du noch keinen hast, und starte ins Spiel!
         </div>
 
-        <div class="mt-4">
-          <div class="input-container">
-            <div class="input-description">Email</div>
-            <input type="email" [formControl]="loginFormGroup.controls.email">
-          </div>
+        <div class="mt-4 w-full flex justify-center">
+          <div class="sm:w-[80%] w-full">
+            <div class="input-container">
+              <div class="input-description">Email</div>
+              <input type="email" [formControl]="loginFormGroup.controls.email">
+            </div>
 
-          <div class="input-container">
-            <div class="input-description">Password</div>
-            <input type="password" [formControl]="loginFormGroup.controls.password" (keyup.enter)="login()">
+            <div class="input-container">
+              <div class="input-description">Password</div>
+              <input type="password" [formControl]="loginFormGroup.controls.password" (keyup.enter)="login()">
+            </div>
           </div>
         </div>
 
@@ -35,8 +37,8 @@
         }
 
       </div>
-      <div bottom>
-        <button (click)="login()" class="w-[300px]" [disabled]="loginFormGroup.invalid">Login</button>
+      <div bottom class="w-full flex justify-center">
+        <button (click)="login()" class="w-[70%]" [disabled]="loginFormGroup.invalid">Login</button>
       </div>
     </app-card-wrapper>
   </app-card>
