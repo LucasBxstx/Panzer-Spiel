@@ -60,7 +60,7 @@ export class JoystickComponent implements AfterViewInit, OnDestroy {
       if (this.useCase() === 'movement') {
         if (!data.vector) return;
 
-        const threshold = 0.3;
+        const threshold = 0.1;
         const dirX =
           data.vector.x > threshold ? 'right' : data.vector.x < -threshold ? 'left' : undefined;
 
