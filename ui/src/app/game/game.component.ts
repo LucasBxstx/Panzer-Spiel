@@ -18,6 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addLight } from './game.utils.ts/add-light';
 import { setupCamera } from './game.utils.ts/setup-camera';
 import { setupRenderer } from './game.utils.ts/setup-renderer';
+
 import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
@@ -33,10 +34,12 @@ import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-s
 import { setupCss2dRenderer } from './game.utils.ts/setup-css-2d-renderer';
 import { CSS2DRenderer } from 'three-stdlib';
 import { InitialGameStateResponse } from '../shared/models/game.model';
+import { JoystickComponent } from '../shared/components/joystick/joystick.component';
+import { DeviceService } from '../shared/services/device.service';
 
 @Component({
   selector: 'app-game',
-  imports: [SpinnerComponent, RouterOutlet, IngameScoreComponent],
+  imports: [SpinnerComponent, RouterOutlet, IngameScoreComponent, JoystickComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -49,6 +52,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  public readonly deviceService = inject(DeviceService);
 
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
@@ -64,6 +68,13 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private boundResize = this.onWindowResize.bind(this);
   private isInitialized = false;
+  private mobileFiring = false;
+
+  private clickHandler = () => (this.mobileFiring = true);
+  private touchHandler = (e: TouchEvent) => {
+    e.preventDefault();
+    this.mobileFiring = true;
+  };
 
   private lastTurretSendTime = 0;
   private lastUpdatedTurretRotation = 0;
@@ -106,6 +117,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.joinOrRejoinGame();
+    this.setupClickToShoot();
   }
 
   private joinOrRejoinGame(): void {
@@ -326,10 +338,22 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private updateMyTankPosition(deltaTime: number): void {
     const input: InputState = {
-      w: this.keyboardService.isKeyPressed('KeyW'),
-      a: this.keyboardService.isKeyPressed('KeyA'),
-      s: this.keyboardService.isKeyPressed('KeyS'),
-      d: this.keyboardService.isKeyPressed('KeyD'),
+      w:
+        this.keyboardService.isKeyPressed('KeyW') ||
+        this.keyboardService.isKeyPressed('ArrowUp') ||
+        this.keyboardService.joystickMovement().w,
+      a:
+        this.keyboardService.isKeyPressed('KeyA') ||
+        this.keyboardService.isKeyPressed('ArrowLeft') ||
+        this.keyboardService.joystickMovement().a,
+      s:
+        this.keyboardService.isKeyPressed('KeyS') ||
+        this.keyboardService.isKeyPressed('ArrowDown') ||
+        this.keyboardService.joystickMovement().s,
+      d:
+        this.keyboardService.isKeyPressed('KeyD') ||
+        this.keyboardService.isKeyPressed('ArrowRight') ||
+        this.keyboardService.joystickMovement().d,
     };
 
     const noKeyPressed = !Object.values(input).some((v) => v);
@@ -363,9 +387,11 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private updateFireBullets(): void {
-    const isSpacePressed = this.keyboardService.isKeyPressed('Space');
+    const isSpacePressed = this.keyboardService.isKeyPressed('Space') || this.mobileFiring;
 
     if (!isSpacePressed || !this.myTank) return;
+
+    this.mobileFiring = false;
 
     const now = Date.now();
     if (now - this.lastShotTime < this.SHOOT_SEND_INTERVAL) return;
@@ -487,6 +513,14 @@ export class GameComponent implements OnInit, OnDestroy {
     }, 5000);
   }
 
+  private setupClickToShoot(): void {
+    const canvas = document.querySelector('canvas');
+    if (!canvas) return;
+
+    canvas.addEventListener('click', this.clickHandler);
+    canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
+  }
+
   ngOnDestroy(): void {
     this.resetEngine();
   }
@@ -498,6 +532,11 @@ export class GameComponent implements OnInit, OnDestroy {
       this.animationId = undefined;
     }
 
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      canvas.removeEventListener('click', this.clickHandler);
+      canvas.removeEventListener('touchstart', this.touchHandler);
+    }
     // Remove resize listener
     window.removeEventListener('resize', this.boundResize);
 
