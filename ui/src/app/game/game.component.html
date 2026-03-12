@@ -3,7 +3,8 @@
 </div>
 
 @if (deviceService.isMobile()) {
-  <app-joystick></app-joystick>
+  <app-joystick [useCase]="'movement'"></app-joystick>
+  <app-joystick [useCase]="'rotation'"></app-joystick>
 }
 
 <app-ingame-score></app-ingame-score>

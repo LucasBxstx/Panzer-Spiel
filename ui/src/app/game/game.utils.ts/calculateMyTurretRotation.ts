@@ -1,5 +1,33 @@
 import * as THREE from 'three';
 import { TankGroup } from '../../shared/models/tank.model';
+import { Position } from '../../shared/models/vector.model';
+
+export function calculateMyTurretRotationMobile(
+  myTank: TankGroup,
+  joystickWorldRotation: number,
+  cameraPosition: Position,
+): number {
+  let offset = 0;
+  if (cameraPosition.z !== 0) {
+    if (cameraPosition.z > 0) {
+      offset = Math.PI / 2;
+    } else {
+      offset = Math.PI * 1.5;
+    }
+  } else if (cameraPosition.x !== 0) {
+    if (cameraPosition.x < 0) {
+      offset = 0;
+    } else {
+      offset = Math.PI;
+    }
+  }
+  const tankWorldRotation = myTank.tankGroup.rotation.y;
+  const targetRotationRelative = joystickWorldRotation + offset - tankWorldRotation;
+
+  const lerpFactor = 0.15;
+  const diff = shortestRotation(myTank.tankTurret.rotation.y, targetRotationRelative);
+  return myTank.tankTurret.rotation.y + diff * lerpFactor;
+}
 
 export function calculateMyTurretRotation(
   myTank: TankGroup,
