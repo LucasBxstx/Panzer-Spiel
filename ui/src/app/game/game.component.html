@@ -2,6 +2,10 @@
   <canvas #gameCanvas></canvas>
 </div>
 
+@if (deviceService.isMobile()) {
+  <app-joystick></app-joystick>
+}
+
 <app-ingame-score></app-ingame-score>
 
 @if (showError() || showSpinner()) {

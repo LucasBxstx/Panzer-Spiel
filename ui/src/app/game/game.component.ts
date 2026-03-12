@@ -11,32 +11,35 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as THREE from 'three';
-import {KeyboardInputService} from '../shared/services/keyboard-input.service';
-import {GameService} from '../shared/services/game.service';
-import {ActivatedRoute, Router, RouterOutlet} from '@angular/router';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {addLight} from './game.utils.ts/add-light';
-import {setupCamera} from './game.utils.ts/setup-camera';
-import {setupRenderer} from './game.utils.ts/setup-renderer';
-import {createObstacleWithModel, createObstacleWithTexture} from './game.utils.ts/add-obstacle';
-import {addTank} from './game.utils.ts/add-tank';
-import {InputState, TankGroup, TankPosition} from '../shared/models/tank.model';
-import {calculateMyTurretRotation} from './game.utils.ts/calculateMyTurretRotation';
-import {catchError, finalize, throwError} from 'rxjs';
-import {addGround} from './game.utils.ts/add-ground';
-import {Position, Vector3D} from '../shared/models/vector.model';
-import {BulletObject} from '../shared/models/bullet.model';
-import {createBullet} from './game.utils.ts/add-bullet';
-import {SpinnerComponent} from '../shared/components/spinner/spinner.component';
-import {IngameScoreComponent} from './ingame-score/ingame-score.component';
-import {ExplosionResponse, ExplosionService} from './game.utils.ts/explosion-service';
-import {setupCss2dRenderer} from './game.utils.ts/setup-css-2d-renderer';
-import {CSS2DRenderer} from 'three-stdlib';
-import {InitialGameStateResponse} from '../shared/models/game.model';
+import { KeyboardInputService } from '../shared/services/keyboard-input.service';
+import { GameService } from '../shared/services/game.service';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { addLight } from './game.utils.ts/add-light';
+import { setupCamera } from './game.utils.ts/setup-camera';
+import { setupRenderer } from './game.utils.ts/setup-renderer';
+
+import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
+import { addTank } from './game.utils.ts/add-tank';
+import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
+import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRotation';
+import { catchError, finalize, throwError } from 'rxjs';
+import { addGround } from './game.utils.ts/add-ground';
+import { Position, Vector3D } from '../shared/models/vector.model';
+import { BulletObject } from '../shared/models/bullet.model';
+import { createBullet } from './game.utils.ts/add-bullet';
+import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
+import { IngameScoreComponent } from './ingame-score/ingame-score.component';
+import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
+import { setupCss2dRenderer } from './game.utils.ts/setup-css-2d-renderer';
+import { CSS2DRenderer } from 'three-stdlib';
+import { InitialGameStateResponse } from '../shared/models/game.model';
+import { JoystickComponent } from '../shared/components/joystick/joystick.component';
+import { DeviceService } from '../shared/services/device.service';
 
 @Component({
   selector: 'app-game',
-  imports: [SpinnerComponent, RouterOutlet, IngameScoreComponent],
+  imports: [SpinnerComponent, RouterOutlet, IngameScoreComponent, JoystickComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
@@ -49,6 +52,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public readonly gameService = inject(GameService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  public readonly deviceService = inject(DeviceService);
 
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
@@ -334,14 +338,22 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private updateMyTankPosition(deltaTime: number): void {
     const input: InputState = {
-      w: this.keyboardService.isKeyPressed('KeyW') || this.keyboardService.isKeyPressed('ArrowUp'),
+      w:
+        this.keyboardService.isKeyPressed('KeyW') ||
+        this.keyboardService.isKeyPressed('ArrowUp') ||
+        this.keyboardService.joystickMovement().w,
       a:
-        this.keyboardService.isKeyPressed('KeyA') || this.keyboardService.isKeyPressed('ArrowLeft'),
+        this.keyboardService.isKeyPressed('KeyA') ||
+        this.keyboardService.isKeyPressed('ArrowLeft') ||
+        this.keyboardService.joystickMovement().a,
       s:
-        this.keyboardService.isKeyPressed('KeyS') || this.keyboardService.isKeyPressed('ArrowDown'),
+        this.keyboardService.isKeyPressed('KeyS') ||
+        this.keyboardService.isKeyPressed('ArrowDown') ||
+        this.keyboardService.joystickMovement().s,
       d:
         this.keyboardService.isKeyPressed('KeyD') ||
-        this.keyboardService.isKeyPressed('ArrowRight'),
+        this.keyboardService.isKeyPressed('ArrowRight') ||
+        this.keyboardService.joystickMovement().d,
     };
 
     const noKeyPressed = !Object.values(input).some((v) => v);
