@@ -14,6 +14,8 @@ export class KeyboardInputService {
     d: false,
   });
 
+  public readonly joystickRotation = signal<number>(0);
+
   constructor() {
     window.addEventListener('keydown', (event) => {
       this.keys.add(event.code);
@@ -37,5 +39,9 @@ export class KeyboardInputService {
 
       return movement;
     });
+  }
+
+  setRotation(radian: number) {
+    this.joystickRotation.set(radian);
   }
 }

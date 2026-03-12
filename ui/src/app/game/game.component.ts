@@ -22,7 +22,10 @@ import { setupRenderer } from './game.utils.ts/setup-renderer';
 import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
-import { calculateMyTurretRotation } from './game.utils.ts/calculateMyTurretRotation';
+import {
+  calculateMyTurretRotation,
+  calculateMyTurretRotationMobile,
+} from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
@@ -261,12 +264,16 @@ export class GameComponent implements OnInit, OnDestroy {
   private updateMyTurretRotation(): void {
     if (!this.myTank) return;
 
-    const rotation = calculateMyTurretRotation(
-      this.myTank,
-      this.raycaster,
-      this.mouse,
-      this.camera,
-    );
+    let rotation: number;
+    if (this.deviceService.isMobile()) {
+      rotation = calculateMyTurretRotationMobile(
+        this.myTank,
+        this.keyboardService.joystickRotation(),
+        this.cameraPosition,
+      );
+    } else {
+      rotation = calculateMyTurretRotation(this.myTank, this.raycaster, this.mouse, this.camera);
+    }
 
     this.myTank.tankTurret.rotation.y = rotation;
 
