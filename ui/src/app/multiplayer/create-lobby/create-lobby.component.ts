@@ -45,7 +45,7 @@ export class CreateLobbyComponent {
   public readonly mapPreviewContainer = viewChild<ElementRef>('mapPreviewContainer');
 
   public isAlreadyCreatingLobby = false;
-  public readonly selectedMapId = signal<string>('desertbarricade');
+  public readonly selectedMapId = signal<string>('containerhub');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
 
   public readonly availableMaps = toSignal<MapPreviewResponse[] | null>(
@@ -54,19 +54,7 @@ export class CreateLobbyComponent {
       initialValue: null,
     },
   );
-  // public readonly availableMaps = signal<MapPreviewResponse[]>([
-  //   {
-  //     id: '1',
-  //     name: 'Desert',
-  //     pictureUrl: 'assets/pictures/map-desert.png',
-  //   },
-  //   {
-  //     id: '2',
-  //     name: 'Jungle',
-  //
-  //     pictureUrl: 'assets/pictures/map-jungle.png',
-  //   },
-  // ]);
+
   public readonly availableModes = signal<GameModeOption[]>([
     {
       name: '1 vs 1',
@@ -84,7 +72,7 @@ export class CreateLobbyComponent {
 
   public readonly formGroup = new FormGroup({
     numberOfTeams: new FormControl<number>(2, {
-      validators: [Validators.min(2), Validators.max(4)],
+      validators: [Validators.min(2), Validators.max(6)],
       nonNullable: true,
     }),
     teamSize: new FormControl<number>(1, {
