@@ -178,6 +178,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.audioService.loadSound('countdown', 'assets/sounds/countdown,mp3');
     this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
     this.audioService.loadSound('game-lost', 'assets/sounds/game-lost.mp3');
+    this.audioService.loadSound('bullet-bounce', 'assets/sounds/bullet-bounce.mp3');
   }
 
   private drawGame(): void {

@@ -69,7 +69,7 @@ export class GameService {
     const game: Game = {
       id: uuidv4(),
       hostUserName: lobby.hostUserName,
-      startingAt: new Date(Date.now() + 20 * 1000),
+      startingAt: new Date(Date.now() + 15 * 1000),
       gameSettings: lobby.gameSettings,
       players,
       teams,

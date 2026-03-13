@@ -169,7 +169,7 @@ export function getBasicBullet(): BulletVariant {
     name: 'BasicBullet',
     speed: 1.2,
     damage: 2,
-    maxBounceCount: 0,
+    maxBounceCount: 2,
     scale: { x: 1, y: 1, z: 1 },
     renderScale: { x: 1, y: 1, z: 1 },
   };
