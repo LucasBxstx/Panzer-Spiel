@@ -7,39 +7,32 @@
   left: 0;
   display: flex;
   width: 100%;
-  //height: 100px;
   background-color: $light-card-color;
   color: $button-color-dark;
-  //background-image: url("/assets/pictures/tank-game-bg.png");
-  //background-size: cover;
-  //background-position: center center;
-  //background-attachment: fixed;
-  //background-repeat: no-repeat;
 }
 
 
 .left, .right {
-  flex: 30%;
+  flex: 35%;
   display: flex;
   margin: 8px 0;
-  justify-content: center;
 
   @media screen and (max-width: 700px) {
     display: none;
   }
 }
 
-//
-//.left {
-//  margin-left: 5%;
-//}
-//
-//.right {
-//  margin-right: 5%;
-//}
+
+.left {
+  justify-content: flex-end;
+}
+
+.right {
+  justify-content: flex-start;
+}
 
 .center {
-  flex: 40%;
+  flex: 30%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -66,7 +59,7 @@
 
 .leave-game {
   position: fixed;
-  bottom: 10px;
+  top: 10px;
   right: 10px;
   z-index: 1000;
 
@@ -83,7 +76,7 @@
     right: 1px;
 
     button {
-      padding: 1px 5px;
+      padding: 1px 7px;
     }
   }
 }

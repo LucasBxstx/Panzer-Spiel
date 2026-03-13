@@ -212,22 +212,6 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     setTimeout(() => {
       this.server.in(lobby.id).emit('startGame', createGameResponse);
       this.logger.log(`startGame event emitted to lobby ${lobby.id}`);
-
-      setTimeout(() => {
-        this.server
-          .in(lobby.id)
-          .fetchSockets()
-          .then((clients) => {
-            // lobby.players.forEach((player) => (player.isConnected = false));
-            // clients.forEach((client) => client.disconnect(true));
-            // this.logger.log(
-            //   `All players in lobby ${lobby.id} have been disconnected`,
-            // );
-          })
-          .catch((err) => {
-            this.logger.error('Error disconnecting players:', err);
-          });
-      }, 3000);
-    }, 2000);
+    }, 1000);
   }
 }

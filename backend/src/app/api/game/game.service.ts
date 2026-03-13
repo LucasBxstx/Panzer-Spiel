@@ -36,7 +36,7 @@ import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation
 import { tankCollidesObstacle, tankCollidesTank } from './collision';
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { Bullet } from '../../common/models/bullet.model';
-import { updateGameState } from './update-game-state';
+import { removeBullet, updateGameState } from './update-game-state';
 import { isGameOver } from './isGameOver';
 import { calculateBulletStartingPosition } from './calculate-bullet-starting-position';
 import { tankOutOfMap } from './out-of-map';
@@ -153,6 +153,12 @@ export class GameService {
       this.logger.log('--- No one is in the game. it should stop now ---');
       this.stopGame(gameId);
     }
+
+    // Remove Bullet sound effects
+    Array.from(game.bullets.values()).forEach((bullet) => {
+      bullet.playSound = undefined;
+      if (bullet.isCollided) removeBullet(game, bullet);
+    });
   }
 
   stopGame(gameId: string) {
@@ -295,6 +301,8 @@ export class GameService {
       direction: dto.direction,
       bounceCount: 0,
       rotation: dto.rotation,
+      playSound: 'fire-bullet',
+      isCollided: false,
     };
 
     game.bullets.set(bullet.id, bullet);

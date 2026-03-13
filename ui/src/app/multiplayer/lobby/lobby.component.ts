@@ -8,8 +8,9 @@ import { AuthService } from '../../shared/services/auth.service';
 import { LobbyService } from '../../shared/services/lobby.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, interval, switchMap, take, tap } from 'rxjs';
+import { debounceTime, finalize, interval, switchMap, take, tap } from 'rxjs';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { AudioService } from '../../shared/services/audio.service';
 
 export const COUNT_DOWN_SECONDS = 3;
 @Component({
@@ -30,6 +31,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
   public readonly lobbyService = inject(LobbyService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly audioService = inject(AudioService);
   private readonly destroyRef = inject(DestroyRef);
 
   public readonly isLoading = signal(true);
@@ -38,6 +40,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
   public ngOnInit() {
     const lobbyId = this.route.snapshot.params['id'];
+    this.audioService.loadSound('countdown', 'assets/sounds/countdown.mp3');
 
     if (!lobbyId) {
       this.router.navigate(['/multiplayer']);
@@ -55,7 +58,11 @@ export class LobbyComponent implements OnInit, OnDestroy {
 
     this.lobbyService.createdGameEvent
       .pipe(
-        tap(() => this.isStartingIn.set(COUNT_DOWN_SECONDS)),
+        tap(() => {
+          this.isStartingIn.set(COUNT_DOWN_SECONDS);
+          this.audioService.play('countdown');
+        }),
+        debounceTime(100),
         switchMap((game) =>
           interval(1000).pipe(
             take(COUNT_DOWN_SECONDS),

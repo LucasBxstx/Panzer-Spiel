@@ -23,18 +23,18 @@ import { KeyboardInputService } from '../../services/keyboard-input.service';
     `
       .joystick-zone {
         position: fixed;
-        bottom: 20px;
+        bottom: 10px;
 
         width: 150px;
         height: 150px;
         z-index: 100;
 
         &.left {
-          left: 20px;
+          left: 10px;
         }
 
         &.right {
-          right: 20px;
+          right: 10px;
         }
       }
     `,

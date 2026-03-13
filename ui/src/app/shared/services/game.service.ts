@@ -180,7 +180,7 @@ export class GameService {
     const gameStart = new Date(gamestate.startingAt).getTime();
     const now = new Date().getTime();
 
-    return Math.max(0, Math.floor((gameStart - now) / 1000));
+    return Math.max(0, Math.ceil((gameStart - now) / 1000));
   });
 
   public readonly timeSinceGameStarted: Signal<number | null> = computed(() => {

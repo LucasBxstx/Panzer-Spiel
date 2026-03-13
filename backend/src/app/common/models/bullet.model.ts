@@ -15,6 +15,8 @@ export interface Bullet {
   maxBounceCount: number;
   bounceCount: number;
   rotation: number;
+  playSound?: string;
+  isCollided: boolean;
 }
 
 export interface BulletVariant {

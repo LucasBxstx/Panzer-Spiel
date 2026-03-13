@@ -7,6 +7,7 @@ export interface BulletResponse {
   rotation: number;
   renderScale: Scale;
   scale: Scale;
+  playSound?: string;
 }
 
 export interface BulletObject {

@@ -21,6 +21,9 @@ export class BulletResponseDto {
   @Type(() => ScaleResponseDto)
   scale: ScaleResponseDto;
 
+  @Expose()
+  playSound?: string;
+
   static mapFromEntity(bullet: Bullet): BulletResponseDto {
     return {
       id: bullet.id,
@@ -28,6 +31,7 @@ export class BulletResponseDto {
       renderScale: ScaleResponseDto.mapFromEntity(bullet.renderScale),
       scale: ScaleResponseDto.mapFromEntity(bullet.scale),
       rotation: bullet.rotation,
+      playSound: bullet.playSound,
     };
   }
 }

@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
@@ -22,11 +22,14 @@ import { setupRenderer } from './game.utils.ts/setup-renderer';
 import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
-import { calculateMyTurretRotation, calculateMyTurretRotationMobile } from './game.utils.ts/calculateMyTurretRotation';
+import {
+  calculateMyTurretRotation,
+  calculateMyTurretRotationMobile,
+} from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
-import { BulletObject } from '../shared/models/bullet.model';
+import { BulletObject, BulletResponse } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
@@ -115,6 +118,14 @@ export class GameComponent implements OnInit, OnDestroy {
     effect(() => {
       this.showError.set(!this.gameService.connected());
     });
+
+    effect(() => {
+      if (this.gameService.timeUntilGameStarts() === 4) {
+        setTimeout(() => {
+          this.audioService.play('countdown');
+        }, 600);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -159,6 +170,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.audioService.loadSound('fire-bullet', 'assets/sounds/bullet-fired.mp3');
     this.audioService.loadSound('tank-explosion', 'assets/sounds/tank-explosion.mp3');
     this.audioService.loadSound('bullet-hit', 'assets/sounds/bullet-hit.mp3');
+    this.audioService.loadSound('tank-hit', 'assets/sounds/tank-hit-2.mp3');
+    this.audioService.loadSound('countdown', 'assets/sounds/countdown,mp3');
   }
 
   private drawGame(): void {
@@ -315,7 +328,6 @@ export class GameComponent implements OnInit, OnDestroy {
           },
         };
         this.explosionService.createExplosion(config);
-        this.audioService.play('tank-explosion');
 
         tankGroup.nameLabel.element.style.setProperty('display', 'none');
 
@@ -430,17 +442,14 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.fireBullet({ position, direction, rotation, playerMovement });
   }
 
-  private updateBulletPositions(): void {
-    const bullets = this.gameService.gameState()?.bullets;
-    if (!bullets) return;
-
+  private removeCollidedBullets(bulletUpdate: BulletResponse[]): void {
     this.bullets = this.bullets.filter((b) => {
-      const stillExists = bullets.find((bullet) => bullet.id === b.id);
+      const stillExists = bulletUpdate.find((bullet) => bullet.id === b.id);
 
       if (!stillExists) {
         const config: ExplosionResponse = {
           id: `explosion-${b.id}`,
-          scale: { x: 1, y: 1, z: 1 }, // größer = stärkere Explosion
+          scale: { x: 1, y: 1, z: 1 },
           position: {
             x: b.object.position.x,
             y: b.object.position.y,
@@ -448,7 +457,6 @@ export class GameComponent implements OnInit, OnDestroy {
           },
         };
         this.explosionService.createExplosion(config);
-        this.audioService.play('bullet-hit');
 
         this.scene.remove(b.object);
         const mesh = b.object as THREE.Mesh;
@@ -465,8 +473,20 @@ export class GameComponent implements OnInit, OnDestroy {
 
       return !!stillExists;
     });
+  }
+
+  private updateBulletPositions(): void {
+    const bullets = this.gameService.gameState()?.bullets;
+    if (!bullets) return;
+
+    this.removeCollidedBullets(bullets);
 
     bullets.forEach((bullet) => {
+      if (bullet.playSound) {
+        this.audioService.play(bullet.playSound);
+        bullet.playSound = undefined;
+      }
+
       const existingBullet = this.bullets.find((b) => b.id === bullet.id);
       if (existingBullet) {
         existingBullet.object.position.set(bullet.position.x, bullet.position.y, bullet.position.z);
@@ -476,7 +496,6 @@ export class GameComponent implements OnInit, OnDestroy {
         const newBullet = createBullet(this.scene, bullet);
         this.pendingBullets.delete(bullet.id);
         this.bullets.push({ id: bullet.id, object: newBullet });
-        this.audioService.play('fire-bullet');
       }
     });
   }

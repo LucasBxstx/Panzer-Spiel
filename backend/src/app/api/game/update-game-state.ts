@@ -23,12 +23,15 @@ export function calculateNewBulletPosition(bullet: Bullet): CollisionObject {
 
 export function checkAndHandleBulletCollisionWithObstacles(
   game: Game,
+  bullet: Bullet,
   updatedBullet: CollisionObject,
 ): boolean {
   for (const obstacle of game.gameSettings.map.obstacles) {
     const collidesObstacle = checkCollision(updatedBullet, obstacle);
     if (collidesObstacle) {
       // ToDo: let bullet bounce
+      bullet.playSound = 'bullet-hit';
+      bullet.isCollided = true;
       return true;
     }
   }
@@ -50,10 +53,14 @@ export function checkAndHandleBulletCollisionWithTank(
     if (collidesTank) {
       tank.hp -= bullet.damage;
       tank.isDead = tank.hp <= 0;
+      bullet.isCollided = true;
 
       if (tank.isDead) {
         const killerTank = game.tanks.get(bullet.tankId);
         if (killerTank) killerTank.kills += 1;
+        bullet.playSound = 'tank-explosion';
+      } else {
+        bullet.playSound = 'tank-hit';
       }
 
       return true;
@@ -75,6 +82,8 @@ export function checkAndHandleBulletCollisionWithOtherBullets(
       );
       if (collidesOtherBullet) {
         removeBullet(game, otherBullet);
+        bullet.playSound = 'bullet-hit';
+        bullet.isCollided = true;
         return true;
       }
     }
@@ -96,14 +105,15 @@ export function checkBulletOutOfMap(
 
 export function updateGameState(game: Game) {
   Array.from(game.bullets.values()).forEach((bullet) => {
-    // update Position
+    if (bullet.isCollided) return;
 
+    // update Position
     const updatedBullet = calculateNewBulletPosition(bullet);
 
-    let destroyBullet = false;
     // check collision with all Obstacles
-    destroyBullet = checkAndHandleBulletCollisionWithObstacles(
+    let destroyBullet = checkAndHandleBulletCollisionWithObstacles(
       game,
+      bullet,
       updatedBullet,
     );
 
@@ -127,20 +137,20 @@ export function updateGameState(game: Game) {
 
     // check out of map
     if (!destroyBullet) {
-      destroyBullet = checkBulletOutOfMap(game, updatedBullet);
+      const isOutOfMap = checkBulletOutOfMap(game, updatedBullet);
+      if (isOutOfMap) {
+        bullet.isCollided = true;
+        bullet.playSound = 'bullet-hit';
+      }
     }
 
-    if (destroyBullet) {
-      removeBullet(game, bullet);
-    } else {
-      bullet.position.x = updatedBullet.position.x;
-      bullet.position.y = updatedBullet.position.y;
-      bullet.position.z = updatedBullet.position.z;
-    }
+    bullet.position.x = updatedBullet.position.x;
+    bullet.position.y = updatedBullet.position.y;
+    bullet.position.z = updatedBullet.position.z;
   });
 }
 
-function removeBullet(game: Game, bullet: Bullet): void {
+export function removeBullet(game: Game, bullet: Bullet): void {
   game.bullets.delete(bullet.id);
   const tank = game.tanks.get(bullet.tankId);
   if (tank) {
