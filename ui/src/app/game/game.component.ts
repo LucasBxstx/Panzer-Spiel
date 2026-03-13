@@ -29,7 +29,7 @@ import {
 import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
-import { BulletObject } from '../shared/models/bullet.model';
+import { BulletObject, BulletResponse } from '../shared/models/bullet.model';
 import { createBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
@@ -39,6 +39,7 @@ import { CSS2DRenderer } from 'three-stdlib';
 import { InitialGameStateResponse } from '../shared/models/game.model';
 import { JoystickComponent } from '../shared/components/joystick/joystick.component';
 import { DeviceService } from '../shared/services/device.service';
+import { AudioService } from '../shared/services/audio.service';
 
 @Component({
   selector: 'app-game',
@@ -56,6 +57,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   public readonly deviceService = inject(DeviceService);
+  private readonly audioService = inject(AudioService);
 
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
@@ -116,11 +118,20 @@ export class GameComponent implements OnInit, OnDestroy {
     effect(() => {
       this.showError.set(!this.gameService.connected());
     });
+
+    effect(() => {
+      if (this.gameService.timeUntilGameStarts() === 4) {
+        setTimeout(() => {
+          this.audioService.play('countdown');
+        }, 600);
+      }
+    });
   }
 
   ngOnInit(): void {
     this.joinOrRejoinGame();
     this.setupClickToShoot();
+    this.loadSounds();
   }
 
   private joinOrRejoinGame(): void {
@@ -153,6 +164,14 @@ export class GameComponent implements OnInit, OnDestroy {
         this.cameraPosition = response.tanks.get(this.myTankId)!.cameraPosition;
         this.drawGame();
       });
+  }
+
+  private loadSounds() {
+    this.audioService.loadSound('fire-bullet', 'assets/sounds/bullet-fired.mp3');
+    this.audioService.loadSound('tank-explosion', 'assets/sounds/tank-explosion.mp3');
+    this.audioService.loadSound('bullet-hit', 'assets/sounds/bullet-hit.mp3');
+    this.audioService.loadSound('tank-hit', 'assets/sounds/tank-hit-2.mp3');
+    this.audioService.loadSound('countdown', 'assets/sounds/countdown,mp3');
   }
 
   private drawGame(): void {
@@ -423,17 +442,14 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.fireBullet({ position, direction, rotation, playerMovement });
   }
 
-  private updateBulletPositions(): void {
-    const bullets = this.gameService.gameState()?.bullets;
-    if (!bullets) return;
-
+  private removeCollidedBullets(bulletUpdate: BulletResponse[]): void {
     this.bullets = this.bullets.filter((b) => {
-      const stillExists = bullets.find((bullet) => bullet.id === b.id);
+      const stillExists = bulletUpdate.find((bullet) => bullet.id === b.id);
 
       if (!stillExists) {
         const config: ExplosionResponse = {
           id: `explosion-${b.id}`,
-          scale: { x: 1, y: 1, z: 1 }, // größer = stärkere Explosion
+          scale: { x: 1, y: 1, z: 1 },
           position: {
             x: b.object.position.x,
             y: b.object.position.y,
@@ -457,8 +473,20 @@ export class GameComponent implements OnInit, OnDestroy {
 
       return !!stillExists;
     });
+  }
+
+  private updateBulletPositions(): void {
+    const bullets = this.gameService.gameState()?.bullets;
+    if (!bullets) return;
+
+    this.removeCollidedBullets(bullets);
 
     bullets.forEach((bullet) => {
+      if (bullet.playSound) {
+        this.audioService.play(bullet.playSound);
+        bullet.playSound = undefined;
+      }
+
       const existingBullet = this.bullets.find((b) => b.id === bullet.id);
       if (existingBullet) {
         existingBullet.object.position.set(bullet.position.x, bullet.position.y, bullet.position.z);

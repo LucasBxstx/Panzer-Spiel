@@ -31,6 +31,8 @@
 
 @if (!isGameOver()) {
   <div class="leave-game">
-    <button (click)="leaveGame()">Leave Game</button>
+    <button (click)="leaveGame()">
+      <img ngSrc="assets/icons/leave.svg" alt="leave" width="25" height="25">
+    </button>
   </div>
 }
