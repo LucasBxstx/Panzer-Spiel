@@ -3,6 +3,7 @@ import * as THREE from 'three';
 
 export interface BulletResponse {
   id: string;
+  variantId: string;
   position: Position;
   rotation: number;
   renderScale: Scale;

@@ -7,6 +7,9 @@ export class BulletResponseDto {
   id: string;
 
   @Expose()
+  variantId: string;
+
+  @Expose()
   @Type(() => PositionResponseDto)
   position: PositionResponseDto;
 
@@ -27,6 +30,7 @@ export class BulletResponseDto {
   static mapFromEntity(bullet: Bullet): BulletResponseDto {
     return {
       id: bullet.id,
+      variantId: bullet.variantId,
       position: PositionResponseDto.mapFromEntity(bullet.position),
       renderScale: ScaleResponseDto.mapFromEntity(bullet.renderScale),
       scale: ScaleResponseDto.mapFromEntity(bullet.scale),

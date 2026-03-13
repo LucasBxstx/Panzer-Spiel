@@ -3,6 +3,7 @@
 
 
 :host {
+  @include tank-bg-picture;
   @include page-centered;
   position: fixed;
   top: 0;

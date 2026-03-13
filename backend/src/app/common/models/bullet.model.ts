@@ -4,6 +4,7 @@ import { Scale } from './scale.model';
 
 export interface Bullet {
   id: string;
+  variantId: string;
   name: string;
   tankId: string;
   position: Position;

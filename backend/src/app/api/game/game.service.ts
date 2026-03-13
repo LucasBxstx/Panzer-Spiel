@@ -300,6 +300,7 @@ export class GameService {
     const bullet: Bullet = {
       ...bulletVariant,
       id: uuidv4(),
+      variantId: bulletVariant.id,
       tankId: tank.id,
       position,
       direction: dto.direction,

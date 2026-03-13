@@ -17,6 +17,7 @@ export function createTanks(
   teams: Team[],
 ): Map<string, Tank> {
   const tanks = new Map<string, Tank>();
+  let i = 0;
 
   teams.forEach((team, teamIndex) => {
     const teamEntryPoints = map.teamEntryPoints[teamIndex];
@@ -26,7 +27,8 @@ export function createTanks(
       const player = players.get(playerId);
 
       if (player) {
-        const tank = createTank(player, team, getBouncingTank(), entryPoint);
+        const tankVariant = i++ % 2 === 0 ? getBasicTank() : getBouncingTank();
+        const tank = createTank(player, team, tankVariant, entryPoint);
         tanks.set(tank.id, tank);
         player.tankId = tank.id;
         team.tankIds.push(tank.id);
@@ -114,7 +116,7 @@ function getBouncingTank(): TankVariant {
       z: 0.5,
     },
     maxHp: 10,
-    speed: 12,
+    speed: 10,
     maxBullets: 2,
     rotationSpeed: 15,
     bulletVariantId: 'bouncingBullet',

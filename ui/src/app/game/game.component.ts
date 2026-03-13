@@ -30,7 +30,7 @@ import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
 import { BulletObject, BulletResponse } from '../shared/models/bullet.model';
-import { createDefaultBullet } from './game.utils.ts/add-bullet';
+import { createBouncingBullet, createDefaultBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
@@ -501,7 +501,15 @@ export class GameComponent implements OnInit, OnDestroy {
         existingBullet.object.rotation.y = bullet.rotation;
       } else if (!this.pendingBullets.has(bullet.id)) {
         this.pendingBullets.add(bullet.id);
-        const newBullet = createDefaultBullet(this.scene, bullet);
+        let newBullet: THREE.Object3D;
+        switch (bullet.variantId) {
+          case 'bouncingBullet':
+            newBullet = createBouncingBullet(this.scene, bullet);
+            break;
+          default:
+            newBullet = createDefaultBullet(this.scene, bullet);
+            break;
+        }
         this.pendingBullets.delete(bullet.id);
         this.bullets.push({ id: bullet.id, object: newBullet });
       }
