@@ -13,6 +13,7 @@ export interface Tank {
   scale: Scale;
   renderScale: Scale;
   tankVariantId: string;
+  bulletVariantId: string;
   cameraPosition: Position;
   hp: number;
   speed: number;
@@ -37,6 +38,7 @@ export interface TankVariant {
   maxHp: number;
   maxBullets: number;
   rotationSpeed: number;
+  bulletVariantId: string;
 }
 
 export interface TankMovement {

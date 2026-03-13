@@ -3,7 +3,9 @@ import {
   checkCollision,
   CollisionObject,
   getBulletCollisionObject,
+  getCollisionNormal,
   getTankCollisionObject,
+  reflectVector,
 } from './collision';
 import { create3DVector } from '../../common/models/vector.model';
 import { Bullet, BulletMovement } from '../../common/models/bullet.model';
@@ -27,11 +29,30 @@ export function checkAndHandleBulletCollisionWithObstacles(
   updatedBullet: CollisionObject,
 ): boolean {
   for (const obstacle of game.gameSettings.map.obstacles) {
-    const collidesObstacle = checkCollision(updatedBullet, obstacle);
-    if (collidesObstacle) {
-      // ToDo: let bullet bounce
-      bullet.playSound = 'bullet-hit';
-      bullet.isCollided = true;
+    const normal = getCollisionNormal(updatedBullet, obstacle);
+    if (normal) {
+      if (bullet.bounceCount < bullet.maxBounceCount) {
+        const reflected = reflectVector(
+          { x: bullet.direction.x, z: bullet.direction.z },
+          normal,
+        );
+        bullet.direction.x = reflected.x;
+        bullet.direction.z = reflected.z;
+
+        const newRotation = Math.atan2(reflected.x, reflected.z);
+        bullet.rotation = newRotation;
+        updatedBullet.rotation.y = newRotation;
+
+        updatedBullet.position.x += bullet.direction.x * bullet.speed;
+        updatedBullet.position.z += bullet.direction.z * bullet.speed;
+
+        bullet.bounceCount++;
+        bullet.playSound = 'bullet-bounce';
+      } else {
+        bullet.playSound = 'bullet-hit';
+        bullet.isCollided = true;
+      }
+
       return true;
     }
   }

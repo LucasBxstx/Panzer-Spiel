@@ -30,7 +30,7 @@ import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
 import { BulletObject, BulletResponse } from '../shared/models/bullet.model';
-import { createBullet } from './game.utils.ts/add-bullet';
+import { createBouncingBullet, createDefaultBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
@@ -123,7 +123,7 @@ export class GameComponent implements OnInit, OnDestroy {
       if (this.gameService.timeUntilGameStarts() === 4) {
         setTimeout(() => {
           this.audioService.play('countdown');
-        }, 600);
+        }, 800);
       }
     });
   }
@@ -178,6 +178,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.audioService.loadSound('countdown', 'assets/sounds/countdown,mp3');
     this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
     this.audioService.loadSound('game-lost', 'assets/sounds/game-lost.mp3');
+    this.audioService.loadSound('bullet-bounce', 'assets/sounds/bullet-bounce.mp3');
   }
 
   private drawGame(): void {
@@ -465,6 +466,10 @@ export class GameComponent implements OnInit, OnDestroy {
         };
         this.explosionService.createExplosion(config);
 
+        if ((b.object as any).disposeTrail) {
+          (b.object as any).disposeTrail();
+        }
+
         this.scene.remove(b.object);
         const mesh = b.object as THREE.Mesh;
         mesh.geometry?.dispose();
@@ -498,9 +503,20 @@ export class GameComponent implements OnInit, OnDestroy {
       if (existingBullet) {
         existingBullet.object.position.set(bullet.position.x, bullet.position.y, bullet.position.z);
         existingBullet.object.rotation.y = bullet.rotation;
+        if ((existingBullet.object as any).updateTrail) {
+          (existingBullet.object as any).updateTrail();
+        }
       } else if (!this.pendingBullets.has(bullet.id)) {
         this.pendingBullets.add(bullet.id);
-        const newBullet = createBullet(this.scene, bullet);
+        let newBullet: THREE.Object3D;
+        switch (bullet.variantId) {
+          case 'bouncingBullet':
+            newBullet = createBouncingBullet(this.scene, bullet);
+            break;
+          default:
+            newBullet = createDefaultBullet(this.scene, bullet);
+            break;
+        }
         this.pendingBullets.delete(bullet.id);
         this.bullets.push({ id: bullet.id, object: newBullet });
       }

@@ -35,9 +35,14 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  
+
   @media (min-width: 1024px) {
     background-attachment: fixed;
+  }
+  
+  @supports (-webkit-touch-callout: none) {
+    background-attachment: scroll;
+    min-height: -webkit-fill-available;
   }
 }
 
