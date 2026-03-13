@@ -23,7 +23,7 @@
             <div class="absolute right-0 top-1/2 -translate-y-1/2">
               <button (click)="scrollToRight()" class="no-button">
 
-                <img ngSrc="assets/icons/next.svg" alt="next" width="40" height="80" class="cursor-pointer">
+                <img ngSrc="assets/icons/next.svg" alt="next" width="40" height="40" class="cursor-pointer">
               </button>
             </div>
           }
@@ -57,12 +57,14 @@
 
         <div class="mt-10 flex justify-center">
 
-          <button class="w-[80%]" (click)="createLobby()" [disabled]="formGroup.invalid || isAlreadyCreatingLobby">
+          <button class="w-[80%]" (click)="createLobby()"
+                  [disabled]="formGroup.invalid || isAlreadyCreatingLobby || invalidSettings()">
             Create Lobby
           </button>
         </div>
 
       </div>
+
 
     </app-page-wrapper>
   </app-card>

@@ -20,8 +20,9 @@ import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LobbyService } from '../../shared/services/lobby.service';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgOptimizedImage } from '@angular/common';
+import { map, merge } from 'rxjs';
 
 @Component({
   selector: 'app-create-lobby',
@@ -72,14 +73,32 @@ export class CreateLobbyComponent {
 
   public readonly formGroup = new FormGroup({
     numberOfTeams: new FormControl<number>(2, {
-      validators: [Validators.min(2), Validators.max(6)],
+      validators: [Validators.min(2)],
       nonNullable: true,
     }),
     teamSize: new FormControl<number>(1, {
-      validators: [Validators.min(1), Validators.max(2)],
+      validators: [Validators.min(1)],
       nonNullable: true,
     }),
   });
+
+  public readonly invalidSettings = toSignal(
+    merge(
+      this.formGroup.valueChanges,
+      toObservable(this.selectedMapId),
+      toObservable(this.availableMaps),
+    ).pipe(
+      map(() => {
+        const map = this.availableMaps()?.find((m) => m.id === this.selectedMapId());
+        if (!map) return true;
+
+        const { teamSize, numberOfTeams } = this.formGroup.getRawValue();
+
+        return teamSize > map.maxTeamSize || numberOfTeams > map.maxTeamCount;
+      }),
+    ),
+    { initialValue: false },
+  );
 
   constructor() {
     effect(() => {
@@ -89,7 +108,7 @@ export class CreateLobbyComponent {
   }
 
   public createLobby(): void {
-    if (this.formGroup.invalid) {
+    if (this.formGroup.invalid || this.invalidSettings()) {
       return;
     }
 
