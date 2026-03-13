@@ -9,7 +9,7 @@ export function getContainerHubMap(): GameMap {
   return {
     id: 'containerhub',
     name: 'Container Hub',
-    pictureUrl: 'assets/pictures/map-container-yard.png',
+    pictureUrl: 'assets/pictures/map-container-hub.png',
     scale: {
       x: 110,
       y: 100,

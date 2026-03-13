@@ -9,7 +9,7 @@ export function getContainerPortMap(): GameMap {
   return {
     id: 'containerport',
     name: 'Container Port',
-    pictureUrl: 'assets/pictures/map-container-yard.png',
+    pictureUrl: 'assets/pictures/map-container-port.png',
     scale: {
       x: 110,
       y: 100,

@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
@@ -22,7 +22,10 @@ import { setupRenderer } from './game.utils.ts/setup-renderer';
 import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
-import { calculateMyTurretRotation, calculateMyTurretRotationMobile } from './game.utils.ts/calculateMyTurretRotation';
+import {
+  calculateMyTurretRotation,
+  calculateMyTurretRotationMobile,
+} from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';

@@ -5,7 +5,7 @@ import { create3DVector, Vector3D } from '../../../common/models/vector.model';
 import { Position } from '../../../common/models/position.model';
 import { Scale } from '../../../common/models/scale.model';
 
-export function getContainerMap(): GameMap {
+export function getContainerYardMap(): GameMap {
   return {
     id: 'containerYard',
     name: 'Container Yard',
