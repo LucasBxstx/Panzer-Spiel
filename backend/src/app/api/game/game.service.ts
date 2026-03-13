@@ -8,12 +8,7 @@ import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  createTanks,
-  createTeams,
-  getBasicBullet,
-  getPlayers,
-} from './game.utils';
+import { createTeams, getPlayers } from './game.utils';
 import { Game } from '../../common/models/game.model';
 import { Lobby } from '../../common/models/lobby.model';
 import { JoinGameDto } from './webservice/dto/join-game.dto';
@@ -41,6 +36,8 @@ import { isGameOver } from './isGameOver';
 import { calculateBulletStartingPosition } from './calculate-bullet-starting-position';
 import { tankOutOfMap } from './out-of-map';
 import { LobbyPreviewResponseDto } from '../lobby/webservice/dto/lobby-response.dto';
+import { createTanks } from './tank.utils';
+import { findBulletVariant } from './bullet.utils';
 
 @Injectable()
 export class GameService {
@@ -287,15 +284,22 @@ export class GameService {
     }
 
     if (tank.bulletIds.length >= tank.maxBullets) {
+      console.log('bullets', tank.bulletIds);
       this.logger.log(`Tank ${tank.id} is out of shooting limit`);
       return { success: false };
     }
 
     const position = calculateBulletStartingPosition(dto, tank);
-    const basicBullet = getBasicBullet();
+    const bulletVariant = findBulletVariant(tank.bulletVariantId);
+
+    if (!bulletVariant) {
+      this.logger.error(`BulletVariant ${tank.bulletVariantId} does not exist`);
+      throw new WsException('BulletVariant not found');
+    }
 
     const bullet: Bullet = {
-      ...basicBullet,
+      ...bulletVariant,
+      id: uuidv4(),
       tankId: tank.id,
       position,
       direction: dto.direction,

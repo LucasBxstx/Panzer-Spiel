@@ -30,7 +30,7 @@ import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
 import { BulletObject, BulletResponse } from '../shared/models/bullet.model';
-import { createBullet } from './game.utils.ts/add-bullet';
+import { createDefaultBullet } from './game.utils.ts/add-bullet';
 import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 import { IngameScoreComponent } from './ingame-score/ingame-score.component';
 import { ExplosionResponse, ExplosionService } from './game.utils.ts/explosion-service';
@@ -123,7 +123,7 @@ export class GameComponent implements OnInit, OnDestroy {
       if (this.gameService.timeUntilGameStarts() === 4) {
         setTimeout(() => {
           this.audioService.play('countdown');
-        }, 600);
+        }, 800);
       }
     });
   }
@@ -501,7 +501,7 @@ export class GameComponent implements OnInit, OnDestroy {
         existingBullet.object.rotation.y = bullet.rotation;
       } else if (!this.pendingBullets.has(bullet.id)) {
         this.pendingBullets.add(bullet.id);
-        const newBullet = createBullet(this.scene, bullet);
+        const newBullet = createDefaultBullet(this.scene, bullet);
         this.pendingBullets.delete(bullet.id);
         this.bullets.push({ id: bullet.id, object: newBullet });
       }
