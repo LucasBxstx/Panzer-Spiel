@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
@@ -22,10 +22,7 @@ import { setupRenderer } from './game.utils.ts/setup-renderer';
 import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
-import {
-  calculateMyTurretRotation,
-  calculateMyTurretRotationMobile,
-} from './game.utils.ts/calculateMyTurretRotation';
+import { calculateMyTurretRotation, calculateMyTurretRotationMobile } from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
@@ -39,6 +36,7 @@ import { CSS2DRenderer } from 'three-stdlib';
 import { InitialGameStateResponse } from '../shared/models/game.model';
 import { JoystickComponent } from '../shared/components/joystick/joystick.component';
 import { DeviceService } from '../shared/services/device.service';
+import { AudioService } from '../shared/services/audio.service';
 
 @Component({
   selector: 'app-game',
@@ -56,6 +54,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   public readonly deviceService = inject(DeviceService);
+  private readonly audioService = inject(AudioService);
 
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
@@ -121,6 +120,7 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.joinOrRejoinGame();
     this.setupClickToShoot();
+    this.loadSounds();
   }
 
   private joinOrRejoinGame(): void {
@@ -153,6 +153,12 @@ export class GameComponent implements OnInit, OnDestroy {
         this.cameraPosition = response.tanks.get(this.myTankId)!.cameraPosition;
         this.drawGame();
       });
+  }
+
+  private loadSounds() {
+    this.audioService.loadSound('fire-bullet', 'assets/sounds/bullet-fired.mp3');
+    this.audioService.loadSound('tank-explosion', 'assets/sounds/tank-explosion.mp3');
+    this.audioService.loadSound('bullet-hit', 'assets/sounds/bullet-hit.mp3');
   }
 
   private drawGame(): void {
@@ -309,6 +315,7 @@ export class GameComponent implements OnInit, OnDestroy {
           },
         };
         this.explosionService.createExplosion(config);
+        this.audioService.play('tank-explosion');
 
         tankGroup.nameLabel.element.style.setProperty('display', 'none');
 
@@ -441,6 +448,7 @@ export class GameComponent implements OnInit, OnDestroy {
           },
         };
         this.explosionService.createExplosion(config);
+        this.audioService.play('bullet-hit');
 
         this.scene.remove(b.object);
         const mesh = b.object as THREE.Mesh;
@@ -468,6 +476,7 @@ export class GameComponent implements OnInit, OnDestroy {
         const newBullet = createBullet(this.scene, bullet);
         this.pendingBullets.delete(bullet.id);
         this.bullets.push({ id: bullet.id, object: newBullet });
+        this.audioService.play('fire-bullet');
       }
     });
   }
