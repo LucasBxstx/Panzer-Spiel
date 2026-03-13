@@ -144,17 +144,10 @@ export function createBouncingBullet(
   bulletBody.add(nozzle);
 
   // --- Feuerschweif ---
-  const particleCount = 40;
+  const particleCount = 120;
   const posArr = new Float32Array(particleCount * 3);
   const colArr = new Float32Array(particleCount * 3);
   const szArr = new Float32Array(particleCount);
-
-  for (let i = 0; i < particleCount; i++) {
-    posArr[i * 3] = 0;
-    posArr[i * 3 + 1] = 0;
-    posArr[i * 3 + 2] = -length * 0.55;
-    szArr[i] = 0;
-  }
 
   const particleGeo = new THREE.BufferGeometry();
   const posAttr = new THREE.BufferAttribute(posArr, 3);
@@ -166,7 +159,7 @@ export function createBouncingBullet(
   particleGeo.setAttribute('size', szAttr);
 
   const particleMat = new THREE.PointsMaterial({
-    size: radius * 1.5,
+    size: radius * 3,
     vertexColors: true,
     transparent: true,
     opacity: 0.85,
@@ -176,47 +169,57 @@ export function createBouncingBullet(
   });
 
   const particles = new THREE.Points(particleGeo, particleMat);
-  bulletBody.add(particles);
+  scene.add(particles); // ← direkt zur Scene, nicht bulletBody!
 
-  const particleData: { z: number; life: number; spread: number }[] = [];
+  const particleData: { x: number; y: number; z: number; life: number }[] = [];
   for (let i = 0; i < particleCount; i++) {
     particleData.push({
-      z: -length * 0.55 - Math.random() * length * 2,
-      life: Math.random(),
-      spread: (Math.random() - 0.5) * radius * 0.8,
+      x: p.x,
+      y: p.y,
+      z: p.z,
+      life: 0, // starten als tot damit sie beim ersten Frame richtig gespawnt werden
     });
+    szAttr.setX(i, 0);
   }
-
   (bulletBody as any).updateTrail = () => {
+    const worldPos = new THREE.Vector3();
+    bulletBody.getWorldPosition(worldPos);
+
     for (let i = 0; i < particleCount; i++) {
-      particleData[i].life -= 0.04;
-      particleData[i].z -= 0.012;
+      particleData[i].life -= 0.08; // schneller verblassen
 
       if (particleData[i].life <= 0) {
-        particleData[i].life = 0.8 + Math.random() * 0.4;
-        particleData[i].z = -length * 0.55;
-        particleData[i].spread = (Math.random() - 0.5) * radius * 0.8;
+        particleData[i].life = 0.3 + Math.random() * 0.2; // kürzere Lebensdauer
+        particleData[i].x = worldPos.x + (Math.random() - 0.5) * 0.02; // kaum spread
+        particleData[i].y = worldPos.y + (Math.random() - 0.5) * 0.02;
+        particleData[i].z = worldPos.z + (Math.random() - 0.5) * 0.02;
       }
 
       const t = 1 - particleData[i].life;
-      const spread = particleData[i].spread * t;
 
-      posAttr.setXYZ(i, spread, spread, particleData[i].z);
+      posAttr.setXYZ(i, particleData[i].x, particleData[i].y, particleData[i].z);
 
-      if (t < 0.3) {
-        colAttr.setXYZ(i, 1.0, 0.9 - t, 0.4 - t);
-      } else if (t < 0.6) {
-        colAttr.setXYZ(i, 1.0, 0.4 - t * 0.3, 0.0);
+      if (t < 0.2) {
+        colAttr.setXYZ(i, 1.0, 1.0, 0.6); // weißlich-gelb am Anfang
+      } else if (t < 0.5) {
+        colAttr.setXYZ(i, 1.0, 0.6 - t * 0.5, 0.0); // orange
       } else {
-        colAttr.setXYZ(i, 1.0 - (t - 0.6) * 1.5, 0.0, 0.0);
+        colAttr.setXYZ(i, Math.max(0, 0.8 - (t - 0.5) * 1.2), 0.0, 0.0); // dunkelrot
       }
 
-      szAttr.setX(i, (1 - t) * radius * 2.5);
+      szAttr.setX(i, (1 - t) * radius * 8); // größer aber kürzer
     }
 
     posAttr.needsUpdate = true;
     colAttr.needsUpdate = true;
     szAttr.needsUpdate = true;
+  };
+
+  // Particles beim Entfernen der Bullet auch aus der Scene entfernen
+  (bulletBody as any).disposeTrail = () => {
+    scene.remove(particles);
+    particleGeo.dispose();
+    particleMat.dispose();
   };
 
   // --- Optionaler Hitbox-Wireframe ---

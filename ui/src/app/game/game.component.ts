@@ -466,6 +466,10 @@ export class GameComponent implements OnInit, OnDestroy {
         };
         this.explosionService.createExplosion(config);
 
+        if ((b.object as any).disposeTrail) {
+          (b.object as any).disposeTrail();
+        }
+
         this.scene.remove(b.object);
         const mesh = b.object as THREE.Mesh;
         mesh.geometry?.dispose();
@@ -499,6 +503,9 @@ export class GameComponent implements OnInit, OnDestroy {
       if (existingBullet) {
         existingBullet.object.position.set(bullet.position.x, bullet.position.y, bullet.position.z);
         existingBullet.object.rotation.y = bullet.rotation;
+        if ((existingBullet.object as any).updateTrail) {
+          (existingBullet.object as any).updateTrail();
+        }
       } else if (!this.pendingBullets.has(bullet.id)) {
         this.pendingBullets.add(bullet.id);
         let newBullet: THREE.Object3D;
