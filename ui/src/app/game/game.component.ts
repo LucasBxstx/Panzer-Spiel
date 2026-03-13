@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
@@ -22,10 +22,7 @@ import { setupRenderer } from './game.utils.ts/setup-renderer';
 import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
 import { addTank } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
-import {
-  calculateMyTurretRotation,
-  calculateMyTurretRotationMobile,
-} from './game.utils.ts/calculateMyTurretRotation';
+import { calculateMyTurretRotation, calculateMyTurretRotationMobile } from './game.utils.ts/calculateMyTurretRotation';
 import { catchError, finalize, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
@@ -163,6 +160,10 @@ export class GameComponent implements OnInit, OnDestroy {
         this.myTankId = response.myTankId;
         this.cameraPosition = response.tanks.get(this.myTankId)!.cameraPosition;
         this.drawGame();
+
+        if (response.winningTeamId) {
+          this.router.navigate(['/game', gameId, 'gameover']);
+        }
       });
   }
 
@@ -172,6 +173,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.audioService.loadSound('bullet-hit', 'assets/sounds/bullet-hit.mp3');
     this.audioService.loadSound('tank-hit', 'assets/sounds/tank-hit-2.mp3');
     this.audioService.loadSound('countdown', 'assets/sounds/countdown,mp3');
+    this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
+    this.audioService.loadSound('game-lost', 'assets/sounds/game-lost.mp3');
   }
 
   private drawGame(): void {
@@ -348,6 +351,7 @@ export class GameComponent implements OnInit, OnDestroy {
         if (isMyTank) {
           this.myTank = undefined;
           this.showYouHaveBeenKilled();
+          this.audioService.play('game-lost');
         }
 
         this.tanks = this.tanks.filter((t) => t !== tankGroup);

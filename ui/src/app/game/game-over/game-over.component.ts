@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { GameService } from '../../shared/services/game.service';
 import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { NgOptimizedImage } from '@angular/common';
+import { AuthService } from '../../shared/services/auth.service';
+import { AudioService } from '../../shared/services/audio.service';
 
 @Component({
   selector: 'app-game-over',
@@ -15,8 +17,24 @@ import { NgOptimizedImage } from '@angular/common';
 export class GameOverComponent implements OnInit {
   private readonly router = inject(Router);
   public readonly gameService = inject(GameService);
+  private readonly authService = inject(AuthService);
+  private readonly audioService = inject(AudioService);
 
-  public ngOnInit() {
+  public async ngOnInit() {
+    const gameState = this.gameService.gameState();
+    if (gameState) {
+      const myUserId = this.authService.user()!.id;
+      const myTeamId = gameState.teams.find((t) =>
+        t.players.some((p) => p.userId === myUserId),
+      )?.id;
+      const IAmWinner = this.gameService.winningTeamId() === myTeamId;
+
+      if (IAmWinner) {
+        await this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
+        this.audioService.play('game-won');
+      }
+    }
+
     setTimeout(() => {
       this.gameService.disconnect();
       this.router.navigate(['/multiplayer']);

@@ -12,6 +12,8 @@ export interface MapPreviewResponse {
   id: string;
   name: string;
   pictureUrl: string;
+  maxTeamCount: number;
+  maxTeamSize: number;
 }
 
 export interface LobbyResponse {
