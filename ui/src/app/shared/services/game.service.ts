@@ -177,20 +177,14 @@ export class GameService {
     const gamestate = this.gameState();
     if (!gamestate) return null;
 
-    const gameStart = new Date(gamestate.startingAt).getTime();
-    const now = new Date().getTime();
-
-    return Math.max(0, Math.ceil((gameStart - now) / 1000));
+    return Math.max(0, Math.ceil(gamestate.startingInMS / 1000));
   });
 
   public readonly timeSinceGameStarted: Signal<number | null> = computed(() => {
     const gamestate = this.gameState();
     if (!gamestate) return null;
 
-    const gameStart = new Date(gamestate.startingAt).getTime();
-    const now = new Date().getTime();
-
-    return Math.max(0, Math.floor((now - gameStart) / 1000));
+    return Math.max(0, Math.ceil(gamestate.startingInMS / -1000));
   });
 
   public readonly teamsWithStats: Signal<TeamStats[] | null> = computed(() => {

@@ -7,6 +7,8 @@ export function updateGameState(
   const update: InitialGameStateResponse = {
     ...oldState,
     bullets: newState.bullets,
+    startingInMS: newState.startingInMS,
+    winningTeamId: newState.winningTeamId,
   };
   const tanks = update.tanks;
   // console.log('new State', newState);

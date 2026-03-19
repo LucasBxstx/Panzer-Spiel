@@ -12,7 +12,7 @@ export interface InitialGameStateResponseDto {
   tanks: Record<string, TankResponse>;
   bullets: BulletResponse[];
   myTankId: string;
-  startingAt: Date;
+  startingInMS: number;
   winningTeamId?: string;
 }
 
@@ -24,7 +24,7 @@ export interface InitialGameStateResponse {
   tanks: Map<string, TankResponse>;
   bullets: BulletResponse[];
   myTankId: string;
-  startingAt: Date;
+  startingInMS: number;
   winningTeamId?: string;
 }
 
@@ -39,6 +39,8 @@ export interface GameStateResponse {
   id: string;
   tanks: TankPositionResponse[];
   bullets: BulletResponse[];
+  winningTeamId?: string;
+  startingInMS: number;
 }
 
 export interface GameOverResponse {

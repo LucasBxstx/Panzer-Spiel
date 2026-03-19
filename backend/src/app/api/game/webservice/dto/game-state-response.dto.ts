@@ -37,7 +37,7 @@ export class InitialGameStateResponseDto {
   myTankId: string;
 
   @Expose()
-  startingAt: Date;
+  startingInMS: number;
 
   @Expose()
   winningTeamId?: string;
@@ -46,6 +46,9 @@ export class InitialGameStateResponseDto {
     game: Game,
     myTankId: string,
   ): InitialGameStateResponseDto {
+    const now = new Date();
+    const startingInMS = game.startingAt.getTime() - now.getTime();
+
     return {
       id: game.id,
       gameMode: GameModeOptionResponseDto.mapFromEntity(
@@ -64,7 +67,7 @@ export class InitialGameStateResponseDto {
       bullets: Array.from(game.bullets.values()).map((b) =>
         BulletResponseDto.mapFromEntity(b),
       ),
-      startingAt: game.startingAt,
+      startingInMS,
       myTankId,
       winningTeamId: game.winningTeamId,
     };
@@ -86,7 +89,13 @@ export class GameStateResponseDto {
   @Expose()
   winningTeamId?: string;
 
+  @Expose()
+  startingInMS: number;
+
   static mapFromEntity(game: Game): GameStateResponseDto {
+    const now = new Date();
+    const startingInMS = game.startingAt.getTime() - now.getTime();
+
     return {
       id: game.id,
       tanks: Array.from(game.tanks.values()).map((t) =>
@@ -96,6 +105,7 @@ export class GameStateResponseDto {
         BulletResponseDto.mapFromEntity(b),
       ),
       winningTeamId: game.winningTeamId,
+      startingInMS,
     };
   }
 }
