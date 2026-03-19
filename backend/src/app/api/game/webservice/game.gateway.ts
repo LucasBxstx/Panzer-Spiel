@@ -27,6 +27,7 @@ import {
 } from './dto/game-response.dto';
 import { UpdateTurretRotationDto } from './dto/update-turret-rotation.dto';
 import { FireBulletDto } from './dto/fire-bullet.dto';
+import { GameException } from '../../../common/exceptions/game.exception';
 
 @WebSocketGateway({
   cors: true,
@@ -113,10 +114,9 @@ export class GameGateway
 
       return game;
     } catch (error) {
-      // this.logger.log(`User ${userId} disconnected`);
-      // client.disconnect();
-      if (error instanceof WsException) {
-        throw error;
+      this.logger.log(`User ${userId} could not join`);
+      if (error instanceof GameException) {
+        throw new WsException(error.message);
       }
 
       throw new WsException('Internal server error');
@@ -141,8 +141,8 @@ export class GameGateway
         `An error occured when updating tank position for user ${userId}`,
         error,
       );
-      if (error instanceof WsException) {
-        throw error;
+      if (error instanceof GameException) {
+        throw new WsException(error.message);
       }
 
       throw new WsException('Internal server error');
@@ -158,7 +158,7 @@ export class GameGateway
       const gameId = this.playerGameMap.get(userId);
 
       if (!gameId) {
-        throw new WsException('Player is not part of any game');
+        throw new GameException('Player is not part of any game');
       }
 
       return this.gameService.updateTurretRotation(userId, gameId, dto);
@@ -167,8 +167,8 @@ export class GameGateway
         `An error occurred when updating the turret rotation for user ${userId}`,
         error,
       );
-      if (error instanceof WsException) {
-        throw error;
+      if (error instanceof GameException) {
+        throw new WsException(error.message);
       }
 
       throw new WsException('Internal server error');
@@ -194,8 +194,8 @@ export class GameGateway
         `An error occured when requesting to fire a bullet`,
         error,
       );
-      if (error instanceof WsException) {
-        throw error;
+      if (error instanceof GameException) {
+        throw new WsException(error.message);
       }
 
       throw new WsException('Internal server error');
@@ -208,7 +208,7 @@ export class GameGateway
       const gameId = this.playerGameMap.get(userId);
 
       if (!gameId) {
-        throw new WsException('Player is not part of any game');
+        throw new GameException('Player is not part of any game');
       }
 
       const { success } = this.gameService.leaveGame(gameId, userId);
@@ -218,9 +218,9 @@ export class GameGateway
 
       return { success };
     } catch (error) {
-      if (error instanceof WsException) {
+      if (error instanceof GameException) {
         console.log(error);
-        throw error;
+        throw new WsException(error.message);
       }
 
       throw new WsException('Internal server error');

@@ -16,7 +16,6 @@ import {
   GameStateResponseDto,
   InitialGameStateResponseDto,
 } from './webservice/dto/game-state-response.dto';
-import { WsException } from '@nestjs/websockets';
 import { UpdateTankPositionDto } from './webservice/dto/update-tank-position.dto';
 import { calculateTankMovement } from './update-tank-position.utils';
 import {
@@ -38,6 +37,7 @@ import { tankOutOfMap } from './out-of-map';
 import { LobbyPreviewResponseDto } from '../lobby/webservice/dto/lobby-response.dto';
 import { createTanks } from './tank.utils';
 import { findBulletVariant } from './bullet.utils';
+import { GameException } from '../../common/exceptions/game.exception';
 
 @Injectable()
 export class GameService {
@@ -86,19 +86,19 @@ export class GameService {
   ): Promise<InitialGameStateResponseDto> {
     const user = await this.userRepository.findOne({ id: userId });
     if (!user) {
-      throw new WsException('User not found');
+      throw new GameException('User not found');
     }
 
     const game = this.games.get(dto.gameId);
 
     if (!game) {
-      throw new WsException('Game not found');
+      throw new GameException('Game not found');
     }
 
     const player = game.players.get(userId);
 
     if (!player) {
-      throw new WsException('User is not part of this Game');
+      throw new GameException('User is not part of this Game');
     }
 
     player.isConnected = true;
@@ -176,7 +176,7 @@ export class GameService {
     const game = this.games.get(gameId);
 
     if (!game) {
-      throw new WsException('Game not found');
+      throw new GameException('Game not found');
     }
 
     const gameAlreadyStarted =
@@ -189,13 +189,13 @@ export class GameService {
     const player = game.players.get(userId);
 
     if (!player) {
-      throw new WsException('Player not found');
+      throw new GameException('Player not found');
     }
 
     const tank = game.tanks.get(player.tankId);
 
     if (!tank) {
-      throw new WsException('Tank not found');
+      throw new GameException('Tank not found');
     }
 
     const obstacles = game.gameSettings.map.obstacles;
@@ -231,19 +231,19 @@ export class GameService {
     const game = this.games.get(gameId);
 
     if (!game) {
-      throw new WsException('Game not found');
+      throw new GameException('Game not found');
     }
 
     const player = game.players.get(userId);
 
     if (!player) {
-      throw new WsException('Player not found');
+      throw new GameException('Player not found');
     }
 
     const tank = game.tanks.get(player.tankId);
 
     if (!tank) {
-      throw new WsException('Tank not found');
+      throw new GameException('Tank not found');
     }
 
     tank.turretRotation = dto.rotation;
@@ -261,7 +261,7 @@ export class GameService {
     const game = this.games.get(gameId);
 
     if (!game) {
-      throw new WsException('Game not found');
+      throw new GameException('Game not found');
     }
 
     const gameAlreadyStarted =
@@ -274,13 +274,13 @@ export class GameService {
     const player = game.players.get(userId);
 
     if (!player) {
-      throw new WsException('Player not found');
+      throw new GameException('Player not found');
     }
 
     const tank = game.tanks.get(player.tankId);
 
     if (!tank) {
-      throw new WsException('Tank not found');
+      throw new GameException('Tank not found');
     }
 
     if (tank.bulletIds.length >= tank.maxBullets) {
@@ -294,7 +294,7 @@ export class GameService {
 
     if (!bulletVariant) {
       this.logger.error(`BulletVariant ${tank.bulletVariantId} does not exist`);
-      throw new WsException('BulletVariant not found');
+      throw new GameException('BulletVariant not found');
     }
 
     const bullet: Bullet = {
@@ -322,13 +322,13 @@ export class GameService {
     const game = this.games.get(gameId);
 
     if (!game) {
-      throw new WsException('Game not found');
+      throw new GameException('Game not found');
     }
 
     const player = game.players.get(userId);
 
     if (!player) {
-      throw new WsException('Player not found');
+      throw new GameException('Player not found');
     }
 
     player.isConnected = false;
@@ -367,13 +367,13 @@ export class GameService {
     let playerLeftGame = false;
 
     if (!game) {
-      throw new WsException('Game not found');
+      throw new GameException('Game not found');
     }
 
     const player = game.players.get(userId);
 
     if (!player) {
-      throw new WsException('Player not found');
+      throw new GameException('Player not found');
     }
 
     // If a team has already won, the user has finally disconnected and will not join again
