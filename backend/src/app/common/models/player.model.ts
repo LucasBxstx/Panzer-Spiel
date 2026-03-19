@@ -7,6 +7,7 @@ export interface LobbyPlayer {
 
 export interface Player extends LobbyPlayer {
   teamId: string;
+  isBot: boolean; // In case the player is a bot, the userId is the botId
   tankId: string;
   isRejoining: boolean;
 }

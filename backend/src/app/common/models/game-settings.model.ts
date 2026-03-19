@@ -5,6 +5,7 @@ export interface GameSettings {
   map: GameMap;
   maxPlayersCount: number;
   numberOfTeams: number;
+  numberOfBots: number;
   teamSize: number;
 }
 

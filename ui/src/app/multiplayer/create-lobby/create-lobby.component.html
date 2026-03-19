@@ -40,7 +40,7 @@
         </div>
 
         <div class="mt-3 flex gap-5  ">
-          @if (selectedMode() !== GameMode.OneVsOne) {
+          @if (selectedMode() === GameMode.TeamVsTeam) {
             <div>
               <div class="font-bold mt-3">Number of Teams:</div>
               <input type="number" [formControl]="formGroup.controls.numberOfTeams">
@@ -51,6 +51,13 @@
             <div>
               <div class="font-bold mt-3">Team Size:</div>
               <input type="number" [formControl]="formGroup.controls.teamSize">
+            </div>
+          }
+
+          @if (selectedMode() === GameMode.TeamVsBots) {
+            <div>
+              <div class="font-bold mt-3">Number of Bots:</div>
+              <input type="number" [formControl]="formGroup.controls.numberOfBots">
             </div>
           }
         </div>

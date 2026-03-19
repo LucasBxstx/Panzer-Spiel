@@ -16,6 +16,9 @@ export class CreateLobbyDto {
 
   @IsNumber()
   numberOfTeams: number;
+
+  @IsNumber()
+  numberOfBots: number;
 }
 
 export class JoinLobbyDto {

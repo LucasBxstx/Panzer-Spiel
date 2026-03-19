@@ -34,7 +34,7 @@ export class LobbyService {
     userId: string,
     dto: CreateLobbyDto,
     player: LobbyPlayer,
-  ): Promise<LobbyResponseDto> {
+  ): Promise<Lobby> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
@@ -53,6 +53,7 @@ export class LobbyService {
       numberOfTeams: dto.numberOfTeams,
       gameMode: dto.gameMode,
       maxPlayersCount: dto.maxPlayersCount,
+      numberOfBots: dto.numberOfBots,
     };
 
     const lobby: Lobby = {
@@ -66,7 +67,7 @@ export class LobbyService {
 
     this.lobbies.set(lobby.id, lobby);
 
-    return LobbyResponseDto.mapFromEntity(lobby);
+    return lobby;
   }
 
   async findAll(userId: string): Promise<LobbyPreviewResponseDto[]> {
