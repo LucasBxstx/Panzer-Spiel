@@ -8,7 +8,7 @@ import { UserRepository } from '../user/user.repository';
 import { EntityRepository } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { createTeams, getPlayers } from './game.utils';
+import { createBots, createTeams, getPlayers } from './game.utils';
 import { Game } from '../../common/models/game.model';
 import { Lobby } from '../../common/models/lobby.model';
 import { JoinGameDto } from './webservice/dto/join-game.dto';
@@ -58,6 +58,7 @@ export class GameService {
 
   createGame(lobby: Lobby): string {
     const players = getPlayers(lobby);
+    createBots(lobby, players);
     const playersArray = Array.from(players.values());
     const teams = createTeams(lobby, playersArray);
     const teamsArray = Array.from(teams.values());

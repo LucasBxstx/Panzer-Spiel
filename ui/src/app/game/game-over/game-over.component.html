@@ -9,11 +9,11 @@
             has won the Game!
           </div>
           @for (team of gameService.teamsWithStats(); track team.id) {
-            <app-chip class="mt-1">
+            <app-chip class="mt-1 team-chip">
               <div class="">
                 <div class="font-bold text-lg my-1" [style]="{color: team.color}"> Team {{ team.name }}</div>
                 @for (player of team.playerStats; track player.id) {
-                  <app-chip class="player-chip">
+                  <app-chip class="player-chip my-1">
                     <div class="flex justify-between my-1">
                       <div class="flex-[20%] text-start">{{ player.name }}</div>
 

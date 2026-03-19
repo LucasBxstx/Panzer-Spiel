@@ -5,6 +5,7 @@ export interface CreateLobbyRequest {
   gameMode: GameMode;
   maxPlayersCount: number;
   teamSize: number;
+  numberOfBots: number;
   numberOfTeams: number;
 }
 

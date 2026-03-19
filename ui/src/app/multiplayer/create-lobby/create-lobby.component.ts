@@ -65,10 +65,10 @@ export class CreateLobbyComponent {
       name: 'Team vs Team',
       value: GameMode.TeamVsTeam,
     },
-    // {
-    //   name: 'Team vs Bots',
-    //   value: GameMode.TeamVsBots,
-    // },
+    {
+      name: 'Team vs Bots',
+      value: GameMode.TeamVsBots,
+    },
   ]);
 
   public readonly formGroup = new FormGroup({
@@ -78,6 +78,10 @@ export class CreateLobbyComponent {
     }),
     teamSize: new FormControl<number>(1, {
       validators: [Validators.min(1)],
+      nonNullable: true,
+    }),
+    numberOfBots: new FormControl<number>(0, {
+      validators: [Validators.min(0)],
       nonNullable: true,
     }),
   });
@@ -92,9 +96,13 @@ export class CreateLobbyComponent {
         const map = this.availableMaps()?.find((m) => m.id === this.selectedMapId());
         if (!map) return true;
 
-        const { teamSize, numberOfTeams } = this.formGroup.getRawValue();
+        const { teamSize, numberOfTeams, numberOfBots } = this.formGroup.getRawValue();
 
-        return teamSize > map.maxTeamSize || numberOfTeams > map.maxTeamCount;
+        return (
+          teamSize > map.maxTeamSize ||
+          numberOfTeams > map.maxTeamCount ||
+          numberOfBots > map.maxTeamSize
+        );
       }),
     ),
     { initialValue: false },
@@ -102,8 +110,12 @@ export class CreateLobbyComponent {
 
   constructor() {
     effect(() => {
-      this.selectedMode();
+      const selectedMode = this.selectedMode();
       this.formGroup.reset();
+
+      if (selectedMode === GameMode.TeamVsBots) {
+        this.formGroup.controls.numberOfBots.setValue(2);
+      }
     });
   }
 
@@ -113,14 +125,22 @@ export class CreateLobbyComponent {
     }
 
     this.isAlreadyCreatingLobby = true;
-    const { numberOfTeams, teamSize } = this.formGroup.getRawValue();
+    const { numberOfTeams, teamSize, numberOfBots } = this.formGroup.getRawValue();
+
+    let maxPlayersCount;
+    if (this.selectedMode() === GameMode.TeamVsBots) {
+      maxPlayersCount = teamSize;
+    } else {
+      maxPlayersCount = numberOfTeams * teamSize;
+    }
 
     const request: CreateLobbyRequest = {
       mapId: this.selectedMapId(),
       gameMode: this.selectedMode(),
       teamSize,
       numberOfTeams,
-      maxPlayersCount: numberOfTeams * teamSize,
+      numberOfBots,
+      maxPlayersCount,
     };
 
     this.lobbyService

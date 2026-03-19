@@ -103,8 +103,19 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         `User ${userId} created and joined a new Lobby:  ${lobby.id}`,
       );
 
-      return lobby;
+      console.log(lobby.players, lobby.gameSettings.maxPlayersCount);
+      if (lobby.players.length === lobby.gameSettings.maxPlayersCount) {
+        const gameId = this.gameService.createGame(lobby);
+        this.logger.log(
+          `The lobby is complete, a new Game was created:  ${gameId}`,
+        );
+
+        this.startGameCountdown(lobby, { gameId });
+      }
+
+      return LobbyResponseDto.mapFromEntity(lobby);
     } catch (error) {
+      console.log(error);
       if (error instanceof WsException) {
         throw error;
       }
