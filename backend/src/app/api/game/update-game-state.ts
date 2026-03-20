@@ -183,3 +183,10 @@ export function removeBullet(game: Game, bullet: Bullet): void {
     }
   }
 }
+
+export function removeBulletSoundEffects(game: Game) {
+  Array.from(game.bullets.values()).forEach((bullet) => {
+    bullet.playSound = undefined;
+    if (bullet.isCollided) removeBullet(game, bullet);
+  });
+}

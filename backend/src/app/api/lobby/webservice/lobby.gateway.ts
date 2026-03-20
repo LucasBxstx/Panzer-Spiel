@@ -103,7 +103,6 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
         `User ${userId} created and joined a new Lobby:  ${lobby.id}`,
       );
 
-      console.log(lobby.players, lobby.gameSettings.maxPlayersCount);
       if (lobby.players.length === lobby.gameSettings.maxPlayersCount) {
         const gameId = this.gameService.createGame(lobby);
         this.logger.log(

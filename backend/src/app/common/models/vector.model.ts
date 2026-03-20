@@ -29,3 +29,11 @@ export function normalizeInPlace(vec: Vector3D) {
   vec.y /= length;
   vec.z /= length;
 }
+
+export function getDirectionVector(a: Vector3D, b: Vector3D): Vector3D {
+  return {
+    x: b.x - a.x,
+    y: b.y - a.y,
+    z: b.z - a.z,
+  };
+}

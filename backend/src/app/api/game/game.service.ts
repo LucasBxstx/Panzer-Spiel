@@ -30,7 +30,7 @@ import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation
 import { tankCollidesObstacle, tankCollidesTank } from './collision';
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { Bullet } from '../../common/models/bullet.model';
-import { removeBullet, updateGameState } from './update-game-state';
+import { removeBulletSoundEffects, updateGameState } from './update-game-state';
 import { isGameOver } from './isGameOver';
 import { calculateBulletStartingPosition } from './calculate-bullet-starting-position';
 import { tankOutOfMap } from './out-of-map';
@@ -38,6 +38,11 @@ import { LobbyPreviewResponseDto } from '../lobby/webservice/dto/lobby-response.
 import { createTanks } from './tank.utils';
 import { findBulletVariant } from './bullet.utils';
 import { GameException } from '../../common/exceptions/game.exception';
+import {
+  aimAtTargetTank,
+  detectNearestEnemyTank,
+  hasClearShoot,
+} from './update-bots';
 
 @Injectable()
 export class GameService {
@@ -58,11 +63,16 @@ export class GameService {
 
   createGame(lobby: Lobby): string {
     const players = getPlayers(lobby);
-    createBots(lobby, players);
+    const bots = createBots(lobby, players);
     const playersArray = Array.from(players.values());
     const teams = createTeams(lobby, playersArray);
     const teamsArray = Array.from(teams.values());
-    const tanks = createTanks(players, lobby.gameSettings.map, teamsArray);
+    const tanks = createTanks({
+      players,
+      map: lobby.gameSettings.map,
+      teams: teamsArray,
+      bots,
+    });
 
     const game: Game = {
       id: uuidv4(),
@@ -73,6 +83,7 @@ export class GameService {
       players,
       teams,
       tanks,
+      bots,
       bullets: new Map(),
     };
 
@@ -141,7 +152,9 @@ export class GameService {
         winningTeamId: game.winningTeamId!,
       };
       this.server.to(gameId).emit('gameOver', gameOverDto);
-      this.logger.log(`Game is over - Team ${game.winningTeamId!} has won`);
+      this.logger.log(
+        `Game ${gameId} is over - Team ${game.winningTeamId!} has won`,
+      );
     }
 
     const noPlayerInGame = Array.from(game.players.values()).every(
@@ -153,11 +166,8 @@ export class GameService {
       this.stopGame(gameId);
     }
 
-    // Remove Bullet sound effects
-    Array.from(game.bullets.values()).forEach((bullet) => {
-      bullet.playSound = undefined;
-      if (bullet.isCollided) removeBullet(game, bullet);
-    });
+    removeBulletSoundEffects(game);
+    this.updateBots(game);
   }
 
   stopGame(gameId: string) {
@@ -286,7 +296,6 @@ export class GameService {
     }
 
     if (tank.bulletIds.length >= tank.maxBullets) {
-      console.log('bullets', tank.bulletIds);
       this.logger.log(`Tank ${tank.id} is out of shooting limit`);
       return { success: false };
     }
@@ -336,7 +345,7 @@ export class GameService {
     player.isConnected = false;
     player.isRejoining = true;
 
-    this.logger.log(`User ${userId} left the game`);
+    this.logger.log(`User ${userId} left the game ${gameId}`);
 
     return { success: true };
   }
@@ -359,6 +368,22 @@ export class GameService {
     }
 
     return LobbyPreviewResponseDto.mapFromGameEntity(game);
+  }
+
+  updateBots(game: Game): void {
+    Array.from(game.bots.values()).forEach((bot) => {
+      const botTank = game.tanks.get(bot.tankId);
+      const targetTank = detectNearestEnemyTank(bot, game);
+
+      if (!botTank || !targetTank) return;
+
+      bot.targetedTankId = targetTank.id;
+      aimAtTargetTank(bot, botTank, targetTank);
+
+      if (hasClearShoot(bot, game)) {
+        //
+      }
+    });
   }
 
   handleDisconnect(
