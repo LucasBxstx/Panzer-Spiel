@@ -4,7 +4,8 @@ import { Lobby } from '../../common/models/lobby.model';
 import { Player } from '../../common/models/player.model';
 import { GameMode } from '../../common/models/game-settings.model';
 import { Bot, BotDifficulty } from '../../common/models/bot.model';
-import { create3DVector } from '../../common/models/vector.model';
+
+import { create3DVector } from '../../common/utils/vector.utils';
 
 export function getPlayers(lobby: Lobby): Map<string, Player> {
   return new Map<string, Player>(

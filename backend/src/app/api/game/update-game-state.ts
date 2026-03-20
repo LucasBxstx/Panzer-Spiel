@@ -7,8 +7,8 @@ import {
   getTankCollisionObject,
   reflectVector,
 } from './collision';
-import { create3DVector } from '../../common/models/vector.model';
 import { Bullet, BulletMovement } from '../../common/models/bullet.model';
+import { create3DVector } from '../../common/utils/vector.utils';
 
 export function calculateNewBulletPosition(bullet: Bullet): CollisionObject {
   const bulletMovement: BulletMovement = {

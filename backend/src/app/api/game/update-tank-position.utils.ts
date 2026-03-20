@@ -1,10 +1,10 @@
 import { Tank, TankMovement } from '../../common/models/tank.model';
 import { InputStateDto } from './webservice/dto/update-tank-position.dto';
+import { Position } from '../../common/models/position.model';
 import {
   create3DVector,
   normalizeInPlace,
-} from '../../common/models/vector.model';
-import { Position } from '../../common/models/position.model';
+} from '../../common/utils/vector.utils';
 
 export function calculateTankMovement(
   tank: Tank,

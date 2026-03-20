@@ -386,7 +386,7 @@ export class GameService {
       bot.targetedTankId = targetTank.id;
       const directionVector = aimAtTargetTank(botTank, targetTank);
 
-      if (canShoot(bot, botTank) && hasClearShoot(bot, game)) {
+      if (canShoot(bot, botTank) && hasClearShoot(botTank, targetTank, game)) {
         const fireBulletDto = getFireBulletDto(bot, botTank, directionVector);
         const firedBullet = this.fireBullet(bot.id, game.id, fireBulletDto);
 

@@ -1,7 +1,7 @@
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { Position } from '../../common/models/position.model';
-import { normalizeInPlace } from '../../common/models/vector.model';
 import { Tank } from '../../common/models/tank.model';
+import { normalizeInPlace } from '../../common/utils/vector.utils';
 
 export function calculateBulletStartingPosition(
   bullet: FireBulletDto,

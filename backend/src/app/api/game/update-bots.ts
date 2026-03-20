@@ -2,16 +2,59 @@ import { Bot, BotDifficulty } from '../../common/models/bot.model';
 import { Game } from '../../common/models/game.model';
 import { Tank } from '../../common/models/tank.model';
 import { Position } from '../../common/models/position.model';
-import {
-  create3DVector,
-  getDirectionVector,
-  normalizeInPlace,
-  Vector3D,
-} from '../../common/models/vector.model';
+import { Vector3D } from '../../common/models/vector.model';
 import { InputStateDto } from './webservice/dto/update-tank-position.dto';
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
+import { checkCollision, CollisionObject } from './collision';
+import {
+  addVectors,
+  create3DVector,
+  getVectorMagnitude,
+  multiplyVector,
+  normalizeInPlace,
+  subtractVectors,
+} from '../../common/utils/vector.utils';
 
-export function hasClearShoot(bot: Bot, game: Game): boolean {
+// We basically create a collision object that acts like a bullet, which is spanned between bot and enemy tank.
+// And then we check for collision with this object that is the shootingLine, with other obstacles
+export function hasClearShoot(
+  botTank: Tank,
+  targetTank: Tank,
+  game: Game,
+): boolean {
+  const directionVector = subtractVectors(
+    targetTank.position,
+    botTank.position,
+  );
+
+  // We set the position to be the coordinate between the bot and the enemy tank. Namely the center
+  const position = multiplyVector(
+    addVectors(botTank.position, targetTank.position),
+    0.5,
+  );
+  const scale = create3DVector(1, 1, getVectorMagnitude(directionVector));
+  const rotation = create3DVector(
+    0,
+    Math.atan2(directionVector.x, directionVector.z),
+    0,
+  );
+
+  const shootLine: CollisionObject = {
+    position,
+    rotation,
+    scale,
+  };
+
+  console.log('shootline', shootLine);
+
+  const obstacles = Array.from(game.gameSettings.map.obstacles.values());
+  for (const obstacle of obstacles) {
+    if (checkCollision(shootLine, obstacle)) {
+      console.log('obstacle', obstacle);
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -45,7 +88,7 @@ function getEuclideanDistance(a: Position, b: Position): number {
 }
 
 export function aimAtTargetTank(botTank: Tank, targetTank: Tank): Vector3D {
-  const directionVector = getDirectionVector(
+  const directionVector = subtractVectors(
     botTank.position,
     targetTank.position,
   );
