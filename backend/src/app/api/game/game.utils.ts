@@ -48,6 +48,8 @@ export function createBots(
       difficulty: BotDifficulty.EASY,
       nextDestination: create3DVector(0, 0, 0),
       targetedTankId: '',
+      lastShoot: new Date(),
+      shootingBufferMS: 2000,
     });
   }
   return bots;

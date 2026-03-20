@@ -6,6 +6,8 @@ export interface Bot {
   difficulty: BotDifficulty;
   targetedTankId: string;
   nextDestination: Position;
+  lastShoot: Date;
+  shootingBufferMS: number;
 }
 
 export enum BotDifficulty {

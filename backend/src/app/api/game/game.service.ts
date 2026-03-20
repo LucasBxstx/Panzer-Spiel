@@ -40,7 +40,9 @@ import { findBulletVariant } from './bullet.utils';
 import { GameException } from '../../common/exceptions/game.exception';
 import {
   aimAtTargetTank,
+  canShoot,
   detectNearestEnemyTank,
+  getFireBulletDto,
   hasClearShoot,
 } from './update-bots';
 
@@ -158,12 +160,13 @@ export class GameService {
     }
 
     const noPlayerInGame = Array.from(game.players.values()).every(
-      (player) => player.isRejoining || !player.isConnected,
+      (player) => player.isRejoining || !player.isConnected || player.isBot,
     );
 
     if (gameAlreadyStarted && noPlayerInGame) {
       this.logger.log('--- No one is in the game. it should stop now ---');
       this.stopGame(gameId);
+      return;
     }
 
     removeBulletSoundEffects(game);
@@ -300,7 +303,9 @@ export class GameService {
       return { success: false };
     }
 
+    console.log('tank position', tank.position);
     const position = calculateBulletStartingPosition(dto, tank);
+    console.log('calculated bullet position', position);
     const bulletVariant = findBulletVariant(tank.bulletVariantId);
 
     if (!bulletVariant) {
@@ -325,6 +330,7 @@ export class GameService {
     tank.bulletIds.push(bullet.id);
 
     this.logger.log(`Tank ${tank.id} has fired a bullet ${bullet.id}`);
+    console.log(bullet);
 
     return { success: true };
   }
@@ -378,10 +384,13 @@ export class GameService {
       if (!botTank || !targetTank) return;
 
       bot.targetedTankId = targetTank.id;
-      aimAtTargetTank(bot, botTank, targetTank);
+      const directionVector = aimAtTargetTank(botTank, targetTank);
 
-      if (hasClearShoot(bot, game)) {
-        //
+      if (canShoot(bot, botTank) && hasClearShoot(bot, game)) {
+        const fireBulletDto = getFireBulletDto(bot, botTank, directionVector);
+        const firedBullet = this.fireBullet(bot.id, game.id, fireBulletDto);
+
+        if (firedBullet) bot.lastShoot = new Date();
       }
     });
   }
