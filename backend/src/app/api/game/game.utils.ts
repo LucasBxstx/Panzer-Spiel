@@ -5,8 +5,6 @@ import { Player } from '../../common/models/player.model';
 import { GameMode } from '../../common/models/game-settings.model';
 import { Bot, BotDifficulty } from '../../common/models/bot.model';
 
-import { create3DVector } from '../../common/utils/vector.utils';
-
 export function getPlayers(lobby: Lobby): Map<string, Player> {
   return new Map<string, Player>(
     lobby.players.map((p) => [
@@ -47,10 +45,12 @@ export function createBots(
       id: botId,
       tankId: '',
       difficulty: BotDifficulty.EASY,
-      nextDestination: create3DVector(0, 0, 0),
       targetedTankId: '',
       lastShoot: new Date(),
       shootingBufferMS: 2000,
+      nextDestinations: [],
+      lastDestinationUpdate: new Date(),
+      destinationBufferMS: 4000,
     });
   }
   return bots;

@@ -1,13 +1,15 @@
-import { Position } from './position.model';
+import { Chunk } from '../../api/game/maps/map.utils';
 
 export interface Bot {
   id: string;
   tankId: string;
   difficulty: BotDifficulty;
   targetedTankId: string;
-  nextDestination: Position;
   lastShoot: Date;
   shootingBufferMS: number;
+  nextDestinations: Chunk[];
+  lastDestinationUpdate: Date;
+  destinationBufferMS: number;
 }
 
 export enum BotDifficulty {

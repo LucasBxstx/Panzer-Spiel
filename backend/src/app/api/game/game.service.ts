@@ -41,10 +41,14 @@ import { GameException } from '../../common/exceptions/game.exception';
 import {
   aimAtTargetTank,
   canShoot,
+  canUpdateDestination,
   detectNearestEnemyTank,
+  determinePathToTargetPosition,
+  getBotPositionUpdateRequest,
   getFireBulletDto,
-  hasClearShoot,
+  hasClearShootLine,
 } from './update-bots';
+import { convertPositionToChunkId, generateMapMesh } from './maps/map.utils';
 
 @Injectable()
 export class GameService {
@@ -75,6 +79,13 @@ export class GameService {
       teams: teamsArray,
       bots,
     });
+
+    if (bots.size > 0) generateMapMesh(lobby.gameSettings.map);
+    // const chunkData = lobby.gameSettings.map.mesh!.chunkData;
+    // console.log(convertPositionToChunkId(create3DVector(0, 0, 0), chunkData));
+    // console.log(convertPositionToChunkId(create3DVector(50, 0, 50), chunkData));
+    // console.log(convertChunkToPosition('27.5-27.5', chunkData));
+    // console.log(convertChunkToPosition('52.5-52.5', chunkData));
 
     const game: Game = {
       id: uuidv4(),
@@ -381,17 +392,52 @@ export class GameService {
       const botTank = game.tanks.get(bot.tankId);
       const targetTank = detectNearestEnemyTank(bot, game);
 
-      if (!botTank || !targetTank) return;
+      if (!botTank || !targetTank || botTank.isDead) return;
 
       bot.targetedTankId = targetTank.id;
       const directionVector = aimAtTargetTank(botTank, targetTank);
 
-      if (canShoot(bot, botTank) && hasClearShoot(botTank, targetTank, game)) {
+      if (
+        canShoot(bot, botTank) &&
+        hasClearShootLine(botTank, targetTank, game)
+      ) {
         const fireBulletDto = getFireBulletDto(bot, botTank, directionVector);
         const firedBullet = this.fireBullet(bot.id, game.id, fireBulletDto);
 
         if (firedBullet) bot.lastShoot = new Date();
       }
+
+      const mesh = game.gameSettings.map.mesh;
+      if (!mesh) return;
+
+      if (canUpdateDestination(bot)) {
+        bot.nextDestinations = determinePathToTargetPosition(
+          mesh,
+          botTank.position,
+          targetTank.position,
+        );
+      }
+
+      // Let the bot walk
+      if (bot.nextDestinations.length === 0) return;
+
+      const nextChunk = bot.nextDestinations[0];
+      const botChunkId = convertPositionToChunkId(
+        botTank.position,
+        mesh.chunkData,
+      );
+
+      if (botChunkId === nextChunk.id) {
+        bot.nextDestinations.shift();
+      }
+
+      const positionRequest = getBotPositionUpdateRequest(
+        botTank,
+        nextChunk,
+        mesh.chunkData,
+      );
+
+      this.updateTankPosition(bot.id, game.id, positionRequest);
     });
   }
 

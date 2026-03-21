@@ -3,7 +3,10 @@ import { Game } from '../../common/models/game.model';
 import { Tank } from '../../common/models/tank.model';
 import { Position } from '../../common/models/position.model';
 import { Vector3D } from '../../common/models/vector.model';
-import { InputStateDto } from './webservice/dto/update-tank-position.dto';
+import {
+  InputStateDto,
+  UpdateTankPositionDto,
+} from './webservice/dto/update-tank-position.dto';
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { checkCollision, CollisionObject } from './collision';
 import {
@@ -14,10 +17,18 @@ import {
   normalizeInPlace,
   subtractVectors,
 } from '../../common/utils/vector.utils';
+import { ChunkData, Mesh } from '../../common/models/game-map.model';
+import {
+  Chunk,
+  convertChunkToPosition,
+  getChunkByPosition,
+  getDistanceBetweenChunks,
+} from './maps/map.utils';
+import { MinPriorityQueue } from '@datastructures-js/priority-queue'; // We basically create a collision object that acts like a bullet, which is spanned between bot and enemy tank.
 
 // We basically create a collision object that acts like a bullet, which is spanned between bot and enemy tank.
 // And then we check for collision with this object that is the shootingLine, with other obstacles
-export function hasClearShoot(
+export function hasClearShootLine(
   botTank: Tank,
   targetTank: Tank,
   game: Game,
@@ -45,12 +56,9 @@ export function hasClearShoot(
     scale,
   };
 
-  console.log('shootline', shootLine);
-
   const obstacles = Array.from(game.gameSettings.map.obstacles.values());
   for (const obstacle of obstacles) {
     if (checkCollision(shootLine, obstacle)) {
-      console.log('obstacle', obstacle);
       return false;
     }
   }
@@ -169,5 +177,125 @@ export function getFireBulletDto(
     direction,
     rotation,
     playerMovement: getBotPredictedMovement(),
+  };
+}
+
+export function determinePathToTargetPosition(
+  mesh: Mesh,
+  startPosition: Position,
+  targetPosition: Position,
+): Chunk[] {
+  console.log('determinePathToTargetPosition');
+  if (mesh.chunks.size === 0) return [];
+
+  const startChunk = getChunkByPosition(mesh, startPosition);
+  const targetChunk = getChunkByPosition(mesh, targetPosition);
+
+  console.log(startChunk, targetChunk);
+  if (!startChunk || !targetChunk) return [];
+
+  return findShortestWay(mesh, startChunk, targetChunk);
+}
+
+function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
+  console.log('findShortestWay');
+  const visited = new Set<string>();
+  const inQueue = new Set<string>();
+  const queue = new MinPriorityQueue<{ id: string; priority: number }>(
+    (item) => item.priority,
+  );
+  const mesh = structuredClone(MESH);
+
+  let reachedTarget = false;
+
+  const shortestPath = (current: Chunk, target: Chunk) => {
+    console.log('shortestPath', current, target);
+    visited.add(current.id);
+
+    if (current.id == target.id) {
+      reachedTarget = true;
+      return;
+    }
+
+    current.neighborIds.forEach((neighborId) => {
+      const neighbor = mesh.chunks.get(neighborId);
+      const alreadyVisited = visited.has(neighborId);
+      const alreadyQueued = inQueue.has(neighborId);
+
+      if (!neighbor || alreadyVisited || alreadyQueued) return;
+
+      const distance = getDistanceBetweenChunks(
+        neighbor,
+        target,
+        mesh.chunkData,
+      );
+
+      queue.enqueue({ id: neighbor.id, priority: distance });
+      neighbor.pathFromChunkId = current.id;
+      inQueue.add(neighborId);
+    });
+  };
+
+  // Add the start chunk to the queue
+  queue.enqueue({ id: start.id, priority: 0 });
+  inQueue.add(start.id);
+
+  while (!reachedTarget && queue.size() > 0) {
+    const nextQueued = queue.dequeue();
+    console.log('nextQueued', nextQueued);
+    if (!nextQueued) break;
+
+    const nextChunk = mesh.chunks.get(nextQueued.id);
+    if (!nextChunk) continue;
+
+    shortestPath(nextChunk, target);
+  }
+
+  // Reconstruct the path
+  const path: Chunk[] = [];
+  let currentChunk: Chunk | undefined = mesh.chunks.get(target.id);
+
+  console.log('starting with reconstruction:');
+  while (
+    currentChunk &&
+    (currentChunk.id !== start.id || currentChunk.pathFromChunkId)
+  ) {
+    console.log(currentChunk);
+    path.push(currentChunk);
+    currentChunk = mesh.chunks.get(currentChunk.pathFromChunkId!);
+    console.log('pushed to path', currentChunk);
+  }
+
+  console.log('found path', path);
+
+  return path;
+}
+
+export function canUpdateDestination(bot: Bot): boolean {
+  const now = new Date();
+  const lastUpdate = new Date(bot.lastDestinationUpdate);
+
+  return now.getTime() - lastUpdate.getTime() > bot.destinationBufferMS;
+}
+
+export function getBotPositionUpdateRequest(
+  botTank: Tank,
+  nextChunk: Chunk,
+  chunkData: ChunkData,
+): UpdateTankPositionDto {
+  const targetPosition = convertChunkToPosition(nextChunk.id, chunkData);
+  const directionVector = subtractVectors(botTank.position, targetPosition);
+
+  const input: InputStateDto = {
+    w: directionVector.z > 0,
+    a: directionVector.x < 0,
+    s: directionVector.z < 0,
+    d: directionVector.x > 0,
+  };
+
+  return {
+    seq: 0,
+    input,
+    timestamp: new Date().getTime(),
   };
 }
