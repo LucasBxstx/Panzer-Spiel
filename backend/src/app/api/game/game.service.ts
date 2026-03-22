@@ -81,11 +81,6 @@ export class GameService {
     });
 
     if (bots.size > 0) generateMapMesh(lobby.gameSettings.map);
-    // const chunkData = lobby.gameSettings.map.mesh!.chunkData;
-    // console.log(convertPositionToChunkId(create3DVector(0, 0, 0), chunkData));
-    // console.log(convertPositionToChunkId(create3DVector(50, 0, 50), chunkData));
-    // console.log(convertChunkToPosition('27.5-27.5', chunkData));
-    // console.log(convertChunkToPosition('52.5-52.5', chunkData));
 
     const game: Game = {
       id: uuidv4(),
@@ -314,9 +309,7 @@ export class GameService {
       return { success: false };
     }
 
-    console.log('tank position', tank.position);
     const position = calculateBulletStartingPosition(dto, tank);
-    console.log('calculated bullet position', position);
     const bulletVariant = findBulletVariant(tank.bulletVariantId);
 
     if (!bulletVariant) {
@@ -341,7 +334,6 @@ export class GameService {
     tank.bulletIds.push(bullet.id);
 
     this.logger.log(`Tank ${tank.id} has fired a bullet ${bullet.id}`);
-    console.log(bullet);
 
     return { success: true };
   }

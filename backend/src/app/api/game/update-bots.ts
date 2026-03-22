@@ -185,20 +185,17 @@ export function determinePathToTargetPosition(
   startPosition: Position,
   targetPosition: Position,
 ): Chunk[] {
-  console.log('determinePathToTargetPosition');
   if (mesh.chunks.size === 0) return [];
 
   const startChunk = getChunkByPosition(mesh, startPosition);
   const targetChunk = getChunkByPosition(mesh, targetPosition);
 
-  console.log(startChunk, targetChunk);
   if (!startChunk || !targetChunk) return [];
 
   return findShortestWay(mesh, startChunk, targetChunk);
 }
 
 function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
-  console.log('findShortestWay');
   const visited = new Set<string>();
   const inQueue = new Set<string>();
   const queue = new MinPriorityQueue<{ id: string; priority: number }>(
@@ -209,7 +206,6 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
   let reachedTarget = false;
 
   const shortestPath = (current: Chunk, target: Chunk) => {
-    console.log('shortestPath', current, target);
     visited.add(current.id);
 
     if (current.id == target.id) {
@@ -242,7 +238,7 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
 
   while (!reachedTarget && queue.size() > 0) {
     const nextQueued = queue.dequeue();
-    console.log('nextQueued', nextQueued);
+
     if (!nextQueued) break;
 
     const nextChunk = mesh.chunks.get(nextQueued.id);
@@ -255,18 +251,13 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
   const path: Chunk[] = [];
   let currentChunk: Chunk | undefined = mesh.chunks.get(target.id);
 
-  console.log('starting with reconstruction:');
   while (
     currentChunk &&
     (currentChunk.id !== start.id || currentChunk.pathFromChunkId)
   ) {
-    console.log(currentChunk);
     path.push(currentChunk);
     currentChunk = mesh.chunks.get(currentChunk.pathFromChunkId!);
-    console.log('pushed to path', currentChunk);
   }
-
-  console.log('found path', path);
 
   return path;
 }
