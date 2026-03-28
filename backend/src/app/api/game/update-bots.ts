@@ -22,6 +22,7 @@ import {
   Chunk,
   convertChunkToPosition,
   getChunkByPosition,
+  getChunkId,
   getDistanceBetweenChunks,
 } from './maps/map.utils';
 import { MinPriorityQueue } from '@datastructures-js/priority-queue'; // We basically create a collision object that acts like a bullet, which is spanned between bot and enemy tank.
@@ -185,6 +186,7 @@ export function determinePathToTargetPosition(
   startPosition: Position,
   targetPosition: Position,
 ): Chunk[] {
+  console.log('determinePathToTargetPosition');
   if (mesh.chunks.size === 0) return [];
 
   const startChunk = getChunkByPosition(mesh, startPosition);
@@ -207,6 +209,7 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
 
   const shortestPath = (current: Chunk, target: Chunk) => {
     visited.add(current.id);
+    console.log('shortestpath');
 
     if (current.id == target.id) {
       reachedTarget = true;
@@ -259,7 +262,42 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
     currentChunk = mesh.chunks.get(currentChunk.pathFromChunkId!);
   }
 
+  printPath(
+    path,
+    mesh.chunks,
+    start,
+    target,
+    mesh.chunkData.NUM_CHUNKS_X,
+    mesh.chunkData.NUM_CHUNKS_Z,
+  );
+
   return path;
+}
+
+function printPath(
+  chunks: Chunk[],
+  obstacles: Map<string, Chunk>,
+  start: Chunk,
+  target: Chunk,
+  NUM_CHUNKS_X: number,
+  NUM_CHUNKS_Z: number,
+) {
+  const pathMap: Map<string, Chunk> = new Map(chunks.map((c) => [c.id, c]));
+
+  for (let z = 0; z < NUM_CHUNKS_Z; z++) {
+    let row = '';
+    for (let x = 0; x < NUM_CHUNKS_X; x++) {
+      const chunkID = getChunkId(x, z);
+      if (chunkID === start.id) {
+        row += 's';
+      } else if (chunkID === target.id) {
+        row += 't';
+      } else {
+        row += pathMap.get(chunkID) ? 'o' : obstacles.get(chunkID) ? ' ' : 'x';
+      }
+    }
+    console.log(row);
+  }
 }
 
 export function canUpdateDestination(bot: Bot): boolean {
@@ -278,9 +316,9 @@ export function getBotPositionUpdateRequest(
   const directionVector = subtractVectors(botTank.position, targetPosition);
 
   const input: InputStateDto = {
-    w: directionVector.z > 0,
+    w: directionVector.z < 0,
     a: directionVector.x < 0,
-    s: directionVector.z < 0,
+    s: directionVector.z > 0,
     d: directionVector.x > 0,
   };
 

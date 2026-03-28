@@ -40,13 +40,10 @@ import { findBulletVariant } from './bullet.utils';
 import { GameException } from '../../common/exceptions/game.exception';
 import {
   aimAtTargetTank,
-  canShoot,
   canUpdateDestination,
   detectNearestEnemyTank,
   determinePathToTargetPosition,
   getBotPositionUpdateRequest,
-  getFireBulletDto,
-  hasClearShootLine,
 } from './update-bots';
 import { convertPositionToChunkId, generateMapMesh } from './maps/map.utils';
 
@@ -389,15 +386,15 @@ export class GameService {
       bot.targetedTankId = targetTank.id;
       const directionVector = aimAtTargetTank(botTank, targetTank);
 
-      if (
-        canShoot(bot, botTank) &&
-        hasClearShootLine(botTank, targetTank, game)
-      ) {
-        const fireBulletDto = getFireBulletDto(bot, botTank, directionVector);
-        const firedBullet = this.fireBullet(bot.id, game.id, fireBulletDto);
-
-        if (firedBullet) bot.lastShoot = new Date();
-      }
+      // if (
+      //   canShoot(bot, botTank) &&
+      //   hasClearShootLine(botTank, targetTank, game)
+      // ) {
+      //   const fireBulletDto = getFireBulletDto(bot, botTank, directionVector);
+      //   const firedBullet = this.fireBullet(bot.id, game.id, fireBulletDto);
+      //
+      //   if (firedBullet) bot.lastShoot = new Date();
+      // }
 
       const mesh = game.gameSettings.map.mesh;
       if (!mesh) return;
@@ -408,6 +405,7 @@ export class GameService {
           botTank.position,
           targetTank.position,
         );
+        bot.lastDestinationUpdate = new Date();
       }
 
       // Let the bot walk

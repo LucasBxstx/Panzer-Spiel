@@ -50,7 +50,7 @@ export function createBots(
       shootingBufferMS: 2000,
       nextDestinations: [],
       lastDestinationUpdate: new Date(),
-      destinationBufferMS: 4000,
+      destinationBufferMS: 5000,
     });
   }
   return bots;

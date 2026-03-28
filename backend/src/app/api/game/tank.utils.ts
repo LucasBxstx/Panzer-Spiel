@@ -24,7 +24,7 @@ export function createTanks({
   bots: Map<string, Bot>;
 }): Map<string, Tank> {
   const tanks = new Map<string, Tank>();
-  let i = 0;
+  const i = 0;
 
   teams.forEach((team, teamIndex) => {
     const teamEntryPoints = map.teamEntryPoints[teamIndex];
@@ -34,7 +34,8 @@ export function createTanks({
       const player = players.get(playerId);
 
       if (player) {
-        const tankVariant = i++ % 2 === 0 ? getBasicTank() : getBouncingTank();
+        // const tankVariant = i++ % 2 === 0 ? getBasicTank() : getBouncingTank();
+        const tankVariant = getBasicTank();
         const tank = createTank(player, team, tankVariant, entryPoint);
         tanks.set(tank.id, tank);
         player.tankId = tank.id;

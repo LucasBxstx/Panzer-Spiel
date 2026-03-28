@@ -12,7 +12,6 @@ import { getContainerPortMap } from './container-port-map.utils';
 import { Position } from '../../../common/models/position.model';
 import { checkCollision, CollisionObject } from '../collision';
 import {
-  addVectors,
   create3DVector,
   getVectorMagnitude,
   subtractVectors,
@@ -44,7 +43,7 @@ export interface Chunk {
 }
 
 export function generateMapMesh(map: GameMap) {
-  const CHUNK_SIZE = 2;
+  const CHUNK_SIZE = 10;
   const chunkData = getChunkData(map, CHUNK_SIZE);
   const chunks = splitMapIntoChunks(map, chunkData);
 
@@ -128,11 +127,7 @@ export function splitMapIntoChunks(
 
       const chunkCollisionObject: CollisionObject = {
         position,
-        scale: create3DVector(
-          HALF_CHUNK_SIZE,
-          HALF_CHUNK_SIZE,
-          HALF_CHUNK_SIZE,
-        ),
+        scale: create3DVector(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE),
         rotation: create3DVector(0, 0, 0),
       };
 
@@ -141,10 +136,11 @@ export function splitMapIntoChunks(
       for (const obstacle of map.obstacles) {
         // We increase the scale of the obstacles by the size of a tank
         const obstacleScaledUp = structuredClone(obstacle);
-        obstacleScaledUp.scale = addVectors(
-          obstacleScaledUp.scale,
-          create3DVector(10, 4, 10),
-        );
+        obstacleScaledUp.scale = {
+          x: obstacle.scale.x + 10,
+          y: obstacle.scale.y,
+          z: obstacle.scale.z + 10,
+        };
 
         if (checkCollision(chunkCollisionObject, obstacleScaledUp)) {
           hasObstacle = true;
@@ -183,11 +179,11 @@ function printMesh(
   }
 }
 
-function getChunkId(x: number, z: number): string {
+export function getChunkId(x: number, z: number): string {
   return `${x}-${z}`;
 }
 
-function getChunkIndices(id: string): { x: number; z: number } {
+export function getChunkIndices(id: string): { x: number; z: number } {
   const values = id.split('-');
 
   return {
