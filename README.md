@@ -98,7 +98,7 @@ Multiple tank types with distinct attributes:
 - Rotation speed
 - Number of concurrent bullets
 
-- Multiple bullet types with unique properties:
+Multiple bullet types with unique properties:
 - Speed
 - Bouncing behavior (how many times a bullet can ricochet off walls)
 
