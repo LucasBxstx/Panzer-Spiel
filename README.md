@@ -6,6 +6,8 @@ reimagined with modern web technologies, enhanced graphics and customizable game
 Players can compete in fast-paced matches across different maps and game modes, either in 1v1 duels or team-based
 battles. A single-player mode with bots is currently in development.
 
+<img width="2519" height="1454" alt="image" src="https://github.com/user-attachments/assets/8e8ece3f-71fc-401b-b213-b2a7203b2077" />
+
 ## Key Achievements
 
 - Real-time multiplayer synchronization with WebSockets
