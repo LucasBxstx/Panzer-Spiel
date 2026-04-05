@@ -21,6 +21,7 @@ import { ChunkData, Mesh } from '../../common/models/game-map.model';
 import {
   Chunk,
   convertChunkToPosition,
+  convertPositionToChunkId,
   getChunkByPosition,
   getChunkId,
   getDistanceBetweenChunks,
@@ -308,11 +309,19 @@ export function canUpdateDestination(bot: Bot): boolean {
 
 export function getBotPositionUpdateRequest(
   botTank: Tank,
-  nextChunk: Chunk,
+  bot: Bot,
   chunkData: ChunkData,
 ): UpdateTankPositionDto {
-  const targetPosition = convertChunkToPosition(nextChunk.id, chunkData);
-  const directionVector = subtractVectors(botTank.position, targetPosition);
+  const nextChunkId = bot.nextDestinations[bot.nextDestinations.length - 1].id;
+  const botChunkId = convertPositionToChunkId(botTank.position, chunkData);
+
+  if (botChunkId === nextChunkId) {
+    bot.nextDestinations.pop();
+  }
+
+  const targetPosition = convertChunkToPosition(nextChunkId, chunkData);
+  const startPosition = convertChunkToPosition(botChunkId, chunkData);
+  const directionVector = subtractVectors(startPosition, targetPosition);
 
   const input: InputStateDto = {
     w: directionVector.z < 0,

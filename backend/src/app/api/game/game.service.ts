@@ -48,7 +48,7 @@ import {
   getFireBulletDto,
   hasClearShootLine,
 } from './update-bots';
-import { convertPositionToChunkId, generateMapMesh } from './maps/map.utils';
+import { generateMapMesh } from './maps/map.utils';
 
 @Injectable()
 export class GameService {
@@ -412,26 +412,15 @@ export class GameService {
       }
 
       // Let the bot walk
-      if (bot.nextDestinations.length === 0) return;
+      if (bot.nextDestinations.length > 0) {
+        const positionRequest = getBotPositionUpdateRequest(
+          botTank,
+          bot,
+          mesh.chunkData,
+        );
 
-      const nextChunk = bot.nextDestinations[bot.nextDestinations.length - 1];
-      const botChunkId = convertPositionToChunkId(
-        botTank.position,
-        mesh.chunkData,
-      );
-
-      if (botChunkId === nextChunk.id) {
-        bot.nextDestinations.pop();
+        this.updateTankPosition(bot.id, game.id, positionRequest);
       }
-
-      const positionRequest = getBotPositionUpdateRequest(
-        botTank,
-        nextChunk,
-        mesh.chunkData,
-      );
-
-      console.log('update Bot tank position', positionRequest);
-      this.updateTankPosition(bot.id, game.id, positionRequest);
     });
   }
 
