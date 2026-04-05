@@ -209,7 +209,6 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
 
   const shortestPath = (current: Chunk, target: Chunk) => {
     visited.add(current.id);
-    console.log('shortestpath');
 
     if (current.id == target.id) {
       reachedTarget = true;

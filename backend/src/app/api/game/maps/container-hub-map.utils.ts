@@ -32,12 +32,12 @@ export function getContainerHubMap(): GameMap {
         team: 1,
         point: [
           {
-            position: create3DVector(40, 0, -40),
+            position: create3DVector(35, 0, -35),
             rotation: 2 * Math.PI,
             cameraPosition: create3DVector(0, 70, -85),
           },
           {
-            position: create3DVector(-40, 0, -40),
+            position: create3DVector(-35, 0, -35),
             rotation: Math.PI,
             cameraPosition: create3DVector(0, 70, -85),
           },
@@ -47,12 +47,12 @@ export function getContainerHubMap(): GameMap {
         team: 2,
         point: [
           {
-            position: create3DVector(-40, 0, 40),
+            position: create3DVector(-35, 0, 35),
             rotation: Math.PI,
             cameraPosition: create3DVector(0, 70, 85),
           },
           {
-            position: create3DVector(40, 0, 40),
+            position: create3DVector(35, 0, 35),
             rotation: 2 * Math.PI,
             cameraPosition: create3DVector(0, 70, 85),
           },
@@ -62,7 +62,7 @@ export function getContainerHubMap(): GameMap {
         team: 3,
         point: [
           {
-            position: create3DVector(-40, 0, -40),
+            position: create3DVector(-35, 0, -35),
             rotation: Math.PI,
             cameraPosition: create3DVector(0, 70, -85),
           },
@@ -72,7 +72,7 @@ export function getContainerHubMap(): GameMap {
         team: 4,
         point: [
           {
-            position: create3DVector(40, 0, 40),
+            position: create3DVector(35, 0, 35),
             rotation: 2 * Math.PI,
             cameraPosition: create3DVector(0, 70, 85),
           },

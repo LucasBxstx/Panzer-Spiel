@@ -43,7 +43,7 @@ export interface Chunk {
 }
 
 export function generateMapMesh(map: GameMap) {
-  const CHUNK_SIZE = 10;
+  const CHUNK_SIZE = 5;
   const chunkData = getChunkData(map, CHUNK_SIZE);
   const chunks = splitMapIntoChunks(map, chunkData);
 
@@ -137,9 +137,9 @@ export function splitMapIntoChunks(
         // We increase the scale of the obstacles by the size of a tank
         const obstacleScaledUp = structuredClone(obstacle);
         obstacleScaledUp.scale = {
-          x: obstacle.scale.x + 10,
+          x: obstacle.scale.x + 15,
           y: obstacle.scale.y,
-          z: obstacle.scale.z + 10,
+          z: obstacle.scale.z + 15,
         };
 
         if (checkCollision(chunkCollisionObject, obstacleScaledUp)) {
