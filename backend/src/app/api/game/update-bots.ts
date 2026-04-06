@@ -251,6 +251,22 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
   }
 
   // Reconstruct the path
+  const path = reconstructPath(mesh, start, target);
+  const straightenedPath = straightenPath(path);
+
+  printPath(
+    straightenedPath,
+    mesh.chunks,
+    start,
+    target,
+    mesh.chunkData.NUM_CHUNKS_X,
+    mesh.chunkData.NUM_CHUNKS_Z,
+  );
+
+  return straightenedPath;
+}
+
+function reconstructPath(mesh: Mesh, start: Chunk, target: Chunk): Chunk[] {
   const path: Chunk[] = [];
   let currentChunk: Chunk | undefined = mesh.chunks.get(target.id);
 
@@ -262,14 +278,23 @@ function findShortestWay(MESH: Mesh, start: Chunk, target: Chunk): Chunk[] {
     currentChunk = mesh.chunks.get(currentChunk.pathFromChunkId!);
   }
 
-  printPath(
-    path,
-    mesh.chunks,
-    start,
-    target,
-    mesh.chunkData.NUM_CHUNKS_X,
-    mesh.chunkData.NUM_CHUNKS_Z,
-  );
+  return path.reverse();
+}
+
+function straightenPath(path: Chunk[]): Chunk[] {
+  if (path.length <= 2) return path;
+
+  for (let i = 0; i < path.length - 2; i++) {
+    const current = path[i];
+
+    // Remove next chunk if it is between two diagonal chunks
+    if (
+      Math.abs(path[i + 2].x - current.x) === 1 &&
+      Math.abs(path[i + 2].z - current.z) === 1
+    ) {
+      path.splice(i + 1, 1);
+    }
+  }
 
   return path;
 }
@@ -312,11 +337,11 @@ export function getBotPositionUpdateRequest(
   bot: Bot,
   chunkData: ChunkData,
 ): UpdateTankPositionDto {
-  const nextChunkId = bot.nextDestinations[bot.nextDestinations.length - 1].id;
+  const nextChunkId = bot.nextDestinations[0].id;
   const botChunkId = convertPositionToChunkId(botTank.position, chunkData);
 
   if (botChunkId === nextChunkId) {
-    bot.nextDestinations.pop();
+    bot.nextDestinations.shift();
   }
 
   const targetPosition = convertChunkToPosition(nextChunkId, chunkData);
