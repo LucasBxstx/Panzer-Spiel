@@ -7,8 +7,8 @@ import {
   getTankCollisionObject,
   reflectVector,
 } from './collision';
-import { create3DVector } from '../../common/models/vector.model';
 import { Bullet, BulletMovement } from '../../common/models/bullet.model';
+import { create3DVector } from '../../common/utils/vector.utils';
 
 export function calculateNewBulletPosition(bullet: Bullet): CollisionObject {
   const bulletMovement: BulletMovement = {
@@ -182,4 +182,11 @@ export function removeBullet(game: Game, bullet: Bullet): void {
       tank.bulletIds.splice(index, 1);
     }
   }
+}
+
+export function removeBulletSoundEffects(game: Game) {
+  Array.from(game.bullets.values()).forEach((bullet) => {
+    bullet.playSound = undefined;
+    if (bullet.isCollided) removeBullet(game, bullet);
+  });
 }

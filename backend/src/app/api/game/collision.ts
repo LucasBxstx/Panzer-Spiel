@@ -2,12 +2,9 @@ import { Tank, TankMovement } from '../../common/models/tank.model';
 import { Obstacle } from '../../common/models/obstacle.model';
 import { Scale } from '../../common/models/scale.model';
 import { Position } from '../../common/models/position.model';
-import {
-  create3DVector,
-  PlaneVector,
-  Vector3D,
-} from '../../common/models/vector.model';
+import { PlaneVector, Vector3D } from '../../common/models/vector.model';
 import { Bullet, BulletMovement } from '../../common/models/bullet.model';
+import { create3DVector } from '../../common/utils/vector.utils';
 
 export interface CollisionObject {
   position: Position;

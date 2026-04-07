@@ -30,7 +30,7 @@ import { UpdateTurretRotationDto } from './webservice/dto/update-turret-rotation
 import { tankCollidesObstacle, tankCollidesTank } from './collision';
 import { FireBulletDto } from './webservice/dto/fire-bullet.dto';
 import { Bullet } from '../../common/models/bullet.model';
-import { removeBullet, updateGameState } from './update-game-state';
+import { removeBulletSoundEffects, updateGameState } from './update-game-state';
 import { isGameOver } from './isGameOver';
 import { calculateBulletStartingPosition } from './calculate-bullet-starting-position';
 import { tankOutOfMap } from './out-of-map';
@@ -38,6 +38,17 @@ import { LobbyPreviewResponseDto } from '../lobby/webservice/dto/lobby-response.
 import { createTanks } from './tank.utils';
 import { findBulletVariant } from './bullet.utils';
 import { GameException } from '../../common/exceptions/game.exception';
+import {
+  aimAtTargetTank,
+  canShoot,
+  canUpdateDestination,
+  detectNearestEnemyTank,
+  determinePathToTargetPosition,
+  getBotPositionUpdateRequest,
+  getFireBulletDto,
+  hasClearShootLine,
+} from './update-bots';
+import { generateMapMesh } from './maps/map.utils';
 
 @Injectable()
 export class GameService {
@@ -58,11 +69,18 @@ export class GameService {
 
   createGame(lobby: Lobby): string {
     const players = getPlayers(lobby);
-    createBots(lobby, players);
+    const bots = createBots(lobby, players);
     const playersArray = Array.from(players.values());
     const teams = createTeams(lobby, playersArray);
     const teamsArray = Array.from(teams.values());
-    const tanks = createTanks(players, lobby.gameSettings.map, teamsArray);
+    const tanks = createTanks({
+      players,
+      map: lobby.gameSettings.map,
+      teams: teamsArray,
+      bots,
+    });
+
+    if (bots.size > 0) generateMapMesh(lobby.gameSettings.map);
 
     const game: Game = {
       id: uuidv4(),
@@ -73,6 +91,7 @@ export class GameService {
       players,
       teams,
       tanks,
+      bots,
       bullets: new Map(),
     };
 
@@ -141,23 +160,23 @@ export class GameService {
         winningTeamId: game.winningTeamId!,
       };
       this.server.to(gameId).emit('gameOver', gameOverDto);
-      this.logger.log(`Game is over - Team ${game.winningTeamId!} has won`);
+      this.logger.log(
+        `Game ${gameId} is over - Team ${game.winningTeamId!} has won`,
+      );
     }
 
     const noPlayerInGame = Array.from(game.players.values()).every(
-      (player) => player.isRejoining || !player.isConnected,
+      (player) => player.isRejoining || !player.isConnected || player.isBot,
     );
 
     if (gameAlreadyStarted && noPlayerInGame) {
       this.logger.log('--- No one is in the game. it should stop now ---');
       this.stopGame(gameId);
+      return;
     }
 
-    // Remove Bullet sound effects
-    Array.from(game.bullets.values()).forEach((bullet) => {
-      bullet.playSound = undefined;
-      if (bullet.isCollided) removeBullet(game, bullet);
-    });
+    removeBulletSoundEffects(game);
+    this.updateBots(game);
   }
 
   stopGame(gameId: string) {
@@ -286,7 +305,6 @@ export class GameService {
     }
 
     if (tank.bulletIds.length >= tank.maxBullets) {
-      console.log('bullets', tank.bulletIds);
       this.logger.log(`Tank ${tank.id} is out of shooting limit`);
       return { success: false };
     }
@@ -336,7 +354,7 @@ export class GameService {
     player.isConnected = false;
     player.isRejoining = true;
 
-    this.logger.log(`User ${userId} left the game`);
+    this.logger.log(`User ${userId} left the game ${gameId}`);
 
     return { success: true };
   }
@@ -359,6 +377,51 @@ export class GameService {
     }
 
     return LobbyPreviewResponseDto.mapFromGameEntity(game);
+  }
+
+  updateBots(game: Game): void {
+    Array.from(game.bots.values()).forEach((bot) => {
+      const botTank = game.tanks.get(bot.tankId);
+      const targetTank = detectNearestEnemyTank(bot, game);
+
+      if (!botTank || !targetTank || botTank.isDead) return;
+
+      bot.targetedTankId = targetTank.id;
+      const directionVector = aimAtTargetTank(botTank, targetTank);
+
+      if (
+        canShoot(bot, botTank) &&
+        hasClearShootLine(botTank, targetTank, game)
+      ) {
+        const fireBulletDto = getFireBulletDto(bot, botTank, directionVector);
+        const firedBullet = this.fireBullet(bot.id, game.id, fireBulletDto);
+
+        if (firedBullet) bot.lastShoot = new Date();
+      }
+
+      const mesh = game.gameSettings.map.mesh;
+      if (!mesh) return;
+
+      if (canUpdateDestination(bot)) {
+        bot.nextDestinations = determinePathToTargetPosition(
+          mesh,
+          botTank.position,
+          targetTank.position,
+        );
+        bot.lastDestinationUpdate = new Date();
+      }
+
+      // Let the bot walk
+      if (bot.nextDestinations.length > 0) {
+        const positionRequest = getBotPositionUpdateRequest(
+          botTank,
+          bot,
+          mesh.chunkData,
+        );
+
+        this.updateTankPosition(bot.id, game.id, positionRequest);
+      }
+    });
   }
 
   handleDisconnect(

@@ -3,6 +3,7 @@ import { Team } from '../../common/models/team.model';
 import { Lobby } from '../../common/models/lobby.model';
 import { Player } from '../../common/models/player.model';
 import { GameMode } from '../../common/models/game-settings.model';
+import { Bot, BotDifficulty } from '../../common/models/bot.model';
 
 export function getPlayers(lobby: Lobby): Map<string, Player> {
   return new Map<string, Player>(
@@ -20,11 +21,16 @@ export function getPlayers(lobby: Lobby): Map<string, Player> {
   );
 }
 
-export function createBots(lobby: Lobby, players: Map<string, Player>) {
+export function createBots(
+  lobby: Lobby,
+  players: Map<string, Player>,
+): Map<string, Bot> {
   const botNames = ['Alice', 'Bob', 'Carolin', 'Harald'];
+  const bots = new Map<string, Bot>();
   for (let i = 0; i < lobby.gameSettings.numberOfBots; i++) {
+    const botId = uuidv4();
     const bot: Player = {
-      userId: uuidv4(),
+      userId: botId,
       isBot: true,
       isConnected: true,
       isRejoining: false,
@@ -33,8 +39,21 @@ export function createBots(lobby: Lobby, players: Map<string, Player>) {
       name: botNames[i],
       socketId: '',
     };
+
     players.set(bot.userId, bot);
+    bots.set(botId, {
+      id: botId,
+      tankId: '',
+      difficulty: BotDifficulty.EASY,
+      targetedTankId: '',
+      lastShoot: new Date(),
+      shootingBufferMS: 2000,
+      nextDestinations: [],
+      lastDestinationUpdate: new Date(),
+      destinationBufferMS: 5000,
+    });
   }
+  return bots;
 }
 
 export function createTeams(

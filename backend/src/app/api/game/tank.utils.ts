@@ -4,6 +4,7 @@ import { Team } from '../../common/models/team.model';
 import { Tank, TankVariant } from '../../common/models/tank.model';
 import { Position } from '../../common/models/position.model';
 import { v4 as uuidv4 } from 'uuid';
+import { Bot } from '../../common/models/bot.model';
 
 export function findTankVariant(id: string): TankVariant | undefined {
   const variants: TankVariant[] = [getBasicTank(), getBouncingTank()];
@@ -11,13 +12,19 @@ export function findTankVariant(id: string): TankVariant | undefined {
   return variants.find((v) => v.id === id);
 }
 
-export function createTanks(
-  players: Map<string, Player>,
-  map: GameMap,
-  teams: Team[],
-): Map<string, Tank> {
+export function createTanks({
+  players,
+  map,
+  teams,
+  bots,
+}: {
+  players: Map<string, Player>;
+  map: GameMap;
+  teams: Team[];
+  bots: Map<string, Bot>;
+}): Map<string, Tank> {
   const tanks = new Map<string, Tank>();
-  let i = 0;
+  const i = 0;
 
   teams.forEach((team, teamIndex) => {
     const teamEntryPoints = map.teamEntryPoints[teamIndex];
@@ -27,11 +34,17 @@ export function createTanks(
       const player = players.get(playerId);
 
       if (player) {
-        const tankVariant = i++ % 2 === 0 ? getBasicTank() : getBouncingTank();
+        // const tankVariant = i++ % 2 === 0 ? getBasicTank() : getBouncingTank();
+        const tankVariant = getBasicTank();
         const tank = createTank(player, team, tankVariant, entryPoint);
         tanks.set(tank.id, tank);
         player.tankId = tank.id;
         team.tankIds.push(tank.id);
+
+        if (player.isBot) {
+          const bot = bots.get(player.userId);
+          if (bot) bot.tankId = tank.id;
+        }
       }
     });
   });

@@ -1,9 +1,10 @@
 import { GameMap } from '../../../common/models/game-map.model';
 import { v4 as uuidv4 } from 'uuid';
 import { Obstacle } from '../../../common/models/obstacle.model';
-import { create3DVector, Vector3D } from '../../../common/models/vector.model';
+import { Vector3D } from '../../../common/models/vector.model';
 import { Position } from '../../../common/models/position.model';
 import { Scale } from '../../../common/models/scale.model';
+import { create3DVector } from '../../../common/utils/vector.utils';
 
 export function getDesertMap3(): GameMap {
   return {
@@ -12,7 +13,7 @@ export function getDesertMap3(): GameMap {
     pictureUrl: 'assets/pictures/map-canyon-clash.png',
     scale: {
       x: 110,
-      y: 100,
+      y: 110,
       z: 110,
     },
     groundTexture: {
@@ -29,10 +30,47 @@ export function getDesertMap3(): GameMap {
     teamEntryPoints: [
       {
         team: 1,
+
         point: [
           {
             position: {
-              x: -40,
+              x: 0,
+              y: 0,
+              z: 43,
+            },
+            rotation: Math.PI,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: 85,
+            },
+          },
+        ],
+      },
+      {
+        team: 2,
+        point: [
+          {
+            position: {
+              x: 0,
+              y: 0,
+              z: -43,
+            },
+            rotation: 0,
+            cameraPosition: {
+              x: 0,
+              y: 70,
+              z: -85,
+            },
+          },
+        ],
+      },
+      {
+        team: 3,
+        point: [
+          {
+            position: {
+              x: -45,
               y: 0,
               z: 0,
             },
@@ -47,7 +85,7 @@ export function getDesertMap3(): GameMap {
             position: {
               x: 0,
               y: 0,
-              z: -40,
+              z: -45,
             },
             rotation: 0,
             cameraPosition: {
@@ -59,11 +97,11 @@ export function getDesertMap3(): GameMap {
         ],
       },
       {
-        team: 2,
+        team: 4,
         point: [
           {
             position: {
-              x: 40,
+              x: 45,
               y: 0,
               z: 0,
             },
@@ -78,50 +116,13 @@ export function getDesertMap3(): GameMap {
             position: {
               x: 0,
               y: 0,
-              z: 40,
+              z: 45,
             },
             rotation: 0,
             cameraPosition: {
               x: 0,
               y: 70,
               z: 85,
-            },
-          },
-        ],
-      },
-      {
-        team: 3,
-
-        point: [
-          {
-            position: {
-              x: 0,
-              y: 0,
-              z: 40,
-            },
-            rotation: Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: 85,
-            },
-          },
-        ],
-      },
-      {
-        team: 4,
-        point: [
-          {
-            position: {
-              x: 0,
-              y: 0,
-              z: -40,
-            },
-            rotation: 0,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: -85,
             },
           },
         ],
@@ -137,17 +138,17 @@ export function getDamagedWalls(): Obstacle[] {
       position: {
         x: 0,
         y: 0,
-        z: 27,
+        z: 33,
       },
       scale: {
-        x: 30,
+        x: 25,
         y: 3,
         z: 4,
       },
       renderScale: {
         x: 0.075,
         y: 0.2,
-        z: 0.1,
+        z: 0.083,
       },
       rotation: {
         x: 0,
@@ -159,17 +160,17 @@ export function getDamagedWalls(): Obstacle[] {
       position: {
         x: 0,
         y: 0,
-        z: -27,
+        z: -33,
       },
       scale: {
-        x: 30,
+        x: 25,
         y: 3,
         z: 4,
       },
       renderScale: {
         x: 0.075,
         y: 0.2,
-        z: 0.1,
+        z: 0.083,
       },
       rotation: {
         x: 0,
@@ -179,19 +180,19 @@ export function getDamagedWalls(): Obstacle[] {
     }),
     getDamagedWall({
       position: {
-        x: 27,
+        x: 33,
         y: 0,
         z: 0,
       },
       scale: {
-        x: 30,
+        x: 25,
         y: 3,
         z: 4,
       },
       renderScale: {
         x: 0.075,
         y: 0.2,
-        z: 0.1,
+        z: 0.083,
       },
       rotation: {
         x: 0,
@@ -201,19 +202,19 @@ export function getDamagedWalls(): Obstacle[] {
     }),
     getDamagedWall({
       position: {
-        x: -27,
+        x: -33,
         y: 0,
         z: -0,
       },
       scale: {
-        x: 30,
+        x: 25,
         y: 3,
         z: 4,
       },
       renderScale: {
         x: 0.075,
         y: 0.2,
-        z: 0.1,
+        z: 0.083,
       },
       rotation: {
         x: 0,
@@ -249,56 +250,56 @@ export function getDamagedWall({
 export function getCliffLandscape(): Obstacle[] {
   return [
     getCliff({
-      position: create3DVector(-45, 12, 61),
-      scale: create3DVector(20, 0, 20),
+      position: create3DVector(-45, 12, 70),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(0, 12, 61),
-      scale: create3DVector(20, 0, 20),
+      position: create3DVector(0, 12, 70),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(50, 12, 61),
-      scale: create3DVector(20, 0, 20),
+      position: create3DVector(50, 12, 70),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(70, 12, 10),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(70, 12, -40),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(30, 12, -61),
-      scale: create3DVector(20, 0, 20),
+      position: create3DVector(30, 12, -70),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 2.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
-      position: create3DVector(-30, 12, -61),
-      scale: create3DVector(20, 0, 20),
+      position: create3DVector(-30, 12, -70),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 2.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(-70, 12, -30),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 0.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(-70, 12, 30),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 0.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
