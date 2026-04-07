@@ -308,9 +308,14 @@ function printPath(
   NUM_CHUNKS_Z: number,
 ) {
   const pathMap: Map<string, Chunk> = new Map(chunks.map((c) => [c.id, c]));
+  let firstRow = '';
+  for (let i = 0; i < NUM_CHUNKS_X + 2; i++) {
+    firstRow += 'x';
+  }
+  console.log(firstRow);
 
   for (let z = 0; z < NUM_CHUNKS_Z; z++) {
-    let row = '';
+    let row = 'x';
     for (let x = 0; x < NUM_CHUNKS_X; x++) {
       const chunkID = getChunkId(x, z);
       if (chunkID === start.id) {
@@ -321,8 +326,10 @@ function printPath(
         row += pathMap.get(chunkID) ? 'o' : obstacles.get(chunkID) ? ' ' : 'x';
       }
     }
+    row += 'x';
     console.log(row);
   }
+  console.log(firstRow);
 }
 
 export function canUpdateDestination(bot: Bot): boolean {

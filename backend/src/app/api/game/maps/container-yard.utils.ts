@@ -114,18 +114,18 @@ export function getContainers(): Obstacle[] {
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
-    getContainer({
-      position: create3DVector(-47, 4, -30),
-      scale: create3DVector(20, 6, 9),
-      renderScale: create3DVector(0.2, 0.2, 0.2),
-      rotation: create3DVector(0, Math.PI / 2, 0),
-    }),
-    getContainer({
-      position: create3DVector(45, 4, 30),
-      scale: create3DVector(20, 6, 9),
-      renderScale: create3DVector(0.2, 0.2, 0.2),
-      rotation: create3DVector(0, Math.PI / 2, 0),
-    }),
+    // getContainer({
+    //   position: create3DVector(-47, 4, -30),
+    //   scale: create3DVector(20, 6, 9),
+    //   renderScale: create3DVector(0.2, 0.2, 0.2),
+    //   rotation: create3DVector(0, Math.PI / 2, 0),
+    // }),
+    // getContainer({
+    //   position: create3DVector(45, 4, 30),
+    //   scale: create3DVector(20, 6, 9),
+    //   renderScale: create3DVector(0.2, 0.2, 0.2),
+    //   rotation: create3DVector(0, Math.PI / 2, 0),
+    // }),
     getContainer({
       position: create3DVector(15, 4, 15),
       scale: create3DVector(20, 6, 9),

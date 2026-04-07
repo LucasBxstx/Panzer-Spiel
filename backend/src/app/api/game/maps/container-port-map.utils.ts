@@ -126,25 +126,25 @@ export function getContainerPortMap(): GameMap {
 export function getContainers(): Obstacle[] {
   return [
     getContainer({
-      position: create3DVector(-45, 4, 25),
+      position: create3DVector(-45, 4, 20),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(45, 4, 25),
+      position: create3DVector(45, 4, 20),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(-45, 4, -25),
+      position: create3DVector(-45, 4, -20),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(45, 4, -25),
+      position: create3DVector(45, 4, -20),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),

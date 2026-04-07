@@ -137,9 +137,9 @@ export function splitMapIntoChunks(
         // We increase the scale of the obstacles by the size of a tank
         const obstacleScaledUp = structuredClone(obstacle);
         obstacleScaledUp.scale = {
-          x: obstacle.scale.x + 15,
+          x: obstacle.scale.x + 10,
           y: obstacle.scale.y,
-          z: obstacle.scale.z + 15,
+          z: obstacle.scale.z + 10,
         };
 
         if (checkCollision(chunkCollisionObject, obstacleScaledUp)) {
@@ -170,13 +170,20 @@ function printMesh(
   NUM_CHUNKS_X: number,
   NUM_CHUNKS_Z: number,
 ) {
+  let firstRow = '';
+  for (let i = 0; i < NUM_CHUNKS_X + 2; i++) {
+    firstRow += 'x';
+  }
+  console.log(firstRow);
   for (let z = 0; z < NUM_CHUNKS_Z; z++) {
-    let row = '';
+    let row = 'x';
     for (let x = 0; x < NUM_CHUNKS_X; x++) {
-      row += chunks.get(getChunkId(x, z)) ? '0' : 'x';
+      row += chunks.get(getChunkId(x, z)) ? ' ' : 'x';
     }
+    row += 'x';
     console.log(row);
   }
+  console.log(firstRow);
 }
 
 export function getChunkId(x: number, z: number): string {
