@@ -75,7 +75,7 @@ export class GameService {
     const teamsArray = Array.from(teams.values());
     const tanks = createTanks({
       players,
-      map: lobby.gameSettings.map,
+      gameSettings: lobby.gameSettings,
       teams: teamsArray,
       bots,
     });

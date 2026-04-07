@@ -55,6 +55,7 @@ export class LobbyService {
       maxPlayersCount: dto.maxPlayersCount,
       numberOfBots: dto.numberOfBots,
       botDifficulty: dto.botDifficulty,
+      tankType: dto.tankType,
     };
 
     const lobby: Lobby = {

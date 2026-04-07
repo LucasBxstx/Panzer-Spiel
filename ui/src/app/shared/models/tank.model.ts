@@ -87,3 +87,8 @@ export interface FireBulletRequest {
   rotation: number;
   playerMovement: InputState;
 }
+
+export enum TankType {
+  BasicTank = 'BasicTank',
+  TacticalTank = 'TacticalTank',
+}

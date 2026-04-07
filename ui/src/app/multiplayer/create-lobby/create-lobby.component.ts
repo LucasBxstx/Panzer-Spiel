@@ -14,6 +14,7 @@ import {
   CreateLobbyRequest,
   GameModeOption,
   MapPreviewResponse,
+  TankTypeOption,
 } from '../../shared/models/lobby.model';
 import { MapPreviewComponent } from '../../shared/components/map-preview/map-preview.component';
 import { GameMode } from '../../shared/models/lobby-preview.model';
@@ -25,6 +26,7 @@ import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-i
 import { NgOptimizedImage } from '@angular/common';
 import { map, merge } from 'rxjs';
 import { BotDifficulty } from '../../shared/models/bot.model';
+import { TankType } from '../../shared/models/tank.model';
 
 @Component({
   selector: 'app-create-lobby',
@@ -51,6 +53,7 @@ export class CreateLobbyComponent {
   public readonly selectedMapId = signal<string>('containerhub');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
   public readonly selectedBotDifficulty = signal<BotDifficulty | null>(null);
+  public readonly selectedTankType = signal<TankType>(TankType.BasicTank);
 
   public readonly availableMaps = toSignal<MapPreviewResponse[] | null>(
     this.lobbyService.getAvailableMaps().pipe(takeUntilDestroyed(this.destroyRef)),
@@ -90,6 +93,17 @@ export class CreateLobbyComponent {
     {
       name: 'Hard',
       value: BotDifficulty.HARD,
+    },
+  ]);
+
+  public readonly availableTankTypes = signal<TankTypeOption[]>([
+    {
+      name: 'Basic Tank',
+      value: TankType.BasicTank,
+    },
+    {
+      name: 'Tactical Tank',
+      value: TankType.TacticalTank,
     },
   ]);
 
@@ -164,6 +178,7 @@ export class CreateLobbyComponent {
       numberOfTeams,
       numberOfBots,
       maxPlayersCount,
+      tankType: this.selectedTankType(),
       botDifficulty: this.selectedBotDifficulty() ?? undefined,
     };
 
@@ -178,6 +193,4 @@ export class CreateLobbyComponent {
   public scrollToRight(): void {
     this.mapPreviewContainer()?.nativeElement.scrollBy({ left: 300, behavior: 'smooth' });
   }
-
-  protected readonly BotDifficulty = BotDifficulty;
 }

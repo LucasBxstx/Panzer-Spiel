@@ -73,6 +73,14 @@
           </div>
         }
 
+        <div class="font-bold mt-3">Tank Types:</div>
+
+        <div class="flex flex-row gap-5 items-center">
+          @for (type of availableTankTypes(); track type.name) {
+            <app-chip [value]="type.name" [class]="{selected: type.value === selectedTankType()}"
+                      (click)="selectedTankType.set(type.value)"></app-chip>
+          }
+        </div>
 
         <div class="mt-10 flex justify-center">
           <button class="w-[80%]" (click)="createLobby()"

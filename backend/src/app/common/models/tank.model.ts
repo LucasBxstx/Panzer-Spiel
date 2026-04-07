@@ -30,6 +30,7 @@ export interface Tank {
 
 export interface TankVariant {
   id: string;
+  tankType: TankType;
   name: string;
   modelUrl: string;
   scale: Scale;
@@ -44,4 +45,9 @@ export interface TankVariant {
 export interface TankMovement {
   position: Position;
   rotation: Vector3D;
+}
+
+export enum TankType {
+  BasicTank = 'BasicTank',
+  TacticalTank = 'TacticalTank',
 }
