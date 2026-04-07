@@ -1,5 +1,7 @@
-import { IsEnum, IsNumber, IsUUID } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
 import { GameMode } from '../../../../common/models/game-settings.model';
+import { BotDifficulty } from '../../../../common/models/bot.model';
+import { TankType } from '../../../../common/models/tank.model';
 
 export class CreateLobbyDto {
   @IsUUID()
@@ -19,6 +21,13 @@ export class CreateLobbyDto {
 
   @IsNumber()
   numberOfBots: number;
+
+  @IsOptional()
+  @IsEnum(BotDifficulty)
+  botDifficulty?: BotDifficulty;
+
+  @IsEnum(TankType)
+  tankType: TankType;
 }
 
 export class JoinLobbyDto {

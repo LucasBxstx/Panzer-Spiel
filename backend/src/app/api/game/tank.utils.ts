@@ -1,41 +1,40 @@
 import { Player } from '../../common/models/player.model';
-import { EntryPoint, GameMap } from '../../common/models/game-map.model';
+import { EntryPoint } from '../../common/models/game-map.model';
 import { Team } from '../../common/models/team.model';
-import { Tank, TankVariant } from '../../common/models/tank.model';
+import { Tank, TankType, TankVariant } from '../../common/models/tank.model';
 import { Position } from '../../common/models/position.model';
 import { v4 as uuidv4 } from 'uuid';
 import { Bot } from '../../common/models/bot.model';
+import { GameSettings } from '../../common/models/game-settings.model';
 
-export function findTankVariant(id: string): TankVariant | undefined {
-  const variants: TankVariant[] = [getBasicTank(), getBouncingTank()];
+export function findTankVariant(tankType: TankType): TankVariant {
+  const variants: TankVariant[] = [getBasicTank(), getTacticalTank()];
 
-  return variants.find((v) => v.id === id);
+  return variants.find((v) => v.tankType === tankType)!;
 }
 
 export function createTanks({
   players,
-  map,
+  gameSettings,
   teams,
   bots,
 }: {
   players: Map<string, Player>;
-  map: GameMap;
+  gameSettings: GameSettings;
   teams: Team[];
   bots: Map<string, Bot>;
 }): Map<string, Tank> {
   const tanks = new Map<string, Tank>();
-  const i = 0;
 
   teams.forEach((team, teamIndex) => {
-    const teamEntryPoints = map.teamEntryPoints[teamIndex];
+    const teamEntryPoints = gameSettings.map.teamEntryPoints[teamIndex];
 
     team.playersIds.forEach((playerId, playerIndex) => {
       const entryPoint = teamEntryPoints.point[playerIndex];
       const player = players.get(playerId);
 
       if (player) {
-        // const tankVariant = i++ % 2 === 0 ? getBasicTank() : getBouncingTank();
-        const tankVariant = getBasicTank();
+        const tankVariant = findTankVariant(gameSettings.tankType);
         const tank = createTank(player, team, tankVariant, entryPoint);
         tanks.set(tank.id, tank);
         player.tankId = tank.id;
@@ -93,7 +92,8 @@ function createTank(
 function getBasicTank(): TankVariant {
   return {
     id: uuidv4(),
-    name: 'BasicTank',
+    tankType: TankType.BasicTank,
+    name: 'Basic Tank',
     modelUrl: 'assets/models/tank-panther-centered.glb',
     scale: {
       x: 6,
@@ -113,10 +113,11 @@ function getBasicTank(): TankVariant {
   };
 }
 
-function getBouncingTank(): TankVariant {
+function getTacticalTank(): TankVariant {
   return {
     id: uuidv4(),
-    name: 'BouncingTank',
+    tankType: TankType.TacticalTank,
+    name: 'Tactical Tank',
     modelUrl: 'assets/models/tank-panther-centered.glb',
     scale: {
       x: 6,

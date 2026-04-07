@@ -1,4 +1,4 @@
-import { Bot, BotDifficulty } from '../../common/models/bot.model';
+import { Bot } from '../../common/models/bot.model';
 import { Game } from '../../common/models/game.model';
 import { Tank } from '../../common/models/tank.model';
 import { Position } from '../../common/models/position.model';
@@ -137,16 +137,7 @@ export function getBotAimingJitter(
   bot: Bot,
   directionVector: Vector3D,
 ): Vector3D {
-  const jitterOptions = new Map<BotDifficulty, number>([
-    [BotDifficulty.EASY, 0.3],
-    [BotDifficulty.INTERMEDIATE, 0.15],
-    [BotDifficulty.ADVANCED, 0.05],
-    [BotDifficulty.HARD, 0],
-  ]);
-
-  const value = jitterOptions.get(bot.difficulty) ?? 0;
-  const angleOffset = (Math.random() - 0.5) * 2 * value;
-
+  const angleOffset = (Math.random() - 0.5) * 2 * bot.jitterExtent;
   const currentAngle = Math.atan2(directionVector.x, directionVector.z);
   const newAngle = currentAngle + angleOffset;
 

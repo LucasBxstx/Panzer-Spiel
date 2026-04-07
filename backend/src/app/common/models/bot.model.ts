@@ -10,6 +10,15 @@ export interface Bot {
   nextDestinations: Chunk[];
   lastDestinationUpdate: Date;
   destinationBufferMS: number;
+  jitterExtent: number;
+}
+
+export interface BotVariant {
+  id: string;
+  botDifficulty: BotDifficulty;
+  shootingBufferMS: number;
+  destinationBufferMS: number;
+  jitterExtent: number;
 }
 
 export enum BotDifficulty {

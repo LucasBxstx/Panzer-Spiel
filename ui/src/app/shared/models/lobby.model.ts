@@ -1,4 +1,6 @@
 import { GameMode } from './lobby-preview.model';
+import { BotDifficulty } from './bot.model';
+import { TankType } from './tank.model';
 
 export interface CreateLobbyRequest {
   mapId: string;
@@ -7,6 +9,8 @@ export interface CreateLobbyRequest {
   teamSize: number;
   numberOfBots: number;
   numberOfTeams: number;
+  tankType: TankType;
+  botDifficulty?: BotDifficulty;
 }
 
 export interface MapPreviewResponse {
@@ -44,4 +48,14 @@ export interface PlayerPreviewResponse {
 export interface GameModeOption {
   name: string;
   value: GameMode;
+}
+
+export interface BotDifficultyOption {
+  name: string;
+  value: BotDifficulty;
+}
+
+export interface TankTypeOption {
+  name: string;
+  value: TankType;
 }

@@ -4,6 +4,7 @@ import { Lobby } from '../../common/models/lobby.model';
 import { Player } from '../../common/models/player.model';
 import { GameMode } from '../../common/models/game-settings.model';
 import { Bot, BotDifficulty } from '../../common/models/bot.model';
+import { getBotVariant } from './bot.utils';
 
 export function getPlayers(lobby: Lobby): Map<string, Player> {
   return new Map<string, Player>(
@@ -41,16 +42,21 @@ export function createBots(
     };
 
     players.set(bot.userId, bot);
+    const botDifficulty =
+      lobby.gameSettings.botDifficulty ?? BotDifficulty.EASY;
+    const botVariant = getBotVariant(botDifficulty);
+
     bots.set(botId, {
       id: botId,
       tankId: '',
-      difficulty: BotDifficulty.EASY,
+      difficulty: botDifficulty,
       targetedTankId: '',
       lastShoot: new Date(),
-      shootingBufferMS: 2000,
+      shootingBufferMS: botVariant?.shootingBufferMS ?? 2000,
       nextDestinations: [],
       lastDestinationUpdate: new Date(),
-      destinationBufferMS: 5000,
+      destinationBufferMS: botVariant?.destinationBufferMS ?? 5000,
+      jitterExtent: botVariant?.jitterExtent ?? 0.3,
     });
   }
   return bots;
