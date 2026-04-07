@@ -1,4 +1,5 @@
 import { GameMap } from './game-map.model';
+import { BotDifficulty } from './bot.model';
 
 export interface GameSettings {
   gameMode: GameMode;
@@ -7,6 +8,7 @@ export interface GameSettings {
   numberOfTeams: number;
   numberOfBots: number;
   teamSize: number;
+  botDifficulty?: BotDifficulty;
 }
 
 export enum GameMode {

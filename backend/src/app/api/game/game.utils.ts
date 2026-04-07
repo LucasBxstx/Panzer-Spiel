@@ -44,7 +44,7 @@ export function createBots(
     bots.set(botId, {
       id: botId,
       tankId: '',
-      difficulty: BotDifficulty.EASY,
+      difficulty: lobby.gameSettings.botDifficulty ?? BotDifficulty.EASY,
       targetedTankId: '',
       lastShoot: new Date(),
       shootingBufferMS: 2000,

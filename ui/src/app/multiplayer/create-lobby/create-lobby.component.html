@@ -62,8 +62,19 @@
           }
         </div>
 
-        <div class="mt-10 flex justify-center">
+        @if (selectedMode() === GameMode.TeamVsBots) {
+          <div class="font-bold mt-3">Bot Difficulty:</div>
 
+          <div class="flex flex-row gap-5 items-center">
+            @for (difficulty of availableBotsDifficulties(); track difficulty.name) {
+              <app-chip [value]="difficulty.name" [class]="{selected: difficulty.value === selectedBotDifficulty()}"
+                        (click)="selectedBotDifficulty.set(difficulty.value)"></app-chip>
+            }
+          </div>
+        }
+
+
+        <div class="mt-10 flex justify-center">
           <button class="w-[80%]" (click)="createLobby()"
                   [disabled]="formGroup.invalid || isAlreadyCreatingLobby || invalidSettings()">
             Create Lobby

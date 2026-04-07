@@ -1,4 +1,5 @@
 import { GameMode } from './lobby-preview.model';
+import { BotDifficulty } from './bot.model';
 
 export interface CreateLobbyRequest {
   mapId: string;
@@ -7,6 +8,7 @@ export interface CreateLobbyRequest {
   teamSize: number;
   numberOfBots: number;
   numberOfTeams: number;
+  botDifficulty?: BotDifficulty;
 }
 
 export interface MapPreviewResponse {
@@ -44,4 +46,9 @@ export interface PlayerPreviewResponse {
 export interface GameModeOption {
   name: string;
   value: GameMode;
+}
+
+export interface BotDifficultyOption {
+  name: string;
+  value: BotDifficulty;
 }

@@ -54,6 +54,7 @@ export class LobbyService {
       gameMode: dto.gameMode,
       maxPlayersCount: dto.maxPlayersCount,
       numberOfBots: dto.numberOfBots,
+      botDifficulty: dto.botDifficulty,
     };
 
     const lobby: Lobby = {
