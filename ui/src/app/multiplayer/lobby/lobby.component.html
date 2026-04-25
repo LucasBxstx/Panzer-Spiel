@@ -6,7 +6,7 @@
       @if (lobbyService.currentLobby(); as lobby) {
         <div content class="mt-[-20px]">
           <div class="flex flex-col md:flex-row gap-10 mt-10">
-            <div class="flex-[50%] flex flex-col gap-5">
+            <div class="flex-[50%] flex flex-col gap-1">
               <div class=" mr-10">
                 @if (lobby.hostUserName === authService.user()?.name) {
                   Du bist in deiner eigenen Lobby.
@@ -16,7 +16,7 @@
 
                 Warte auf weitere Spieler, damit das Spiel starten kann.
               </div>
-              <div class="font-bold mt-3">Map:</div>
+              <div class="font-bold mt-2">Map:</div>
 
               <div class="flex flex-row gap-5 align-center">
                 <app-map-preview [map]="lobby.gameSettings.mapPreview"
@@ -24,7 +24,7 @@
 
               </div>
 
-              <div class="font-bold mt-3">Mode:</div>
+              <div class="font-bold mt-2">Mode:</div>
 
               <div class="flex flex-row gap-5 align-center">
 

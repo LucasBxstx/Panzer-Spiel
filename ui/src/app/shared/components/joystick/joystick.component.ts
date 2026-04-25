@@ -23,18 +23,18 @@ import { KeyboardInputService } from '../../services/keyboard-input.service';
     `
       .joystick-zone {
         position: fixed;
-        bottom: 10px;
+        bottom: 5px;
 
-        width: 150px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
         z-index: 100;
 
         &.left {
-          left: 10px;
+          left: 5px;
         }
 
         &.right {
-          right: 10px;
+          right: 5px;
         }
       }
     `,
@@ -53,7 +53,7 @@ export class JoystickComponent implements AfterViewInit, OnDestroy {
       mode: 'static',
       position: { left: '50%', top: '50%' },
       color: 'rgba(255,255,255,0.8)',
-      size: 120,
+      size: 100,
     });
 
     this.manager.on('move', (_, data: JoystickOutputData) => {
