@@ -32,14 +32,6 @@ export class GameOverComponent implements OnInit {
       await this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
       this.audioService.play('game-won');
     }
-
-    if (gameState.winningTeamId) {
-      setTimeout(() => {
-        console.log('game-over comp', 'winning team id', gameState.winningTeamId);
-        this.gameService.disconnect();
-        this.router.navigate(['/multiplayer']);
-      }, 25000);
-    }
   }
 
   public leaveGame(): void {
