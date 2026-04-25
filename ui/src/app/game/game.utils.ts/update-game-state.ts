@@ -11,7 +11,7 @@ export function updateGameState(
     winningTeamId: newState.winningTeamId,
   };
   const tanks = update.tanks;
-  // console.log('new State', newState);
+
   newState.tanks.forEach((tank) => {
     const oldTankState = tanks.get(tank.id);
 

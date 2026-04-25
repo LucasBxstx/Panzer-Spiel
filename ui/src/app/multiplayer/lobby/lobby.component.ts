@@ -121,6 +121,7 @@ export class LobbyComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
+    console.log('Lobby OnDestroy');
     this.lobbyService.disconnect();
   }
 }

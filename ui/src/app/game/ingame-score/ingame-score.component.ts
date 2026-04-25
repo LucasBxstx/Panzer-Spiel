@@ -43,10 +43,7 @@ export class IngameScoreComponent {
   public isGameOver = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
-      map((event: NavigationEnd) => {
-        console.log(event);
-        return event.urlAfterRedirects.endsWith('/gameover');
-      }),
+      map((event: NavigationEnd) => event.urlAfterRedirects.endsWith('/gameover')),
     ),
     { initialValue: false },
   );
