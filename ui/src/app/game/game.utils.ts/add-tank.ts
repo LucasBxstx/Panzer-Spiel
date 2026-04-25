@@ -82,7 +82,7 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
         });
       },
       (progress) => {
-        console.log('Loading progress tank model:', (progress.loaded / progress.total) * 100 + '%');
+        // console.log('Loading progress tank model:', (progress.loaded / progress.total) * 100 + '%');
       },
       (error) => {
         reject(error);

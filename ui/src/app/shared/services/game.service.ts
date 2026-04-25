@@ -189,7 +189,7 @@ export class GameService {
 
   public readonly teamsWithStats: Signal<TeamStats[] | null> = computed(() => {
     const gamestate = this.gameState();
-    console.log(gamestate);
+
     if (!gamestate) {
       return null;
     }
