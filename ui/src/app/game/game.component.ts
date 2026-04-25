@@ -71,7 +71,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private mouse = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
 
-  private boundResize = this.onWindowResize.bind(this);
+  private boundResize = this.debounce(this.onWindowResize.bind(this), 200);
   private isInitialized = false;
   private mobileFiring = false;
 
@@ -139,6 +139,7 @@ export class GameComponent implements OnInit, OnDestroy {
     if (!gameId) {
       this.showError.set(true);
       setTimeout(() => {
+        console.log('join or rejoin game');
         this.router.navigate(['/multiplayer']);
       }, 2000);
       return;
@@ -150,6 +151,7 @@ export class GameComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           this.showError.set(true);
+          console.log('join game', error);
           setTimeout(() => {
             this.router.navigate(['/multiplayer']);
           }, 2000);
@@ -561,7 +563,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-    window.location.reload();
+    // window.location.reload();
   }
 
   private showYouHaveBeenKilled(): void {
@@ -577,6 +579,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
     canvas.addEventListener('click', this.clickHandler);
     canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
+  }
+
+  private debounce(fn: () => void, ms: number) {
+    let timer: ReturnType<typeof setTimeout>;
+    return () => {
+      clearTimeout(timer);
+      timer = setTimeout(fn, ms);
+    };
   }
 
   ngOnDestroy(): void {

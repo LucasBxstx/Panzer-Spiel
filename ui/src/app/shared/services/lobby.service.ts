@@ -64,7 +64,7 @@ export class LobbyService {
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('Disconnected:', reason);
+      console.log('lobby service Disconnected:', reason);
       this.currentLobby.set(null);
       this.connected.set(false);
     });

@@ -72,7 +72,7 @@ export class GameService {
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('Disconnected:', reason);
+      console.log('Game service Disconnected:', reason);
       this.gameState.set(null);
       this.myTankProps.set(null);
       this.connected.set(false);

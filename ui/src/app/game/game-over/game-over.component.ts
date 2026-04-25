@@ -22,26 +22,20 @@ export class GameOverComponent implements OnInit {
 
   public async ngOnInit() {
     const gameState = this.gameService.gameState();
-    if (gameState) {
-      const myUserId = this.authService.user()!.id;
-      const myTeamId = gameState.teams.find((t) =>
-        t.players.some((p) => p.userId === myUserId),
-      )?.id;
-      const IAmWinner = this.gameService.winningTeamId() === myTeamId;
+    if (!gameState) return;
 
-      if (IAmWinner) {
-        await this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
-        this.audioService.play('game-won');
-      }
+    const myUserId = this.authService.user()!.id;
+    const myTeamId = gameState.teams.find((t) => t.players.some((p) => p.userId === myUserId))?.id;
+    const IAmWinner = this.gameService.winningTeamId() === myTeamId;
+
+    if (IAmWinner) {
+      await this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
+      this.audioService.play('game-won');
     }
-
-    setTimeout(() => {
-      this.gameService.disconnect();
-      this.router.navigate(['/multiplayer']);
-    }, 25000);
   }
 
   public leaveGame(): void {
+    console.log('leavegame game-over comp');
     this.gameService.disconnect();
     this.router.navigate(['/multiplayer']);
   }
