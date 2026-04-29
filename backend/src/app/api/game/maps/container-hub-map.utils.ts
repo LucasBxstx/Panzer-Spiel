@@ -5,6 +5,10 @@ import { Vector3D } from '../../../common/models/vector.model';
 import { Position } from '../../../common/models/position.model';
 import { Scale } from '../../../common/models/scale.model';
 import { create3DVector } from '../../../common/utils/vector.utils';
+import {
+  getCornerBotTeamEntryPoints,
+  getCornerTeamEntryPoints,
+} from './team-entry-points.utils';
 
 export function getContainerHubMap(): GameMap {
   return {
@@ -27,58 +31,8 @@ export function getContainerHubMap(): GameMap {
         y: 2,
       },
     },
-    teamEntryPoints: [
-      {
-        team: 1,
-        point: [
-          {
-            position: create3DVector(40, 0, -40),
-            rotation: 2 * Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-          {
-            position: create3DVector(-40, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-        ],
-      },
-      {
-        team: 2,
-        point: [
-          {
-            position: create3DVector(-40, 0, 40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-          {
-            position: create3DVector(40, 0, 40),
-            rotation: 2 * Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-        ],
-      },
-      {
-        team: 3,
-        point: [
-          {
-            position: create3DVector(-40, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-        ],
-      },
-      {
-        team: 4,
-        point: [
-          {
-            position: create3DVector(40, 0, 40),
-            rotation: 2 * Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-        ],
-      },
-    ],
+    teamEntryPoints: getCornerTeamEntryPoints(),
+    botTeamEntryPoints: getCornerBotTeamEntryPoints(),
     obstacles: [...getContainerFronts(), ...getContainers()],
   };
 }
