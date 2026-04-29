@@ -26,7 +26,16 @@ export function createBots(
   lobby: Lobby,
   players: Map<string, Player>,
 ): Map<string, Bot> {
-  const botNames = ['Alice', 'Bob', 'Carolin', 'Harald'];
+  const botNames = [
+    'Alice',
+    'Bob',
+    'Carolin',
+    'Harald',
+    'Claudia',
+    'Fred',
+    'Anette',
+    'Günter',
+  ];
   const bots = new Map<string, Bot>();
   for (let i = 0; i < lobby.gameSettings.numberOfBots; i++) {
     const botId = uuidv4();

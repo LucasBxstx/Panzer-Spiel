@@ -23,9 +23,10 @@ export class MapPreviewResponseDto {
       name: map.name,
       pictureUrl: map.pictureUrl,
       maxTeamCount: map.teamEntryPoints.length,
-      maxTeamSize: map.teamEntryPoints.reduce((previous, current) =>
-        previous.point.length > current.point.length ? previous : current,
-      ).point.length,
+      maxTeamSize:
+        map.botTeamEntryPoints?.reduce((previous, current) =>
+          previous.point.length > current.point.length ? previous : current,
+        ).point.length ?? 2,
     };
   }
 }

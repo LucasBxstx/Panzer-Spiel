@@ -5,6 +5,10 @@ import { Vector3D } from '../../../common/models/vector.model';
 import { Position } from '../../../common/models/position.model';
 import { Scale } from '../../../common/models/scale.model';
 import { create3DVector } from '../../../common/utils/vector.utils';
+import {
+  getCornerBotTeamEntryPoints,
+  getCornerTeamEntryPoints,
+} from './team-entry-points.utils';
 
 export function getContainerPortMap(): GameMap {
   return {
@@ -27,98 +31,8 @@ export function getContainerPortMap(): GameMap {
         y: 2,
       },
     },
-    teamEntryPoints: [
-      {
-        team: 1,
-        point: [
-          {
-            position: create3DVector(40, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-          {
-            position: create3DVector(50, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-        ],
-      },
-      {
-        team: 2,
-        point: [
-          {
-            position: create3DVector(-40, 0, 40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-          {
-            position: create3DVector(-50, 0, 40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-        ],
-      },
-      {
-        team: 3,
-        point: [
-          {
-            position: create3DVector(-40, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-          {
-            position: create3DVector(-50, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-        ],
-      },
-      {
-        team: 4,
-        point: [
-          {
-            position: create3DVector(40, 0, 40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-          {
-            position: create3DVector(50, 0, 40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-        ],
-      },
-      {
-        team: 5,
-        point: [
-          {
-            position: create3DVector(-40, 0, 10),
-            rotation: Math.PI / 2,
-            cameraPosition: create3DVector(-85, 70, 0),
-          },
-          {
-            position: create3DVector(-40, 0, -10),
-            rotation: Math.PI / 2,
-            cameraPosition: create3DVector(-85, 70, 0),
-          },
-        ],
-      },
-      {
-        team: 6,
-        point: [
-          {
-            position: create3DVector(40, 0, 10),
-            rotation: Math.PI / 2,
-            cameraPosition: create3DVector(85, 70, 0),
-          },
-          {
-            position: create3DVector(40, 0, -10),
-            rotation: Math.PI / 2,
-            cameraPosition: create3DVector(85, 70, 0),
-          },
-        ],
-      },
-    ],
+    teamEntryPoints: getCornerTeamEntryPoints(),
+    botTeamEntryPoints: getCornerBotTeamEntryPoints(),
     obstacles: [...getContainerFronts(), ...getContainers()],
   };
 }
@@ -126,25 +40,25 @@ export function getContainerPortMap(): GameMap {
 export function getContainers(): Obstacle[] {
   return [
     getContainer({
-      position: create3DVector(-45, 4, 20),
+      position: create3DVector(-45, 4, 25),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(45, 4, 20),
+      position: create3DVector(45, 4, 25),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(-45, 4, -20),
+      position: create3DVector(-45, 4, -25),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(45, 4, -20),
+      position: create3DVector(45, 4, -25),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),

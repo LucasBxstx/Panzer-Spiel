@@ -5,6 +5,10 @@ import { Vector3D } from '../../../common/models/vector.model';
 import { Position } from '../../../common/models/position.model';
 import { Scale } from '../../../common/models/scale.model';
 import { create3DVector } from '../../../common/utils/vector.utils';
+import {
+  getCornerBotTeamEntryPoints,
+  getCornerTeamEntryPoints,
+} from './team-entry-points.utils';
 
 export function getDesertMap3(): GameMap {
   return {
@@ -27,107 +31,109 @@ export function getDesertMap3(): GameMap {
         y: 2,
       },
     },
-    teamEntryPoints: [
-      {
-        team: 1,
-
-        point: [
-          {
-            position: {
-              x: 0,
-              y: 0,
-              z: 43,
-            },
-            rotation: Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: 85,
-            },
-          },
-        ],
-      },
-      {
-        team: 2,
-        point: [
-          {
-            position: {
-              x: 0,
-              y: 0,
-              z: -43,
-            },
-            rotation: 0,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: -85,
-            },
-          },
-        ],
-      },
-      {
-        team: 3,
-        point: [
-          {
-            position: {
-              x: -45,
-              y: 0,
-              z: 0,
-            },
-            rotation: Math.PI / 2,
-            cameraPosition: {
-              x: -85,
-              y: 70,
-              z: 0,
-            },
-          },
-          {
-            position: {
-              x: 0,
-              y: 0,
-              z: -45,
-            },
-            rotation: 0,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: -85,
-            },
-          },
-        ],
-      },
-      {
-        team: 4,
-        point: [
-          {
-            position: {
-              x: 45,
-              y: 0,
-              z: 0,
-            },
-            rotation: Math.PI * 1.5,
-            cameraPosition: {
-              x: 85,
-              y: 70,
-              z: 0,
-            },
-          },
-          {
-            position: {
-              x: 0,
-              y: 0,
-              z: 45,
-            },
-            rotation: 0,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: 85,
-            },
-          },
-        ],
-      },
-    ],
+    // teamEntryPoints: [
+    //   {
+    //     team: 1,
+    //
+    //     point: [
+    //       {
+    //         position: {
+    //           x: 0,
+    //           y: 0,
+    //           z: 43,
+    //         },
+    //         rotation: Math.PI,
+    //         cameraPosition: {
+    //           x: 0,
+    //           y: 70,
+    //           z: 85,
+    //         },
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     team: 2,
+    //     point: [
+    //       {
+    //         position: {
+    //           x: 0,
+    //           y: 0,
+    //           z: -43,
+    //         },
+    //         rotation: 0,
+    //         cameraPosition: {
+    //           x: 0,
+    //           y: 70,
+    //           z: -85,
+    //         },
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     team: 3,
+    //     point: [
+    //       {
+    //         position: {
+    //           x: -45,
+    //           y: 0,
+    //           z: 0,
+    //         },
+    //         rotation: Math.PI / 2,
+    //         cameraPosition: {
+    //           x: -85,
+    //           y: 70,
+    //           z: 0,
+    //         },
+    //       },
+    //       {
+    //         position: {
+    //           x: 0,
+    //           y: 0,
+    //           z: -45,
+    //         },
+    //         rotation: 0,
+    //         cameraPosition: {
+    //           x: 0,
+    //           y: 70,
+    //           z: -85,
+    //         },
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     team: 4,
+    //     point: [
+    //       {
+    //         position: {
+    //           x: 45,
+    //           y: 0,
+    //           z: 0,
+    //         },
+    //         rotation: Math.PI * 1.5,
+    //         cameraPosition: {
+    //           x: 85,
+    //           y: 70,
+    //           z: 0,
+    //         },
+    //       },
+    //       {
+    //         position: {
+    //           x: 0,
+    //           y: 0,
+    //           z: 45,
+    //         },
+    //         rotation: 0,
+    //         cameraPosition: {
+    //           x: 0,
+    //           y: 70,
+    //           z: 85,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // ],
+    teamEntryPoints: getCornerTeamEntryPoints(),
+    botTeamEntryPoints: getCornerBotTeamEntryPoints(),
     obstacles: [...getDamagedWalls(), ...getCliffLandscape()],
   };
 }

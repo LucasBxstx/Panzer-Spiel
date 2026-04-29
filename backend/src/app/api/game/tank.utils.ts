@@ -5,7 +5,10 @@ import { Tank, TankType, TankVariant } from '../../common/models/tank.model';
 import { Position } from '../../common/models/position.model';
 import { v4 as uuidv4 } from 'uuid';
 import { Bot } from '../../common/models/bot.model';
-import { GameSettings } from '../../common/models/game-settings.model';
+import {
+  GameMode,
+  GameSettings,
+} from '../../common/models/game-settings.model';
 
 export function findTankVariant(tankType: TankType): TankVariant {
   const variants: TankVariant[] = [getBasicTank(), getTacticalTank()];
@@ -25,9 +28,14 @@ export function createTanks({
   bots: Map<string, Bot>;
 }): Map<string, Tank> {
   const tanks = new Map<string, Tank>();
+  const map = gameSettings.map;
+  const entryPoints =
+    gameSettings.gameMode === GameMode.TeamVsBots && map.botTeamEntryPoints
+      ? map.botTeamEntryPoints
+      : map.teamEntryPoints;
 
   teams.forEach((team, teamIndex) => {
-    const teamEntryPoints = gameSettings.map.teamEntryPoints[teamIndex];
+    const teamEntryPoints = entryPoints[teamIndex];
 
     team.playersIds.forEach((playerId, playerIndex) => {
       const entryPoint = teamEntryPoints.point[playerIndex];

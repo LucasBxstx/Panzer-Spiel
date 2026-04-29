@@ -5,6 +5,10 @@ import { Vector3D } from '../../../common/models/vector.model';
 import { Position } from '../../../common/models/position.model';
 import { Scale } from '../../../common/models/scale.model';
 import { create3DVector } from '../../../common/utils/vector.utils';
+import {
+  getCornerBotTeamEntryPoints,
+  getCornerTeamEntryPoints,
+} from './team-entry-points.utils';
 
 export function getContainerYardMap(): GameMap {
   return {
@@ -27,58 +31,8 @@ export function getContainerYardMap(): GameMap {
         y: 2,
       },
     },
-    teamEntryPoints: [
-      {
-        team: 1,
-        point: [
-          {
-            position: create3DVector(40, 0, -40),
-            rotation: 2 * Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-          {
-            position: create3DVector(-40, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-        ],
-      },
-      {
-        team: 2,
-        point: [
-          {
-            position: create3DVector(-40, 0, 40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-          {
-            position: create3DVector(40, 0, 40),
-            rotation: 2 * Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-        ],
-      },
-      {
-        team: 3,
-        point: [
-          {
-            position: create3DVector(-40, 0, -40),
-            rotation: Math.PI,
-            cameraPosition: create3DVector(0, 70, -85),
-          },
-        ],
-      },
-      {
-        team: 4,
-        point: [
-          {
-            position: create3DVector(40, 0, 40),
-            rotation: 2 * Math.PI,
-            cameraPosition: create3DVector(0, 70, 85),
-          },
-        ],
-      },
-    ],
+    teamEntryPoints: getCornerTeamEntryPoints(),
+    botTeamEntryPoints: getCornerBotTeamEntryPoints(),
     obstacles: [
       ...getContainerFronts(),
       getConstructionSite(),
@@ -91,25 +45,25 @@ export function getContainerYardMap(): GameMap {
 export function getContainers(): Obstacle[] {
   return [
     getContainer({
-      position: create3DVector(60, 4, 50),
+      position: create3DVector(66, 4, 50),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(62, 10, 50),
+      position: create3DVector(66, 10, 50),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(60, 4, -50),
+      position: create3DVector(66, 4, -50),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
     }),
     getContainer({
-      position: create3DVector(62, 10, -50),
+      position: create3DVector(66, 10, -50),
       scale: create3DVector(20, 6, 9),
       renderScale: create3DVector(0.2, 0.2, 0.2),
       rotation: create3DVector(0, 0, 0),
@@ -180,7 +134,7 @@ export function getConstructionSite(): Obstacle {
     id: uuidv4(),
     name: 'construction-site',
     modelUrl: 'assets/models/container_construction_site.glb',
-    position: create3DVector(60, 6, 0),
+    position: create3DVector(62, 6, 0),
     renderScale: create3DVector(4, 4, 4),
     scale: create3DVector(85, 7, 20.2),
     rotation: create3DVector(0, Math.PI / 2, 0),
@@ -194,7 +148,7 @@ export function getContainerHome(): Obstacle {
     modelUrl: 'assets/models/container_home.glb',
     position: create3DVector(0, 7, 0),
     renderScale: create3DVector(1, 1, 1),
-    scale: create3DVector(63.2, 7, 20.2),
+    scale: create3DVector(50, 7, 20.2),
     rotation: create3DVector(0, 0, 0),
   };
 }

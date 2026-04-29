@@ -6,6 +6,10 @@ import { Position } from '../../../common/models/position.model';
 import { Scale } from '../../../common/models/scale.model';
 import { Texture } from '../../../common/models/texture.model';
 import { create3DVector } from '../../../common/utils/vector.utils';
+import {
+  getCornerBotTeamEntryPoints,
+  getCornerTeamEntryPoints,
+} from './team-entry-points.utils';
 
 export function getDesertBarricadeMap(): GameMap {
   return {
@@ -28,107 +32,8 @@ export function getDesertBarricadeMap(): GameMap {
         y: 2,
       },
     },
-    teamEntryPoints: [
-      {
-        team: 1,
-
-        point: [
-          {
-            position: {
-              x: 40,
-              y: 0,
-              z: -40,
-            },
-            rotation: 2 * Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: -85,
-            },
-          },
-          {
-            position: {
-              x: -40,
-              y: 0,
-              z: -40,
-            },
-            rotation: Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: -85,
-            },
-          },
-        ],
-      },
-      {
-        team: 2,
-        point: [
-          {
-            position: {
-              x: -40,
-              y: 0,
-              z: 40,
-            },
-            rotation: Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: 85,
-            },
-          },
-          {
-            position: {
-              x: 40,
-              y: 0,
-              z: 40,
-            },
-            rotation: 2 * Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: 85,
-            },
-          },
-        ],
-      },
-      {
-        team: 3,
-        point: [
-          {
-            position: {
-              x: -40,
-              y: 0,
-              z: -40,
-            },
-            rotation: Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: -85,
-            },
-          },
-        ],
-      },
-      {
-        team: 4,
-        point: [
-          {
-            position: {
-              x: 40,
-              y: 0,
-              z: 40,
-            },
-            rotation: 2 * Math.PI,
-            cameraPosition: {
-              x: 0,
-              y: 70,
-              z: 85,
-            },
-          },
-        ],
-      },
-    ],
+    teamEntryPoints: getCornerTeamEntryPoints(),
+    botTeamEntryPoints: getCornerBotTeamEntryPoints(),
     obstacles: [
       ...getDamagedWalls(),
       // ...getWalls(),
@@ -259,55 +164,55 @@ export function getCliffLandscape(): Obstacle[] {
   return [
     getCliff({
       position: create3DVector(-45, 12, 61),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(0, 12, 61),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(50, 12, 61),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(70, 12, 10),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(70, 12, -40),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 1.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(30, 12, -61),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 2.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(-30, 12, -61),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 2.2 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(-70, 12, -30),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 0.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),
     getCliff({
       position: create3DVector(-70, 12, 30),
-      scale: create3DVector(20, 0, 20),
+      scale: create3DVector(0, 0, 0),
       rotation: create3DVector(0, 0.7 * Math.PI, 0),
       renderScale: create3DVector(0.8, 0.8, 0.8),
     }),

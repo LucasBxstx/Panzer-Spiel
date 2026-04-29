@@ -10,6 +10,7 @@ export interface GameMap {
   pictureUrl: string;
   obstacles: Obstacle[];
   teamEntryPoints: TeamEntryPoints[];
+  botTeamEntryPoints?: TeamEntryPoints[];
   scale: Scale;
   groundTexture: Texture;
   mesh?: Mesh;
