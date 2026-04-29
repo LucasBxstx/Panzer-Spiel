@@ -100,6 +100,40 @@ export function getEntryPointCenterLowerRight(): EntryPoint {
   };
 }
 
+// Centered Entry Points
+
+export function getEntryPointCenterBottomRight(): EntryPoint {
+  return {
+    position: create3DVector(15, 0, -15),
+    rotation: 2 * Math.PI,
+    cameraPosition: create3DVector(0, 70, -85),
+  };
+}
+
+export function getEntryPointCenterBottomLeft(): EntryPoint {
+  return {
+    position: create3DVector(-15, 0, -15),
+    rotation: 2 * Math.PI,
+    cameraPosition: create3DVector(0, 70, -85),
+  };
+}
+
+export function getEntryPointCenterTopRight(): EntryPoint {
+  return {
+    position: create3DVector(15, 0, 15),
+    rotation: 2 * Math.PI,
+    cameraPosition: create3DVector(0, 70, 85),
+  };
+}
+
+export function getEntryPointCenterTopLeft(): EntryPoint {
+  return {
+    position: create3DVector(-15, 0, 15),
+    rotation: 2 * Math.PI,
+    cameraPosition: create3DVector(0, 70, 85),
+  };
+}
+
 export function getCornerTeamEntryPoints(): TeamEntryPoints[] {
   return [
     {
@@ -151,6 +185,48 @@ export function getCornerBotTeamEntryPoints(): TeamEntryPoints[] {
         getEntryPointMidTopLeft(),
         getEntryPointCenterLowerRight(),
         getEntryPointCenterLowerLeft(),
+      ],
+    },
+  ];
+}
+
+export function getCenterTeamEntryPoints(): TeamEntryPoints[] {
+  return [
+    {
+      team: 1,
+      point: [getEntryPointCenterTopLeft(), getEntryPointMidTopLeft()],
+    },
+    {
+      team: 2,
+      point: [getEntryPointCenterBottomRight(), getEntryPointMidBottomRight()],
+    },
+    {
+      team: 3,
+      point: [getEntryPointCenterTopRight(), getEntryPointMidTopRight()],
+    },
+    {
+      team: 4,
+      point: [getEntryPointCenterBottomLeft(), getEntryPointMidBottomLeft()],
+    },
+  ];
+}
+
+export function getCenterBotTeamEntryPoints(): TeamEntryPoints[] {
+  return [
+    {
+      team: 1,
+      point: [
+        getEntryPointCenterBottomLeft(),
+        getEntryPointCenterBottomRight(),
+      ],
+    },
+    {
+      team: 3,
+      point: [
+        getEntryPointCenterTopRight(),
+        getEntryPointCenterTopLeft(),
+        getEntryPointMidTopRight(),
+        getEntryPointMidTopLeft(),
       ],
     },
   ];
