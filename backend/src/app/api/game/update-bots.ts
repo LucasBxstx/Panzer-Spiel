@@ -105,22 +105,9 @@ export function aimAtTargetTank(botTank: Tank, targetTank: Tank): Vector3D {
   normalizeInPlace(directionVector);
 
   const targetRotation = Math.atan2(directionVector.x, directionVector.z);
-  const relativeRotation = targetRotation - botTank.rotation;
-  const diff = shortestRotation(botTank.turretRotation, relativeRotation);
-  const lerpFactor = 0.15;
-
-  botTank.turretRotation += diff * lerpFactor;
+  botTank.turretRotation = targetRotation + botTank.rotation;
 
   return directionVector;
-}
-
-function shortestRotation(current: number, target: number): number {
-  let diff = target - current;
-
-  while (diff > Math.PI) diff -= Math.PI * 2;
-  while (diff < -Math.PI) diff += Math.PI * 2;
-
-  return diff;
 }
 
 export function canShoot(bot: Bot, botTank: Tank): boolean {

@@ -61,6 +61,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   public readonly showError = signal(false);
   public readonly showSpinner = signal(true);
+  public readonly youHaveBeenKilled = signal(false);
 
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
@@ -102,8 +103,6 @@ export class GameComponent implements OnInit, OnDestroy {
     input: InputState;
     deltaTime: number;
   }[] = [];
-
-  public youHaveBeenKilled = signal(false);
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {

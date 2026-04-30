@@ -40,7 +40,7 @@ export function getBouncingBullet(): BulletVariant {
     id: 'bouncingBullet',
     name: 'BouncingBullet',
     speed: 1.5,
-    damage: 2.5,
+    damage: 2,
     maxBounceCount: 2,
     scale: { x: 1, y: 1, z: 1 },
     renderScale: { x: 1, y: 1, z: 1 },
