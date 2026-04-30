@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { PageWrapperComponent } from '../../shared/components/page-wrapper/page-wrapper.component';
 import { Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { NgOptimizedImage } from '@angular/common';
 import { AuthService } from '../../shared/services/auth.service';
 import { AudioService } from '../../shared/services/audio.service';
+import { timer } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-game-over',
@@ -19,6 +21,7 @@ export class GameOverComponent implements OnInit {
   public readonly gameService = inject(GameService);
   private readonly authService = inject(AuthService);
   private readonly audioService = inject(AudioService);
+  private readonly destroyRef = inject(DestroyRef);
 
   public async ngOnInit() {
     const gameState = this.gameService.gameState();
@@ -32,6 +35,10 @@ export class GameOverComponent implements OnInit {
       await this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
       this.audioService.play('game-won');
     }
+
+    timer(25000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.router.navigate(['/multiplayer']));
   }
 
   public leaveGame(): void {

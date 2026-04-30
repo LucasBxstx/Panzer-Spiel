@@ -48,6 +48,9 @@ export interface TankMovement {
 }
 
 export enum TankType {
-  BasicTank = 'BasicTank',
-  TacticalTank = 'TacticalTank',
+  Panther = 'Panther',
+  Razor = 'Razor',
+  Inferno = 'Inferno',
+  Nightshade = 'Nightshade',
+  Reaper = 'Reaper',
 }

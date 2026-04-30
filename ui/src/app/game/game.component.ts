@@ -515,6 +515,9 @@ export class GameComponent implements OnInit, OnDestroy {
           case 'bouncingBullet':
             newBullet = createBouncingBullet(this.scene, bullet);
             break;
+          case 'rocketBullet':
+            newBullet = createBouncingBullet(this.scene, bullet);
+            break;
           default:
             newBullet = createDefaultBullet(this.scene, bullet);
             break;

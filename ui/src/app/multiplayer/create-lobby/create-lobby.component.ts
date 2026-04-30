@@ -53,7 +53,7 @@ export class CreateLobbyComponent {
   public readonly selectedMapId = signal<string>('containerhub');
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
   public readonly selectedBotDifficulty = signal<BotDifficulty | null>(null);
-  public readonly selectedTankType = signal<TankType>(TankType.BasicTank);
+  public readonly selectedTankType = signal<TankType>(TankType.Panther);
 
   public readonly availableMaps = toSignal<MapPreviewResponse[] | null>(
     this.lobbyService.getAvailableMaps().pipe(takeUntilDestroyed(this.destroyRef)),
@@ -98,12 +98,24 @@ export class CreateLobbyComponent {
 
   public readonly availableTankTypes = signal<TankTypeOption[]>([
     {
-      name: 'Basic Tank',
-      value: TankType.BasicTank,
+      name: 'Panther',
+      value: TankType.Panther,
     },
     {
-      name: 'Tactical Tank',
-      value: TankType.TacticalTank,
+      name: 'Razor',
+      value: TankType.Razor,
+    },
+    {
+      name: 'Inferno',
+      value: TankType.Inferno,
+    },
+    {
+      name: 'Reaper',
+      value: TankType.Reaper,
+    },
+    {
+      name: 'Nightshade',
+      value: TankType.Nightshade,
     },
   ]);
 
