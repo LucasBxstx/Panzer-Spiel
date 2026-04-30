@@ -50,11 +50,36 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
 
         scene.add(tankGroup);
 
+        // Name Label
         const labelDiv = document.createElement('div');
         labelDiv.textContent = tank.playerName;
         labelDiv.style.cssText = `
   color: ${tank.teamColor};
   font-size: 14px;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  text-align: center;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000,
+     0    0   6px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+`;
+
+        const nameLabel = new CSS2DObject(labelDiv);
+        nameLabel.position.set(0, s.y / rs.y + 1, 0);
+        tankBody.add(nameLabel);
+
+        // HP Label
+        const hpDiv = document.createElement('div');
+        hpDiv.style.cssText = `
+  color: ${tank.teamColor};
+  font-size: 8px;
   font-family: 'Arial', sans-serif;
   font-weight: bold;
   text-shadow:
@@ -69,16 +94,18 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
   z-index: 1;
 `;
 
-        const label = new CSS2DObject(labelDiv);
-        label.position.set(-1, s.y / rs.y + 1, 0);
-        tankBody.add(label);
+        const hpLabel = new CSS2DObject(hpDiv);
+        hpLabel.position.set(-1, s.y / rs.y + 5, 0);
+        tankBody.add(hpLabel);
+        updateHpLabel(hpLabel, tank.hp, tank.maxHp, tank.teamColor);
 
         resolve({
           tankId: tank.id,
           tankGroup,
           tankBody,
           tankTurret: modelTankTurret,
-          nameLabel: label,
+          nameLabel,
+          hpLabel,
         });
       },
       (progress) => {
@@ -89,4 +116,26 @@ export function addTank(scene: Scene, tank: TankResponse, showHitbox: boolean): 
       },
     );
   });
+}
+
+export function updateHpLabel(
+  hpLabel: CSS2DObject,
+  hp: number,
+  maxHp: number,
+  teamColor: string,
+): void {
+  const div = hpLabel.element as HTMLDivElement;
+  const percentage = Math.max(0, hp / maxHp);
+  const filled = Math.round(percentage * 10);
+  const empty = 10 - filled;
+
+  div.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; margin-bottom 5px;">
+      <span style="letter-spacing:1px; color:${teamColor}">
+        ${'█'.repeat(filled)}<span style="opacity:0.3">${'█'.repeat(empty)}</span>
+      </span>
+    </div>
+  `;
+
+  hpLabel.element.dispatchEvent(new Event('change'));
 }

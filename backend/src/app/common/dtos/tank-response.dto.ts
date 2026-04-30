@@ -43,6 +43,12 @@ export class TankResponseDto {
   kills: number;
 
   @Expose()
+  hp: number;
+
+  @Expose()
+  maxHp: number;
+
+  @Expose()
   isDead: boolean;
 
   @Expose()
@@ -68,6 +74,8 @@ export class TankResponseDto {
       speed: tank.speed,
       isDead: tank.isDead,
       kills: tank.kills,
+      hp: tank.hp,
+      maxHp: tank.maxHp,
       seq: tank.lastProcessedSeq,
     };
   }
@@ -94,6 +102,9 @@ export class TankPositionResponseDto {
   kills: number;
 
   @Expose()
+  hp: number;
+
+  @Expose()
   isDead: boolean;
 
   static mapFromEntity(tank: Tank): TankPositionResponseDto {
@@ -103,6 +114,7 @@ export class TankPositionResponseDto {
       rotation: tank.rotation,
       turretRotation: tank.turretRotation,
       kills: tank.kills,
+      hp: tank.hp,
       isDead: tank.isDead,
       seq: tank.lastProcessedSeq,
     };

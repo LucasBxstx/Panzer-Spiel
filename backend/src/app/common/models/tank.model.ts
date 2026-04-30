@@ -15,6 +15,7 @@ export interface Tank {
   tankVariantId: string;
   bulletVariantId: string;
   cameraPosition: Position;
+  maxHp: number;
   hp: number;
   speed: number;
   rotation: number;

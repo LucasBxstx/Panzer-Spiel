@@ -16,6 +16,8 @@ export interface TankResponse {
   rotation: number;
   turretRotation: number;
   kills: number;
+  hp: number;
+  maxHp: number;
   idDead: boolean;
   seq: number;
 }
@@ -47,6 +49,7 @@ export interface TankGroup {
   tankBody: THREE.Object3D;
   tankTurret: THREE.Object3D;
   nameLabel: CSS2DObject;
+  hpLabel: CSS2DObject;
 }
 
 export interface InputState {
@@ -79,6 +82,7 @@ export interface TankPositionResponse {
   seq: number;
   kills: number;
   isDead: boolean;
+  hp: number;
 }
 
 export interface FireBulletRequest {

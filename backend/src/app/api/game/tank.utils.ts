@@ -85,6 +85,7 @@ function createTank(
     speed: tankVariant.speed,
     rotationSpeed: tankVariant.rotationSpeed,
     hp: tankVariant.maxHp,
+    maxHp: tankVariant.maxHp,
     maxBullets: tankVariant.maxBullets,
     bulletIds: [],
     isDead: false,
