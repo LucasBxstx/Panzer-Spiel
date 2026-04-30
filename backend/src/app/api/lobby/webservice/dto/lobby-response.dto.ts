@@ -47,7 +47,8 @@ export class LobbyPreviewResponseDto {
         game.gameSettings.gameMode,
       ),
       playersCount: game.players.size,
-      maxPlayersCount: game.gameSettings.maxPlayersCount,
+      maxPlayersCount:
+        game.gameSettings.maxPlayersCount + game.gameSettings.numberOfBots,
     };
   }
 }
