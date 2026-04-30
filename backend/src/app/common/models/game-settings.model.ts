@@ -1,5 +1,5 @@
 import { GameMap } from './game-map.model';
-import { BotDifficulty } from './bot.model';
+import { BotSetting } from './bot.model';
 import { TankType } from './tank.model';
 
 export interface GameSettings {
@@ -9,7 +9,7 @@ export interface GameSettings {
   numberOfTeams: number;
   numberOfBots: number;
   teamSize: number;
-  botDifficulty?: BotDifficulty;
+  botSettings?: BotSetting[];
   tankType: TankType;
 }
 
@@ -17,4 +17,5 @@ export enum GameMode {
   OneVsOne = 'OneVsOne',
   TeamVsTeam = 'TeamVsTeam',
   TeamVsBots = 'TeamVsBots',
+  SinglePlayer = 'SinglePlayer',
 }

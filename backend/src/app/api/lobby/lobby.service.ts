@@ -14,6 +14,7 @@ import { Lobby } from '../../common/models/lobby.model';
 import { LobbyPlayer } from '../../common/models/player.model';
 import { MapPreviewResponseDto } from '../../common/dtos/map-preview-response.dto';
 import { findMap, getAllMaps } from '../game/maps/map.utils';
+import { BotDifficulty, BotSetting } from '../../common/models/bot.model';
 
 @Injectable()
 export class LobbyService {
@@ -47,6 +48,14 @@ export class LobbyService {
       throw new WsException('Map not found');
     }
 
+    const botSettings: BotSetting[] = [];
+    for (let i = 0; i < dto.numberOfBots; i++) {
+      botSettings.push({
+        tankType: dto.tankType,
+        difficulty: dto.botDifficulty ?? BotDifficulty.EASY,
+      });
+    }
+
     const gameSettings: GameSettings = {
       map,
       teamSize: dto.teamSize,
@@ -54,7 +63,7 @@ export class LobbyService {
       gameMode: dto.gameMode,
       maxPlayersCount: dto.maxPlayersCount,
       numberOfBots: dto.numberOfBots,
-      botDifficulty: dto.botDifficulty,
+      botSettings,
       tankType: dto.tankType,
     };
 

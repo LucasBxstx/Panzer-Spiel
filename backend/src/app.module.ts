@@ -8,6 +8,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './app/api/auth/auth.module';
 import { LobbyModule } from './app/api/lobby/lobby.module';
 import { GameModule } from './app/api/game/game.module';
+import { LevelModule } from './app/api/level/level.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { GameModule } from './app/api/game/game.module';
     AuthModule,
     LobbyModule,
     GameModule,
+    LevelModule,
   ],
   controllers: [],
   providers: [],

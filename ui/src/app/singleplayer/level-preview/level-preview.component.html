@@ -1,0 +1,19 @@
+<div class="map-preview">
+  <img ngSrc="{{level().previewPictureURL}}" alt="{{level().name}}" width="250" height="167" priority
+       [ngClass]="{disabled: !level().unlocked}" ]>
+  <div class="description">
+    <span>{{ level().name }}</span>
+
+    <div class="flex gap-2">
+      @for (tank of tankTypeData(); track tank.type) {
+        <div class="flex text-sm justify-center items-end text-blue-200">
+          <app-tank-icon [color]="tank.color"></app-tank-icon>
+          <div>{{ tank.count }}</div>
+        </div>
+      }
+    </div>
+
+
+  </div>
+  <div class="shine"></div>
+</div>

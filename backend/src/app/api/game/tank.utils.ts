@@ -11,15 +11,17 @@ import {
 } from '../../common/models/game-settings.model';
 
 export function findTankVariant(tankType: TankType): TankVariant {
-  const variants: TankVariant[] = [
+  return getAllTankVariants().find((v) => v.tankType === tankType)!;
+}
+
+export function getAllTankVariants(): TankVariant[] {
+  return [
     getTankPanther(),
     getTankRazor(),
     getTankInferno(),
     getTankReaper(),
     getTankNightShade(),
   ];
-
-  return variants.find((v) => v.tankType === tankType)!;
 }
 
 export function createTanks({
@@ -48,8 +50,13 @@ export function createTanks({
       const player = players.get(playerId);
 
       if (player) {
-        const tankVariant = findTankVariant(gameSettings.tankType);
+        const tankType =
+          player.isBot && gameSettings.botSettings
+            ? gameSettings.botSettings[playerIndex].tankType
+            : gameSettings.tankType;
+        const tankVariant = findTankVariant(tankType);
         const tank = createTank(player, team, tankVariant, entryPoint);
+
         tanks.set(tank.id, tank);
         player.tankId = tank.id;
         team.tankIds.push(tank.id);

@@ -26,6 +26,8 @@ export function createBots(
   lobby: Lobby,
   players: Map<string, Player>,
 ): Map<string, Bot> {
+  if (!lobby.gameSettings.botSettings) return new Map();
+
   const botNames = [
     'Alice',
     'Bob',
@@ -51,8 +53,9 @@ export function createBots(
     };
 
     players.set(bot.userId, bot);
+
     const botDifficulty =
-      lobby.gameSettings.botDifficulty ?? BotDifficulty.EASY;
+      lobby.gameSettings.botSettings[i].difficulty ?? BotDifficulty.EASY;
     const botVariant = getBotVariant(botDifficulty);
 
     bots.set(botId, {

@@ -10,7 +10,7 @@ import {
   getCornerTeamEntryPoints,
 } from './team-entry-points.utils';
 
-export function getDesertMap3(): GameMap {
+export function getCannyonClashMap(): GameMap {
   return {
     id: 'canyonclash',
     name: 'Canyon Clash',

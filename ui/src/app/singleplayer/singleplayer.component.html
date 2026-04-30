@@ -1,0 +1,22 @@
+<div class="page-sizing">
+  <app-card>
+    <app-page-wrapper [navigateTo]="'/gamemode'" [backLabel]="'Hauptmenu'"
+                      [headingLabel]="'Singleplayer'">
+      <div content>
+        <div>Im Singleplayer Modus kannst du innerhalb von vielen verschiedenen Leveln gegen Bots spielen. Nachdem du in
+          einem Level gewonnen hast, wird dir das nächste Level freigeschaltet. Nach jedem 10. Level bekommst du einen
+          weiteren Panzer freigeschaltet, den du dann in weiteren Leveln benutzen kannst.
+        </div>
+
+        <div class="flex flex-wrap gap-5 mt-4 justify-center">
+          @for (level of levels(); track level.id) {
+            <app-level-preview [level]="level" class="shrink-0"
+                               (click)="navigateToLevel(level.id)"></app-level-preview>
+
+          }
+        </div>
+
+      </div>
+    </app-page-wrapper>
+  </app-card>
+</div>

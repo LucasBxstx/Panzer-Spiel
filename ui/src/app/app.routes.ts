@@ -15,7 +15,6 @@ export const routes: Routes = [
   },
   {
     path: 'register',
-    // component: RegisterComponent,
     loadComponent: () => import('./register/register.component').then((m) => m.RegisterComponent),
   },
   {
@@ -25,9 +24,14 @@ export const routes: Routes = [
   },
   {
     path: 'multiplayer',
-    // component: MultiplayerComponent,
     loadComponent: () =>
       import('./multiplayer/multiplayer.component').then((m) => m.MultiplayerComponent),
+    canActivate: [AuthGuardService],
+  },
+  {
+    path: 'singleplayer',
+    loadComponent: () =>
+      import('./singleplayer/singleplayer.component').then((m) => m.SingleplayerComponent),
     canActivate: [AuthGuardService],
   },
   {
@@ -36,11 +40,13 @@ export const routes: Routes = [
       import('./multiplayer/create-lobby/create-lobby.component').then(
         (m) => m.CreateLobbyComponent,
       ),
+    canActivate: [AuthGuardService],
   },
   {
     path: 'lobby/:id',
     loadComponent: () =>
       import('./multiplayer/lobby/lobby.component').then((m) => m.LobbyComponent),
+    canActivate: [AuthGuardService],
   },
   {
     path: 'game/:id',
@@ -52,5 +58,6 @@ export const routes: Routes = [
           import('./game/game-over/game-over.component').then((m) => m.GameOverComponent),
       },
     ],
+    canActivate: [AuthGuardService],
   },
 ];
