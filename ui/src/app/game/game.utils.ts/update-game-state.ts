@@ -22,6 +22,7 @@ export function updateGameState(
       oldTankState.idDead = tank.isDead;
       oldTankState.kills = tank.kills;
       oldTankState.seq = tank.seq;
+      oldTankState.hp = tank.hp;
     }
   });
 

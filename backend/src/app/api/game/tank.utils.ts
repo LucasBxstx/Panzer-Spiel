@@ -11,7 +11,13 @@ import {
 } from '../../common/models/game-settings.model';
 
 export function findTankVariant(tankType: TankType): TankVariant {
-  const variants: TankVariant[] = [getBasicTank(), getTacticalTank()];
+  const variants: TankVariant[] = [
+    getTankPanther(),
+    getTankRazor(),
+    getTankInferno(),
+    getTankReaper(),
+    getTankNightShade(),
+  ];
 
   return variants.find((v) => v.tankType === tankType)!;
 }
@@ -87,6 +93,7 @@ function createTank(
     speed: tankVariant.speed,
     rotationSpeed: tankVariant.rotationSpeed,
     hp: tankVariant.maxHp,
+    maxHp: tankVariant.maxHp,
     maxBullets: tankVariant.maxBullets,
     bulletIds: [],
     isDead: false,
@@ -97,12 +104,12 @@ function createTank(
   };
 }
 
-function getBasicTank(): TankVariant {
+function getTankPanther(): TankVariant {
   return {
     id: uuidv4(),
-    tankType: TankType.BasicTank,
-    name: 'Basic Tank',
-    modelUrl: 'assets/models/tank-panther-centered.glb',
+    tankType: TankType.Panther,
+    name: 'Panther',
+    modelUrl: 'assets/models/TANK-PANTHER-GREEN.glb',
     scale: {
       x: 6,
       y: 4,
@@ -121,12 +128,12 @@ function getBasicTank(): TankVariant {
   };
 }
 
-function getTacticalTank(): TankVariant {
+function getTankRazor(): TankVariant {
   return {
     id: uuidv4(),
-    tankType: TankType.TacticalTank,
-    name: 'Tactical Tank',
-    modelUrl: 'assets/models/tank-panther-centered.glb',
+    tankType: TankType.Razor,
+    name: 'Razor',
+    modelUrl: 'assets/models/TANK-PANTHER-GREY.glb',
     scale: {
       x: 6,
       y: 4,
@@ -137,10 +144,82 @@ function getTacticalTank(): TankVariant {
       y: 0.5,
       z: 0.5,
     },
-    maxHp: 10,
-    speed: 10,
+    maxHp: 9,
+    speed: 16,
+    maxBullets: 5,
+    rotationSpeed: 20,
+    bulletVariantId: 'basicBullet',
+  };
+}
+
+function getTankInferno(): TankVariant {
+  return {
+    id: uuidv4(),
+    tankType: TankType.Inferno,
+    name: 'Inferno',
+    modelUrl: 'assets/models/TANK-PANTHER-RED.glb',
+    scale: {
+      x: 6,
+      y: 4,
+      z: 10,
+    },
+    renderScale: {
+      x: 0.5,
+      y: 0.5,
+      z: 0.5,
+    },
+    maxHp: 13,
+    speed: 12,
     maxBullets: 2,
-    rotationSpeed: 15,
+    rotationSpeed: 14,
     bulletVariantId: 'bouncingBullet',
+  };
+}
+
+function getTankReaper(): TankVariant {
+  return {
+    id: uuidv4(),
+    tankType: TankType.Reaper,
+    name: 'Reaper',
+    modelUrl: 'assets/models/TANK-PANTHER-PURPLE.glb',
+    scale: {
+      x: 6,
+      y: 4,
+      z: 10,
+    },
+    renderScale: {
+      x: 0.5,
+      y: 0.5,
+      z: 0.5,
+    },
+    maxHp: 14,
+    speed: 14,
+    maxBullets: 3,
+    rotationSpeed: 14,
+    bulletVariantId: 'rocketBullet',
+  };
+}
+
+function getTankNightShade(): TankVariant {
+  return {
+    id: uuidv4(),
+    tankType: TankType.Nightshade,
+    name: 'Nightshade',
+    modelUrl: 'assets/models/TANK-PANTHER-BLACK.glb',
+    scale: {
+      x: 6,
+      y: 4,
+      z: 10,
+    },
+    renderScale: {
+      x: 0.5,
+      y: 0.5,
+      z: 0.5,
+    },
+    maxHp: 15,
+    speed: 18.5,
+    maxBullets: 6,
+    rotationSpeed: 22,
+    bulletVariantId: 'damagingBullet',
   };
 }

@@ -20,7 +20,7 @@ import { setupCamera } from './game.utils.ts/setup-camera';
 import { setupRenderer } from './game.utils.ts/setup-renderer';
 
 import { createObstacleWithModel, createObstacleWithTexture } from './game.utils.ts/add-obstacle';
-import { addTank } from './game.utils.ts/add-tank';
+import { addTank, updateHpLabel } from './game.utils.ts/add-tank';
 import { InputState, TankGroup, TankPosition } from '../shared/models/tank.model';
 import {
   calculateMyTurretRotation,
@@ -339,6 +339,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.explosionService.createExplosion(config);
 
         tankGroup.nameLabel.element.style.setProperty('display', 'none');
+        tankGroup.hpLabel.element.style.setProperty('display', 'none');
 
         this.scene.remove(tankGroup.tankGroup);
 
@@ -366,6 +367,14 @@ export class GameComponent implements OnInit, OnDestroy {
         tankGroup.tankGroup.position.y = newTankState.position.y;
         tankGroup.tankGroup.position.z = newTankState.position.z;
         tankGroup.tankBody.rotation.y = newTankState.rotation;
+
+        updateHpLabel(
+          tankGroup.hpLabel,
+          newTankState.hp,
+          newTankState.maxHp,
+          newTankState.teamColor,
+        );
+
         if (!isMyTank)
           tankGroup.tankTurret.rotation.y = newTankState.turretRotation - newTankState.rotation;
       }
@@ -513,6 +522,9 @@ export class GameComponent implements OnInit, OnDestroy {
         let newBullet: THREE.Object3D;
         switch (bullet.variantId) {
           case 'bouncingBullet':
+            newBullet = createBouncingBullet(this.scene, bullet);
+            break;
+          case 'rocketBullet':
             newBullet = createBouncingBullet(this.scene, bullet);
             break;
           default:
