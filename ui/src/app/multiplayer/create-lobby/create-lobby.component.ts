@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   DestroyRef,
   effect,
@@ -41,7 +42,7 @@ import { TankType } from '../../shared/models/tank.model';
   templateUrl: './create-lobby.component.html',
   styleUrl: './create-lobby.component.scss',
 })
-export class CreateLobbyComponent {
+export class CreateLobbyComponent implements AfterViewInit {
   protected readonly GameMode = GameMode;
   private readonly lobbyService = inject(LobbyService);
   private readonly destroyRef = inject(DestroyRef);
@@ -166,6 +167,19 @@ export class CreateLobbyComponent {
         this.selectedBotDifficulty.set(BotDifficulty.EASY);
       }
     });
+  }
+
+  ngAfterViewInit() {
+    const el = this.mapPreviewContainer()?.nativeElement;
+
+    el.addEventListener(
+      'wheel',
+      (e: WheelEvent) => {
+        e.preventDefault();
+        el.scrollLeft += e.deltaY;
+      },
+      { passive: false },
+    );
   }
 
   public createLobby(): void {
