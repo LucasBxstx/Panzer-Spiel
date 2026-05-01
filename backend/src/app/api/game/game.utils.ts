@@ -39,7 +39,7 @@ export function createBots(
     'Günter',
   ];
   const bots = new Map<string, Bot>();
-  for (let i = 0; i < lobby.gameSettings.numberOfBots; i++) {
+  for (let i = 0; i < lobby.gameSettings.botSettings.length; i++) {
     const botId = uuidv4();
     const bot: Player = {
       userId: botId,
@@ -92,7 +92,10 @@ export function createTeams(
     });
   };
 
-  if (lobby.gameSettings.gameMode === GameMode.TeamVsBots) {
+  if (
+    lobby.gameSettings.gameMode === GameMode.TeamVsBots ||
+    lobby.gameSettings.gameMode === GameMode.SinglePlayer
+  ) {
     const realPlayers = players.filter((p) => !p.isBot);
     const botPlayers = players.filter((p) => p.isBot);
     const playerTeamId = uuidv4();
