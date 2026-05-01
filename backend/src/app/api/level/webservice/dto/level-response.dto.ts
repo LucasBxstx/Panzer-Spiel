@@ -2,7 +2,11 @@ import { Expose, plainToInstance, Type } from 'class-transformer';
 import { TankType, TankVariant } from '../../../../common/models/tank.model';
 import { Level } from '../../../../common/models/level.model';
 import { findMap } from '../../../game/maps/map.utils';
-import { getAllTankVariants } from '../../../game/tank.utils';
+import {
+  getAllTankVariants,
+  getTankTypeBgColor,
+} from '../../../game/tank.utils';
+import { MapPreviewResponseDto } from '../../../../common/dtos/map-preview-response.dto';
 
 export class LevelPreviewResponseDto {
   @Expose()
@@ -62,6 +66,10 @@ export class LevelResponseDto extends LevelPreviewResponseDto {
   @Type(() => SelectableTankVariantResponseDto)
   selectableTanks: SelectableTankVariantResponseDto[];
 
+  @Expose()
+  @Type(() => MapPreviewResponseDto)
+  mapPreview: MapPreviewResponseDto;
+
   public static mapFromEntity(level: Level): LevelResponseDto {
     const selectableTanks = getAllTankVariants().map((v) =>
       SelectableTankVariantResponseDto.mapToDto(v),
@@ -72,6 +80,7 @@ export class LevelResponseDto extends LevelPreviewResponseDto {
       {
         ...LevelPreviewResponseDto.mapFromEntity(level),
         selectableTanks,
+        mapPreview: MapPreviewResponseDto.mapFromEntity(findMap(level.mapId)!),
       },
       { excludeExtraneousValues: true },
     );
@@ -85,6 +94,9 @@ export class EnemyTeamTankPreviewResponseDto {
   @Expose()
   count: number;
 
+  @Expose()
+  color: string;
+
   public static mapToDto(
     tankType: TankType,
     count: number,
@@ -94,6 +106,7 @@ export class EnemyTeamTankPreviewResponseDto {
       {
         tankType: tankType,
         count: count,
+        color: getTankTypeBgColor(tankType),
       },
       { excludeExtraneousValues: true },
     );

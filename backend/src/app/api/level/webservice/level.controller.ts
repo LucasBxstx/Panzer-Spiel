@@ -35,7 +35,7 @@ export class LevelController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
-  @Post('levelId')
+  @Post(':levelId')
   async startLevel(
     @CurrentUserId() userId: string,
     @Param('levelId') levelId: string,

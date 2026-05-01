@@ -5,9 +5,9 @@
     <span>{{ level().name }}</span>
 
     <div class="flex gap-2">
-      @for (tank of tankTypeData(); track tank.type) {
+      @for (tank of level().enemyTeamTankPreview; track tank.tankType) {
         <div class="flex text-sm justify-center items-end text-blue-200">
-          <app-tank-icon [color]="tank.color"></app-tank-icon>
+          <app-tank-icon [color]="tank.color" [size]="20"></app-tank-icon>
           <div>{{ tank.count }}</div>
         </div>
       }

@@ -1,34 +1,37 @@
 import { TankType } from './tank.model';
+import { MapPreviewResponse } from './lobby.model';
 
-export interface LevelPreviewResponseDto {
+export interface LevelPreviewResponse {
   id: number;
   name: string;
   alreadyAchieved: boolean;
   unlocked: boolean;
   previewPictureURL: string;
-  enemyTeamTankPreview: EnemyTeamTankPreviewResponseDto[];
+  enemyTeamTankPreview: EnemyTeamTankPreviewResponse[];
 }
 
-export interface LevelResponseDto extends LevelPreviewResponseDto {
-  selectableTanks: SelectableTankVariantResponseDto[];
+export interface LevelResponse extends LevelPreviewResponse {
+  selectableTanks: SelectableTankVariantResponse[];
+  mapPreview: MapPreviewResponse;
 }
 
-export interface EnemyTeamTankPreviewResponseDto {
+export interface EnemyTeamTankPreviewResponse {
   tankType: TankType;
   count: number;
+  color: string;
 }
 
-export interface SelectableTankVariantResponseDto {
+export interface SelectableTankVariantResponse {
   id: number;
   name: string;
   tankType: TankType;
 }
 
-export interface StartLevelResponseDto {
+export interface StartLevelResponse {
   gameId: string;
 }
 
-export interface PlayLevelDto {
+export interface PlayLevelRequest {
   id: number;
   selectedTankType: TankType;
 }

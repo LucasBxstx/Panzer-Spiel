@@ -35,6 +35,12 @@ export const routes: Routes = [
     canActivate: [AuthGuardService],
   },
   {
+    path: 'singleplayer/level/:id',
+    loadComponent: () =>
+      import('./singleplayer/level/level.component').then((m) => m.LevelComponent),
+    canActivate: [AuthGuardService],
+  },
+  {
     path: 'create-lobby',
     loadComponent: () =>
       import('./multiplayer/create-lobby/create-lobby.component').then(

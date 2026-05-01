@@ -43,6 +43,11 @@
     transition: background-color 0.2s ease-in-out;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+
+    @media screen and (max-width: 700px) {
+      font-size: 13px;
+    }
   }
 
   .shine {

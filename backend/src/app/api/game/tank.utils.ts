@@ -230,3 +230,18 @@ function getTankNightShade(): TankVariant {
     bulletVariantId: 'damagingBullet',
   };
 }
+
+export function getTankTypeBgColor(tankType: TankType): string {
+  switch (tankType) {
+    case TankType.Panther:
+      return '#0f530f';
+    case TankType.Razor:
+      return '#8b7d7d';
+    case TankType.Inferno:
+      return '#700b0b';
+    case TankType.Reaper:
+      return '#1b0c82';
+    case TankType.Nightshade:
+      return '#040404';
+  }
+}

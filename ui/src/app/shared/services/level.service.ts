@@ -3,10 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
-  LevelPreviewResponseDto,
-  LevelResponseDto,
-  PlayLevelDto,
-  StartLevelResponseDto,
+  LevelPreviewResponse,
+  LevelResponse,
+  PlayLevelRequest,
+  StartLevelResponse,
 } from '../models/level.model';
 
 @Injectable({
@@ -15,22 +15,23 @@ import {
 export class LevelService {
   private readonly httpClient = inject(HttpClient);
 
-  public getAllLevels(): Observable<LevelPreviewResponseDto[]> {
-    return this.httpClient.get<LevelPreviewResponseDto[]>(
+  public getAllLevels(): Observable<LevelPreviewResponse[]> {
+    return this.httpClient.get<LevelPreviewResponse[]>(
       `${environment.apiUrl}/level/level-previews`,
     );
   }
 
-  public getLevel(levelId: number): Observable<LevelResponseDto> {
-    return this.httpClient.get<LevelResponseDto>(`${environment.apiUrl}/level/${levelId}`);
+  public getLevel(levelId: number): Observable<LevelResponse> {
+    return this.httpClient.get<LevelResponse>(`${environment.apiUrl}/level/${levelId}`);
   }
 
   public startLevel(
     levelId: number,
-    playLevelDto: PlayLevelDto,
-  ): Observable<StartLevelResponseDto> {
-    return this.httpClient.post<StartLevelResponseDto>(`${environment.apiUrl}/level/${levelId}`, {
+    playLevelDto: PlayLevelRequest,
+  ): Observable<StartLevelResponse> {
+    return this.httpClient.post<StartLevelResponse>(
+      `${environment.apiUrl}/level/${levelId}`,
       playLevelDto,
-    });
+    );
   }
 }

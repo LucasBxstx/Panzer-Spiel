@@ -11,8 +11,7 @@
         <div class="flex flex-wrap gap-5 mt-4 justify-center">
           @for (level of levels(); track level.id) {
             <app-level-preview [level]="level" class="shrink-0"
-                               (click)="navigateToLevel(level.id)"></app-level-preview>
-
+                               (click)="navigateToLevel(level)"></app-level-preview>
           }
         </div>
 

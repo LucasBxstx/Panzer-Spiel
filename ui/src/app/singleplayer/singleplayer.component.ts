@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LevelService } from '../shared/services/level.service';
 import { LevelPreviewComponent } from './level-preview/level-preview.component';
+import { LevelPreviewResponse } from '../shared/models/level.model';
 
 @Component({
   selector: 'app-singleplayer',
@@ -22,7 +23,7 @@ export class SingleplayerComponent {
     { initialValue: [] },
   );
 
-  public navigateToLevel(id: number) {
-    this.router.navigate([`/${id}`]);
+  public navigateToLevel(level: LevelPreviewResponse) {
+    if (level.unlocked) this.router.navigate(['/singleplayer/level', level.id]);
   }
 }
