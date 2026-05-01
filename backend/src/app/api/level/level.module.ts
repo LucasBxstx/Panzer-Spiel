@@ -4,11 +4,11 @@ import { User } from '../user/user.entity';
 import { AuthModule } from '../auth/auth.module';
 import { LevelService } from './level.service';
 import { LevelController } from './webservice/level.controller';
-import { GameService } from '../game/game.service';
+import { GameModule } from '../game/game.module';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([User]), AuthModule],
-  providers: [LevelService, GameService],
+  imports: [MikroOrmModule.forFeature([User]), AuthModule, GameModule],
+  providers: [LevelService],
   controllers: [LevelController],
   exports: [LevelService],
 })
