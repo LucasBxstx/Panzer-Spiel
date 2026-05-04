@@ -106,16 +106,16 @@ export class GameComponent implements OnInit, OnDestroy {
   }[] = [];
 
   public readonly levelId = toSignal(
-    this.route.paramMap.pipe(
+    this.route.queryParams.pipe(
       map((params) => {
-        const id = params.get('level');
+        const id = params['level'];
         return id ? Number(id) : undefined;
       }),
     ),
   );
 
   public readonly navigateTo = computed(() =>
-    this.levelId() === undefined ? '/singleplayer' : '/multiplayer',
+    this.levelId() === undefined ? '/multiplayer' : '/singleplayer',
   );
 
   @HostListener('document:mousemove', ['$event'])

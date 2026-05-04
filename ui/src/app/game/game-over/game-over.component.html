@@ -39,8 +39,10 @@
           }
 
           @if (levelId()) {
-            <div class="flex flex-row-reverse">
-              <button (click)="goToNextLevel()" class="w-[200px]">Next Level</button>
+            <div class="flex flex-row-reverse mt-3">
+
+              <button (click)="goToNextLevel()" class="w-[200px]">{{ IAmWinner() ? 'Next Level' : 'Play Again' }}
+              </button>
             </div>
           }
 

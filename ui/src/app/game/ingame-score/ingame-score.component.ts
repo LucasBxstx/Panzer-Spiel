@@ -22,16 +22,16 @@ export class IngameScoreComponent {
   public readonly teamScoreRight = signal<TeamStats[]>([]);
 
   public readonly levelId = toSignal(
-    this.route.paramMap.pipe(
+    this.route.queryParams.pipe(
       map((params) => {
-        const id = params.get('level');
+        const id = params['level'];
         return id ? Number(id) : undefined;
       }),
     ),
   );
 
   public readonly navigateTo = computed(() =>
-    this.levelId() === undefined ? '/singleplayer' : '/multiplayer',
+    this.levelId() === undefined ? '/multiplayer' : '/singleplayer',
   );
 
   constructor() {

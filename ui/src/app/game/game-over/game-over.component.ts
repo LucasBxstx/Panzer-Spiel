@@ -25,27 +25,32 @@ export class GameOverComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   public readonly levelId = toSignal(
-    this.route.paramMap.pipe(
+    this.route.queryParams.pipe(
       map((params) => {
-        const id = params.get('level');
+        const id = params['level'];
         return id ? Number(id) : undefined;
       }),
     ),
   );
 
   public readonly navigateTo = computed(() =>
-    this.levelId() === undefined ? '/singleplayer' : '/multiplayer',
+    this.levelId() === undefined ? '/multiplayer' : '/singleplayer',
   );
+
+  public readonly IAmWinner = computed(() => {
+    const myUserId = this.authService.user()!.id;
+    const myTeamId = this.gameService
+      .gameState()
+      ?.teams.find((t) => t.players.some((p) => p.userId === myUserId))?.id;
+
+    return this.gameService.winningTeamId() === myTeamId;
+  });
 
   public async ngOnInit() {
     const gameState = this.gameService.gameState();
     if (!gameState) return;
 
-    const myUserId = this.authService.user()!.id;
-    const myTeamId = gameState.teams.find((t) => t.players.some((p) => p.userId === myUserId))?.id;
-    const IAmWinner = this.gameService.winningTeamId() === myTeamId;
-
-    if (IAmWinner) {
+    if (this.IAmWinner()) {
       await this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
       this.audioService.play('game-won');
     }
@@ -80,6 +85,6 @@ export class GameOverComponent implements OnInit {
     if (!levelId) {
       return;
     }
-    this.router.navigate(['/singleplayer/level', levelId + 1]);
+    this.router.navigate(['/singleplayer/level', this.IAmWinner() ? levelId + 1 : levelId]);
   }
 }

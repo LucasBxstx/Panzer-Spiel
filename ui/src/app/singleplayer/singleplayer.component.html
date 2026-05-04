@@ -8,7 +8,7 @@
           weiteren Panzer freigeschaltet, den du dann in weiteren Leveln benutzen kannst.
         </div>
 
-        <div class="flex flex-wrap gap-5 mt-4 justify-center">
+        <div class="flex flex-wrap gap-5 mt-4 justify-center overflow-auto max-h-full">
           @for (level of levels(); track level.id) {
             <app-level-preview [level]="level" class="shrink-0"
                                (click)="navigateToLevel(level)"></app-level-preview>
