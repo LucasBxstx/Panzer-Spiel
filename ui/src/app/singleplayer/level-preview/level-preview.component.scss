@@ -1,0 +1,86 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+:host {
+  display: block;
+
+}
+
+.map-preview {
+  position: relative;
+  display: inline-block;
+  border-radius: 5px;
+  border: 3px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #0d0b0b;
+
+
+  img {
+    border-radius: 3px;
+    display: block;
+
+    &.disabled {
+      opacity: 0.5;
+    }
+
+    @media screen and (max-width: 700px) {
+      width: 190px;
+    }
+  }
+
+  .description {
+    position: absolute;
+    width: 100%;
+    background-color: $overlay-color;
+    padding-left: 10px;
+    padding-right: 10px;
+    bottom: 0;
+    left: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: $primary-text-color;
+    transition: background-color 0.2s ease-in-out;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @media screen and (max-width: 700px) {
+      font-size: 13px;
+    }
+  }
+
+  .shine {
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    animation: shine-animation 5s infinite;
+  }
+
+  @keyframes shine-animation {
+    0% {
+      left: -75%;
+    }
+    10% {
+      left: 125%;
+    }
+    100% {
+      left: 125%;
+    }
+  }
+
+  &:hover {
+    .description {
+      background-color: $overlay-color-hover;
+    }
+  }
+}

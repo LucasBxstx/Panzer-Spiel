@@ -1,14 +1,14 @@
 import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { PageWrapperComponent } from '../../shared/components/page-wrapper/page-wrapper.component';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../../shared/services/game.service';
 import { ChipComponent } from '../../shared/components/chip/chip.component';
 import { NgOptimizedImage } from '@angular/common';
 import { AuthService } from '../../shared/services/auth.service';
 import { AudioService } from '../../shared/services/audio.service';
-import { timer } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { map, timer } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-game-over',
@@ -18,33 +18,51 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class GameOverComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   public readonly gameService = inject(GameService);
   private readonly authService = inject(AuthService);
   private readonly audioService = inject(AudioService);
   private readonly destroyRef = inject(DestroyRef);
 
+  public readonly levelId = toSignal(
+    this.route.queryParams.pipe(
+      map((params) => {
+        const id = params['level'];
+        return id ? Number(id) : undefined;
+      }),
+    ),
+  );
+
+  public readonly navigateTo = computed(() =>
+    this.levelId() === undefined ? '/multiplayer' : '/singleplayer',
+  );
+
+  public readonly IAmWinner = computed(() => {
+    const myUserId = this.authService.user()!.id;
+    const myTeamId = this.gameService
+      .gameState()
+      ?.teams.find((t) => t.players.some((p) => p.userId === myUserId))?.id;
+
+    return this.gameService.winningTeamId() === myTeamId;
+  });
+
   public async ngOnInit() {
     const gameState = this.gameService.gameState();
     if (!gameState) return;
 
-    const myUserId = this.authService.user()!.id;
-    const myTeamId = gameState.teams.find((t) => t.players.some((p) => p.userId === myUserId))?.id;
-    const IAmWinner = this.gameService.winningTeamId() === myTeamId;
-
-    if (IAmWinner) {
+    if (this.IAmWinner()) {
       await this.audioService.loadSound('game-won', 'assets/sounds/game-won.mp3');
       this.audioService.play('game-won');
     }
 
     timer(25000)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.router.navigate(['/multiplayer']));
+      .subscribe(() => this.router.navigate([this.navigateTo()]));
   }
 
   public leaveGame(): void {
-    console.log('leavegame game-over comp');
     this.gameService.disconnect();
-    this.router.navigate(['/multiplayer']);
+    this.router.navigate([this.navigateTo()]);
   }
 
   public readonly winnerTeam = computed(() => {
@@ -60,5 +78,13 @@ export class GameOverComponent implements OnInit {
       num.push(kills + 1);
     }
     return num;
+  }
+
+  public goToNextLevel(): void {
+    const levelId = this.levelId();
+    if (!levelId) {
+      return;
+    }
+    this.router.navigate(['/singleplayer/level', this.IAmWinner() ? levelId + 1 : levelId]);
   }
 }

@@ -1,0 +1,33 @@
+:host {
+  @apply font-bold flex gap-2 my-2 justify-center items-center;
+}
+
+.name {
+  width: 80px;
+}
+
+.prop-box {
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 25px;
+  border-radius: 3px;
+  padding: 2px;
+  gap: 2px;
+
+  .block {
+    width: 100%;
+    height: 100%;
+    border-radius: 1px;
+
+    &.unfilled {
+      background-color: rgba(3, 32, 39, 0.69);
+    }
+
+    &.filled {
+      background-color: rgba(176, 56, 37, 0.55);
+    }
+  }
+}

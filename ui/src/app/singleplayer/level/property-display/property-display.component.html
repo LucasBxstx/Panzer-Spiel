@@ -1,0 +1,7 @@
+<div class="name">{{ propertyName() }}:</div>
+<div class="prop-box">
+  @for (block of propertyBlocks(); track block) {
+    <div class="block" [ngClass]="block.filled ? 'filled' : 'unfilled'"></div>
+  }
+</div>
+

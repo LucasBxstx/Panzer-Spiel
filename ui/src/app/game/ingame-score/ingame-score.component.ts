@@ -1,9 +1,9 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { GameService } from '../../shared/services/game.service';
 import { TeamScoreComponent } from './team-score/team-score.component';
 import { TeamStats } from '../../shared/models/team.model';
-import { NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 
@@ -16,9 +16,23 @@ import { filter, map } from 'rxjs';
 export class IngameScoreComponent {
   public readonly gameService = inject(GameService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   public readonly teamScoreLeft = signal<TeamStats[]>([]);
   public readonly teamScoreRight = signal<TeamStats[]>([]);
+
+  public readonly levelId = toSignal(
+    this.route.queryParams.pipe(
+      map((params) => {
+        const id = params['level'];
+        return id ? Number(id) : undefined;
+      }),
+    ),
+  );
+
+  public readonly navigateTo = computed(() =>
+    this.levelId() === undefined ? '/multiplayer' : '/singleplayer',
+  );
 
   constructor() {
     effect(() => {
@@ -49,7 +63,7 @@ export class IngameScoreComponent {
   );
 
   public leaveGame(): void {
-    this.router.navigate(['/multiplayer']);
+    this.router.navigate([this.navigateTo()]);
     this.gameService.leaveGame().subscribe();
   }
 }

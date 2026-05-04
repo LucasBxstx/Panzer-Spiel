@@ -89,7 +89,9 @@ export class GameService {
       this.winningTeamId.set(response.winningTeamId);
       const gameId = this.gameState()?.id;
 
-      this.router.navigate(['/game', gameId, 'gameover']);
+      this.router.navigate(['/game', gameId, 'gameover'], {
+        queryParamsHandling: 'preserve',
+      });
     });
   }
 

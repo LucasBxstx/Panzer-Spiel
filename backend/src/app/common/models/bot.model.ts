@@ -1,4 +1,5 @@
 import { Chunk } from '../../api/game/maps/map.utils';
+import { TankType } from './tank.model';
 
 export interface Bot {
   id: string;
@@ -26,4 +27,9 @@ export enum BotDifficulty {
   INTERMEDIATE = 'intermediate',
   ADVANCED = 'advanced',
   HARD = 'hard',
+}
+
+export interface BotSetting {
+  tankType: TankType;
+  difficulty: BotDifficulty;
 }

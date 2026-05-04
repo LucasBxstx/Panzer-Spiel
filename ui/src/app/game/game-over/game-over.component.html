@@ -1,6 +1,6 @@
 <div class="page-sizing">
   <app-card>
-    <app-page-wrapper [backLabel]="'Spiel verlassen'" [navigateTo]="'/multiplayer'"
+    <app-page-wrapper [backLabel]="'Spiel verlassen'" [navigateTo]="navigateTo()"
                       [headingLabel]="'Game Over'" (leavePage)="leaveGame()">
       <div content>
         @if (winnerTeam()) {
@@ -37,6 +37,15 @@
               </div>
             </app-chip>
           }
+
+          @if (levelId()) {
+            <div class="flex flex-row-reverse mt-3">
+
+              <button (click)="goToNextLevel()" class="w-[200px]">{{ IAmWinner() ? 'Next Level' : 'Play Again' }}
+              </button>
+            </div>
+          }
+
         } @else {
           <div class="w-full text-red-500 text-center">The Game is already over. You can leave this Lobby</div>
         }

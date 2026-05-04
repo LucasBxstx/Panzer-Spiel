@@ -7,8 +7,8 @@
       </div>
 
       <div content class="flex flex-col gap-4">
-        <button (click)="navigateToMultiplayer()">Multiplayer</button>
-        <button>Singleplayer</button>
+        <button (click)="router.navigate(['/multiplayer'])">Multiplayer</button>
+        <button (click)="router.navigate(['/singleplayer'])">Singleplayer</button>
       </div>
     </app-card-wrapper>
   </app-card>

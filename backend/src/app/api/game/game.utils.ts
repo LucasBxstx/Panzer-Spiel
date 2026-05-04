@@ -26,6 +26,8 @@ export function createBots(
   lobby: Lobby,
   players: Map<string, Player>,
 ): Map<string, Bot> {
+  if (!lobby.gameSettings.botSettings) return new Map();
+
   const botNames = [
     'Alice',
     'Bob',
@@ -37,7 +39,7 @@ export function createBots(
     'Günter',
   ];
   const bots = new Map<string, Bot>();
-  for (let i = 0; i < lobby.gameSettings.numberOfBots; i++) {
+  for (let i = 0; i < lobby.gameSettings.botSettings.length; i++) {
     const botId = uuidv4();
     const bot: Player = {
       userId: botId,
@@ -51,8 +53,9 @@ export function createBots(
     };
 
     players.set(bot.userId, bot);
+
     const botDifficulty =
-      lobby.gameSettings.botDifficulty ?? BotDifficulty.EASY;
+      lobby.gameSettings.botSettings[i].difficulty ?? BotDifficulty.EASY;
     const botVariant = getBotVariant(botDifficulty);
 
     bots.set(botId, {
@@ -89,7 +92,10 @@ export function createTeams(
     });
   };
 
-  if (lobby.gameSettings.gameMode === GameMode.TeamVsBots) {
+  if (
+    lobby.gameSettings.gameMode === GameMode.TeamVsBots ||
+    lobby.gameSettings.gameMode === GameMode.SinglePlayer
+  ) {
     const realPlayers = players.filter((p) => !p.isBot);
     const botPlayers = players.filter((p) => p.isBot);
     const playerTeamId = uuidv4();

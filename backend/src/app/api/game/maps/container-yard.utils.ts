@@ -12,7 +12,7 @@ import {
 
 export function getContainerYardMap(): GameMap {
   return {
-    id: 'containerYard',
+    id: 'containeryard',
     name: 'Container Yard',
     pictureUrl: 'assets/pictures/map-container-yard.png',
     scale: {

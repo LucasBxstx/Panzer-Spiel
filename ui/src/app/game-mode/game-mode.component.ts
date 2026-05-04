@@ -12,9 +12,5 @@ import { NgOptimizedImage } from '@angular/common';
   styleUrl: './game-mode.component.scss',
 })
 export class GameModeComponent {
-  private readonly router = inject(Router);
-
-  public navigateToMultiplayer(): void {
-    this.router.navigate(['/multiplayer']);
-  }
+  public readonly router = inject(Router);
 }

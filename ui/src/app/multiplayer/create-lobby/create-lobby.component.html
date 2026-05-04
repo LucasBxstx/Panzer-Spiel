@@ -35,6 +35,7 @@
         <div class="flex flex-row gap-2 items-center flex-wrap">
           @for (mode of availableModes(); track mode.name) {
             <app-chip [value]="mode.name" [class]="{selected: mode.value === selectedMode()}"
+                      class="hover cursor-pointer"
                       (click)="selectedMode.set(mode.value)"></app-chip>
           }
         </div>
@@ -68,7 +69,7 @@
           <div class="flex flex-row gap-2 items-center flex-wrap">
             @for (difficulty of availableBotsDifficulties(); track difficulty.name) {
               <app-chip [value]="difficulty.name" [class]="{selected: difficulty.value === selectedBotDifficulty()}"
-                        (click)="selectedBotDifficulty.set(difficulty.value)"></app-chip>
+                        (click)="selectedBotDifficulty.set(difficulty.value)" class="hover cursor-pointer"></app-chip>
             }
           </div>
         }
@@ -78,7 +79,7 @@
         <div class="flex flex-row gap-2 items-center flex-wrap">
           @for (type of availableTankTypes(); track type.name) {
             <app-chip [value]="type.name" [class]="{selected: type.value === selectedTankType()}"
-                      (click)="selectedTankType.set(type.value)"></app-chip>
+                      (click)="selectedTankType.set(type.value)" class="hover cursor-pointer"></app-chip>
           }
         </div>
 
