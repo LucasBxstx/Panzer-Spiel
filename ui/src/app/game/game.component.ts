@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   DestroyRef,
   effect,
   ElementRef,
@@ -14,7 +15,7 @@ import * as THREE from 'three';
 import { KeyboardInputService } from '../shared/services/keyboard-input.service';
 import { GameService } from '../shared/services/game.service';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { addLight } from './game.utils.ts/add-light';
 import { setupCamera } from './game.utils.ts/setup-camera';
 import { setupRenderer } from './game.utils.ts/setup-renderer';
@@ -26,7 +27,7 @@ import {
   calculateMyTurretRotation,
   calculateMyTurretRotationMobile,
 } from './game.utils.ts/calculateMyTurretRotation';
-import { catchError, finalize, throwError } from 'rxjs';
+import { catchError, finalize, map, throwError } from 'rxjs';
 import { addGround } from './game.utils.ts/add-ground';
 import { Position, Vector3D } from '../shared/models/vector.model';
 import { BulletObject, BulletResponse } from '../shared/models/bullet.model';
@@ -104,6 +105,19 @@ export class GameComponent implements OnInit, OnDestroy {
     deltaTime: number;
   }[] = [];
 
+  public readonly levelId = toSignal(
+    this.route.paramMap.pipe(
+      map((params) => {
+        const id = params.get('level');
+        return id ? Number(id) : undefined;
+      }),
+    ),
+  );
+
+  public readonly navigateTo = computed(() =>
+    this.levelId() === undefined ? '/singleplayer' : '/multiplayer',
+  );
+
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     const canvas = this.canvasRef.nativeElement;
@@ -139,7 +153,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.showError.set(true);
       setTimeout(() => {
         console.log('join or rejoin game');
-        this.router.navigate(['/multiplayer']);
+        this.router.navigate([this.navigateTo()]);
       }, 2000);
       return;
     }
@@ -152,7 +166,7 @@ export class GameComponent implements OnInit, OnDestroy {
           this.showError.set(true);
           console.log('join game', error);
           setTimeout(() => {
-            this.router.navigate(['/multiplayer']);
+            this.router.navigate([this.navigateTo()]);
           }, 2000);
           return throwError(() => error);
         }),
@@ -166,7 +180,9 @@ export class GameComponent implements OnInit, OnDestroy {
         this.drawGame();
 
         if (response.winningTeamId) {
-          this.router.navigate(['/game', gameId, 'gameover']);
+          this.router.navigate(['/game', gameId, 'gameover'], {
+            queryParamsHandling: 'preserve',
+          });
         }
       });
   }

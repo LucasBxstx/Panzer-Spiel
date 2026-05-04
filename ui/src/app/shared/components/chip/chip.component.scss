@@ -7,14 +7,15 @@
   padding: 4px 10px;
   border-radius: 4px;
   transition: background-color 0.2s ease-in-out;
-  cursor: pointer;
   border: 3px solid transparent;
-
-  &:hover {
-    background-color: $light-card-hover-color;
-  }
 
   &.selected {
     border: 3px solid $selection-color;
+  }
+
+  &.hover {
+    &:hover {
+      background-color: $light-card-hover-color;
+    }
   }
 }

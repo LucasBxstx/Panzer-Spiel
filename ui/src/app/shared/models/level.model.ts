@@ -25,6 +25,14 @@ export interface SelectableTankVariantResponse {
   id: number;
   name: string;
   tankType: TankType;
+  unlocked: boolean;
+  previewPictureURL: string;
+  speed: number;
+  hp: number;
+  damage: number;
+  bulletSpeed: number;
+  bulletBounceCount: number;
+  color: string;
 }
 
 export interface StartLevelResponse {

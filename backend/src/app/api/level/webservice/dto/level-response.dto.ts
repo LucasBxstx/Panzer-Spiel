@@ -7,6 +7,7 @@ import {
   getTankTypeBgColor,
 } from '../../../game/tank.utils';
 import { MapPreviewResponseDto } from '../../../../common/dtos/map-preview-response.dto';
+import { findBulletVariant } from '../../../game/bullet.utils';
 
 export class LevelPreviewResponseDto {
   @Expose()
@@ -123,21 +124,49 @@ export class SelectableTankVariantResponseDto {
   @Expose()
   tankType: TankType;
 
-  // @Expose()
-  // unlocked: boolean;
-  //
-  // @Expose()
-  // previewPictureURL: string;
+  @Expose()
+  unlocked: boolean;
+
+  @Expose()
+  previewPictureURL: string;
+
+  @Expose()
+  speed: number;
+
+  @Expose()
+  hp: number;
+
+  @Expose()
+  damage: number;
+
+  @Expose()
+  bulletSpeed: number;
+
+  @Expose()
+  bulletBounceCount: number;
+
+  @Expose()
+  color: string;
 
   public static mapToDto(
     tankVariant: TankVariant,
   ): SelectableTankVariantResponseDto {
+    const bulletVariant = findBulletVariant(tankVariant.bulletVariantId)!;
+
     return plainToInstance(
       SelectableTankVariantResponseDto,
       {
         id: tankVariant.id,
         name: tankVariant.name,
         tankType: tankVariant.tankType,
+        unlocked: true,
+        previewPictureURL: 'assets/pictures/map-container-yard.png',
+        speed: tankVariant.speed,
+        hp: tankVariant.maxHp,
+        damage: bulletVariant.damage,
+        bulletSpeed: bulletVariant.speed,
+        bulletBounceCount: bulletVariant.maxBounceCount,
+        color: getTankTypeBgColor(tankVariant.tankType),
       },
       { excludeExtraneousValues: true },
     );

@@ -38,7 +38,9 @@ export function createTanks({
   const tanks = new Map<string, Tank>();
   const map = gameSettings.map;
   const entryPoints =
-    gameSettings.gameMode === GameMode.TeamVsBots && map.botTeamEntryPoints
+    (gameSettings.gameMode === GameMode.TeamVsBots ||
+      gameSettings.gameMode === GameMode.SinglePlayer) &&
+    map.botTeamEntryPoints
       ? map.botTeamEntryPoints
       : map.teamEntryPoints;
 
