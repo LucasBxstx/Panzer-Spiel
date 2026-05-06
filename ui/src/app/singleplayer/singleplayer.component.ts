@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CardComponent } from '../shared/components/card/card.component';
 import { PageWrapperComponent } from '../shared/components/page-wrapper/page-wrapper.component';
 import { Router } from '@angular/router';
@@ -7,7 +7,6 @@ import { LevelService } from '../shared/services/level.service';
 import { LevelPreviewComponent } from './level-preview/level-preview.component';
 import { LevelPreviewResponse } from '../shared/models/level.model';
 import { catchError, throwError } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-singleplayer',
@@ -20,14 +19,11 @@ export class SingleplayerComponent {
   private readonly levelService = inject(LevelService);
   private readonly destroyRef = inject(DestroyRef);
 
-  public readonly error = signal<string | null>(null);
-
   public readonly levels = toSignal(
     this.levelService.getAllLevels().pipe(
       takeUntilDestroyed(this.destroyRef),
-      catchError((error: HttpErrorResponse) => {
+      catchError((error) => {
         console.log(error);
-        this.error.set(error.message);
         return throwError(() => error);
       }),
     ),
