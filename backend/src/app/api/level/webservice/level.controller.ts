@@ -20,7 +20,12 @@ export class LevelController {
   async getAllLevelPreviews(
     @CurrentUserId() id: string,
   ): Promise<LevelPreviewResponseDto[]> {
-    return await this.levelService.getAllLevelPreviews(id);
+    try {
+      return await this.levelService.getAllLevelPreviews(id);
+    } catch (error) {
+      console.error(error);
+      throw new Error(error.message);
+    }
   }
 
   @ApiBearerAuth('JWT-auth')
