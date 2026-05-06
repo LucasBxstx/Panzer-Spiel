@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import {
   CreateGameResponse,
   CreateLobbyRequest,
-  LobbyCreationOptionsResponseDto,
+  LobbyCreationOptionsResponse,
   LobbyResponse,
 } from '../models/lobby.model';
 import { environment } from '../../../environments/environment';
@@ -31,8 +31,8 @@ export class LobbyService {
     );
   }
 
-  public getLobbyCreationOptions(): Observable<LobbyCreationOptionsResponseDto> {
-    return this.httpClient.get<LobbyCreationOptionsResponseDto>(
+  public getLobbyCreationOptions(): Observable<LobbyCreationOptionsResponse> {
+    return this.httpClient.get<LobbyCreationOptionsResponse>(
       `${environment.apiUrl}/lobby/lobby-creation-options`,
     );
   }

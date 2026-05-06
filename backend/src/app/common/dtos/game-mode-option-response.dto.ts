@@ -23,6 +23,10 @@ export class GameModeOptionResponseDto {
         return 'Team vs Team';
       case GameMode.TeamVsBots:
         return 'Team vs Bots';
+      case GameMode.SinglePlayer:
+        return 'Singleplayer';
+      case GameMode.TeamLevel:
+        return 'Team Level';
       default:
         return 'undefined';
     }

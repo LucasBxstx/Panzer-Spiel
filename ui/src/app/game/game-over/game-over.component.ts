@@ -57,7 +57,7 @@ export class GameOverComponent implements OnInit {
 
     timer(25000)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.router.navigate([this.navigateTo()]));
+      .subscribe(() => this.leaveGame());
   }
 
   public leaveGame(): void {

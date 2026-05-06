@@ -1,4 +1,4 @@
-<div class="map-preview">
+<div class="level-preview" [class]="{selected: isSelected()}">
   <img ngSrc="{{level().previewPictureURL}}" alt="{{level().name}}" width="250" height="167" priority
        [ngClass]="{disabled: !level().unlocked}">
   <div class="description">

@@ -13,4 +13,6 @@ export enum GameMode {
   OneVsOne = 'OneVsOne',
   TeamVsTeam = 'TeamVsTeam',
   TeamVsBots = 'TeamVsBots',
+  SinglePlayer = 'SinglePlayer',
+  TeamLevel = 'TeamLevel',
 }
