@@ -6,7 +6,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LevelService } from '../shared/services/level.service';
 import { LevelPreviewComponent } from './level-preview/level-preview.component';
 import { LevelPreviewResponse } from '../shared/models/level.model';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -30,14 +30,9 @@ export class SingleplayerComponent {
         this.error.set(error.message);
         return of([]);
       }),
-      tap(() => console.log('requests')),
     ),
     { initialValue: [] },
   );
-
-  constructor() {
-    console.log('SingleplayerComponent initialized');
-  }
 
   public navigateToLevel(level: LevelPreviewResponse) {
     if (level.unlocked) this.router.navigate(['/singleplayer/level', level.id]);
