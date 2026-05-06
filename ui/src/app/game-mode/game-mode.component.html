@@ -1,16 +1,12 @@
 <div class="dialogue-sizing">
-  <app-card>
-    <app-card-wrapper>
-      <div top>
-        <img ngSrc="assets/pictures/tank-game-heading.png" alt="title" width="400"
-             height="146" priority>
-      </div>
-
+  <app-card class="relative">
+    <app-page-wrapper [navigateTo]="'/'" [backLabel]="'Logout'"
+                      [headingLabel]="'Game Mode'" (leavePage)="authService.logout()">
       <div content class="flex flex-col gap-4">
         <button (click)="router.navigate(['/multiplayer'])">Multiplayer</button>
         <button (click)="router.navigate(['/singleplayer'])">Singleplayer</button>
       </div>
-    </app-card-wrapper>
+    </app-page-wrapper>
   </app-card>
 </div>
 
