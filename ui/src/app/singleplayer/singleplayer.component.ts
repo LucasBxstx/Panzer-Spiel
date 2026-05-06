@@ -6,7 +6,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LevelService } from '../shared/services/level.service';
 import { LevelPreviewComponent } from './level-preview/level-preview.component';
 import { LevelPreviewResponse } from '../shared/models/level.model';
-import { catchError, throwError } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -28,7 +28,7 @@ export class SingleplayerComponent {
       catchError((error: HttpErrorResponse) => {
         console.log(error);
         this.error.set(error.message);
-        return throwError(() => error);
+        return of([]);
       }),
     ),
     { initialValue: [] },
