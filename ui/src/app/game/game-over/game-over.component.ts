@@ -85,6 +85,8 @@ export class GameOverComponent implements OnInit {
     if (!levelId) {
       return;
     }
+
+    this.gameService.disconnect();
     this.router.navigate(['/singleplayer/level', this.IAmWinner() ? levelId + 1 : levelId]);
   }
 }
