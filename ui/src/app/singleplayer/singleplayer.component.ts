@@ -6,7 +6,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LevelService } from '../shared/services/level.service';
 import { LevelPreviewComponent } from './level-preview/level-preview.component';
 import { LevelPreviewResponse } from '../shared/models/level.model';
-import { catchError, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-singleplayer',
@@ -20,13 +19,7 @@ export class SingleplayerComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   public readonly levels = toSignal(
-    this.levelService.getAllLevels().pipe(
-      takeUntilDestroyed(this.destroyRef),
-      catchError((error) => {
-        console.log(error);
-        return throwError(() => error);
-      }),
-    ),
+    this.levelService.getAllLevels().pipe(takeUntilDestroyed(this.destroyRef)),
     { initialValue: [] },
   );
 
