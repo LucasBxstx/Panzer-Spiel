@@ -33,11 +33,9 @@ export class LevelService {
   async getAllLevelPreviews(
     userId: string,
   ): Promise<LevelPreviewResponseDto[]> {
-    console.log('getAllLevelPreviews');
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
-      console.log('no user');
       throw new UnauthorizedException();
     }
 
