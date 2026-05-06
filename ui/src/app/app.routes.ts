@@ -32,7 +32,7 @@ export const routes: Routes = [
     path: 'singleplayer',
     loadComponent: () =>
       import('./singleplayer/singleplayer.component').then((m) => m.SingleplayerComponent),
-    // canActivate: [AuthGuardService],
+    canActivate: [AuthGuardService],
   },
   {
     path: 'singleplayer/level/:id',
