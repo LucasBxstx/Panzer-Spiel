@@ -28,6 +28,10 @@ export class CreateLobbyDto {
 
   @IsEnum(TankType)
   tankType: TankType;
+
+  @IsOptional()
+  @IsNumber()
+  levelId: number;
 }
 
 export class JoinLobbyDto {

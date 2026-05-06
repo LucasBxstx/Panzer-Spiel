@@ -9,12 +9,22 @@ import {
   LobbyResponseDto,
 } from './webservice/dto/lobby-response.dto';
 import { WsException } from '@nestjs/websockets';
-import { GameSettings } from '../../common/models/game-settings.model';
+import {
+  GameMode,
+  GameSettings,
+} from '../../common/models/game-settings.model';
 import { Lobby } from '../../common/models/lobby.model';
 import { LobbyPlayer } from '../../common/models/player.model';
 import { MapPreviewResponseDto } from '../../common/dtos/map-preview-response.dto';
 import { findMap, getAllMaps } from '../game/maps/map.utils';
 import { BotDifficulty, BotSetting } from '../../common/models/bot.model';
+import { LobbyCreationOptionsResponseDto } from '../../common/dtos/lobby-creation-option-response.dto';
+import {
+  LevelPreviewResponseDto,
+  SelectableTankVariantResponseDto,
+} from '../level/webservice/dto/level-response.dto';
+import { getAllTankVariants } from '../game/tank.utils';
+import { findLevel, getAllLevels } from '../level/levels/level.utils';
 
 @Injectable()
 export class LobbyService {
@@ -25,10 +35,24 @@ export class LobbyService {
     private readonly userRepository: EntityRepository<User>,
   ) {}
 
-  getAvailableMaps(): MapPreviewResponseDto[] {
+  getLobbyCreationOptions(): LobbyCreationOptionsResponseDto {
     const maps = getAllMaps();
+    const mapPreviews = maps.map((m) => MapPreviewResponseDto.mapFromEntity(m));
 
-    return maps.map((m) => MapPreviewResponseDto.mapFromEntity(m));
+    const selectableTanks = getAllTankVariants().map((v) =>
+      SelectableTankVariantResponseDto.mapToDto(v),
+    );
+
+    const allLevels = getAllLevels();
+    const levelPreviews = allLevels.map((l) =>
+      LevelPreviewResponseDto.mapFromEntity(l),
+    );
+
+    return new LobbyCreationOptionsResponseDto(
+      mapPreviews,
+      selectableTanks,
+      levelPreviews,
+    );
   }
 
   async createLobby(
@@ -42,18 +66,36 @@ export class LobbyService {
       throw new WsException('Unauthorized');
     }
 
-    const map = findMap(dto.mapId);
+    let mapId: string;
+    let maxPlayersCount: number;
+    let botSettings: BotSetting[] = [];
+
+    if (dto.gameMode === GameMode.TeamLevel) {
+      if (!dto.levelId) throw new WsException('Invalid Level Id');
+
+      const level = findLevel(dto.levelId);
+
+      if (!level) throw new WsException('No such level exists');
+
+      mapId = level.mapId;
+      maxPlayersCount = dto.teamSize;
+      botSettings = level.botSettings;
+    } else {
+      mapId = dto.mapId;
+      maxPlayersCount = dto.maxPlayersCount;
+
+      for (let i = 0; i < dto.numberOfBots; i++) {
+        botSettings.push({
+          tankType: dto.tankType,
+          difficulty: dto.botDifficulty ?? BotDifficulty.EASY,
+        });
+      }
+    }
+
+    const map = findMap(mapId);
 
     if (!map) {
       throw new WsException('Map not found');
-    }
-
-    const botSettings: BotSetting[] = [];
-    for (let i = 0; i < dto.numberOfBots; i++) {
-      botSettings.push({
-        tankType: dto.tankType,
-        difficulty: dto.botDifficulty ?? BotDifficulty.EASY,
-      });
     }
 
     const gameSettings: GameSettings = {
@@ -61,8 +103,8 @@ export class LobbyService {
       teamSize: dto.teamSize,
       numberOfTeams: dto.numberOfTeams,
       gameMode: dto.gameMode,
-      maxPlayersCount: dto.maxPlayersCount,
-      numberOfBots: dto.numberOfBots,
+      maxPlayersCount,
+      numberOfBots: botSettings.length,
       botSettings,
       tankType: dto.tankType,
     };
@@ -91,9 +133,6 @@ export class LobbyService {
       (l) => l.players.length < l.gameSettings.maxPlayersCount,
     );
 
-    console.log(lobbies);
-    lobbies.forEach((l) => l.players.forEach((p) => console.log(p)));
-
     return lobbies.map((l) => LobbyPreviewResponseDto.mapFromEntity(l));
   }
 
@@ -113,7 +152,7 @@ export class LobbyService {
     );
 
     if (!lobby) {
-      throw new WsException('Lobb not found');
+      throw new WsException('Lobby not found');
     }
 
     if (lobby.players.length >= lobby.gameSettings.maxPlayersCount) {

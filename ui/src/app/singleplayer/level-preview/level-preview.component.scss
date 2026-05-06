@@ -6,7 +6,7 @@
 
 }
 
-.map-preview {
+.level-preview {
   position: relative;
   display: inline-block;
   border-radius: 5px;
@@ -76,6 +76,10 @@
     100% {
       left: 125%;
     }
+  }
+
+  &.selected {
+    border: 3px solid $selection-color;
   }
 
   &:hover {

@@ -94,7 +94,8 @@ export function createTeams(
 
   if (
     lobby.gameSettings.gameMode === GameMode.TeamVsBots ||
-    lobby.gameSettings.gameMode === GameMode.SinglePlayer
+    lobby.gameSettings.gameMode === GameMode.SinglePlayer ||
+    lobby.gameSettings.gameMode === GameMode.TeamLevel
   ) {
     const realPlayers = players.filter((p) => !p.isBot);
     const botPlayers = players.filter((p) => p.isBot);

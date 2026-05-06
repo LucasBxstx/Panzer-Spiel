@@ -11,4 +11,5 @@ import { TankIconComponent } from '../../shared/components/tank-icon/tank-icon.c
 })
 export class LevelPreviewComponent {
   public readonly level = input.required<LevelPreviewResponse>();
+  public readonly isSelected = input<boolean>(false);
 }

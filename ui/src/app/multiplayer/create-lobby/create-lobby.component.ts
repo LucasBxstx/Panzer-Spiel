@@ -14,8 +14,8 @@ import {
   BotDifficultyOption,
   CreateLobbyRequest,
   GameModeOption,
-  MapPreviewResponse,
-  TankTypeOption,
+  GameTypeOption,
+  LobbyCreationOptionsResponse,
 } from '../../shared/models/lobby.model';
 import { MapPreviewComponent } from '../../shared/components/map-preview/map-preview.component';
 import { GameMode } from '../../shared/models/lobby-preview.model';
@@ -28,6 +28,9 @@ import { NgOptimizedImage } from '@angular/common';
 import { map, merge } from 'rxjs';
 import { BotDifficulty } from '../../shared/models/bot.model';
 import { TankType } from '../../shared/models/tank.model';
+import { MultiplayerGameType } from '../../shared/models/game.model';
+import { TankSelectionComponent } from '../../shared/components/tank-selection/tank-selection.component';
+import { LevelPreviewComponent } from '../../singleplayer/level-preview/level-preview.component';
 
 @Component({
   selector: 'app-create-lobby',
@@ -38,30 +41,47 @@ import { TankType } from '../../shared/models/tank.model';
     ChipComponent,
     ReactiveFormsModule,
     NgOptimizedImage,
+    TankSelectionComponent,
+    LevelPreviewComponent,
   ],
   templateUrl: './create-lobby.component.html',
   styleUrl: './create-lobby.component.scss',
 })
 export class CreateLobbyComponent implements AfterViewInit {
+  protected readonly MultiplayerGameType = MultiplayerGameType;
   protected readonly GameMode = GameMode;
   private readonly lobbyService = inject(LobbyService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
   public readonly mapPreviewContainer = viewChild<ElementRef>('mapPreviewContainer');
+  public readonly levelPreviewContainer = viewChild<ElementRef>('levelPreviewContainer');
 
   public isAlreadyCreatingLobby = false;
   public readonly selectedMapId = signal<string>('containerhub');
+  public readonly selectedGameType = signal<MultiplayerGameType>(MultiplayerGameType.CUSTOM);
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
   public readonly selectedBotDifficulty = signal<BotDifficulty | null>(null);
   public readonly selectedTankType = signal<TankType>(TankType.Panther);
+  public readonly selectedLevel = signal<number>(1);
 
-  public readonly availableMaps = toSignal<MapPreviewResponse[] | null>(
-    this.lobbyService.getAvailableMaps().pipe(takeUntilDestroyed(this.destroyRef)),
+  public readonly lobbyCreationOptions = toSignal<LobbyCreationOptionsResponse | null>(
+    this.lobbyService.getLobbyCreationOptions().pipe(takeUntilDestroyed(this.destroyRef)),
     {
       initialValue: null,
     },
   );
+
+  public readonly availableGameTypes = signal<GameTypeOption[]>([
+    {
+      name: 'Custom Settings',
+      value: MultiplayerGameType.CUSTOM,
+    },
+    {
+      name: 'Level Gameplay',
+      value: MultiplayerGameType.LEVEL,
+    },
+  ]);
 
   public readonly availableModes = signal<GameModeOption[]>([
     {
@@ -97,29 +117,6 @@ export class CreateLobbyComponent implements AfterViewInit {
     },
   ]);
 
-  public readonly availableTankTypes = signal<TankTypeOption[]>([
-    {
-      name: 'Panther',
-      value: TankType.Panther,
-    },
-    {
-      name: 'Razor',
-      value: TankType.Razor,
-    },
-    {
-      name: 'Inferno',
-      value: TankType.Inferno,
-    },
-    {
-      name: 'Reaper',
-      value: TankType.Reaper,
-    },
-    {
-      name: 'Nightshade',
-      value: TankType.Nightshade,
-    },
-  ]);
-
   public readonly formGroup = new FormGroup({
     numberOfTeams: new FormControl<number>(2, {
       validators: [Validators.min(2)],
@@ -139,10 +136,12 @@ export class CreateLobbyComponent implements AfterViewInit {
     merge(
       this.formGroup.valueChanges,
       toObservable(this.selectedMapId),
-      toObservable(this.availableMaps),
+      toObservable(this.lobbyCreationOptions),
     ).pipe(
       map(() => {
-        const map = this.availableMaps()?.find((m) => m.id === this.selectedMapId());
+        const map = this.lobbyCreationOptions()?.mapPreviews?.find(
+          (m) => m.id === this.selectedMapId(),
+        );
         if (!map) return true;
 
         const { teamSize, numberOfTeams, numberOfBots } = this.formGroup.getRawValue();
@@ -167,16 +166,34 @@ export class CreateLobbyComponent implements AfterViewInit {
         this.selectedBotDifficulty.set(BotDifficulty.EASY);
       }
     });
+    effect(() => {
+      const gameType = this.selectedGameType();
+      this.formGroup.reset();
+
+      if (gameType === MultiplayerGameType.LEVEL) {
+        this.formGroup.controls.teamSize.setValue(2);
+      }
+    });
   }
 
   ngAfterViewInit() {
-    const el = this.mapPreviewContainer()?.nativeElement;
+    const mapPreviewEL = this.mapPreviewContainer()?.nativeElement;
+    const levelPreviewEL = this.levelPreviewContainer()?.nativeElement;
 
-    el.addEventListener(
+    mapPreviewEL.addEventListener(
       'wheel',
       (e: WheelEvent) => {
         e.preventDefault();
-        el.scrollLeft += e.deltaY;
+        mapPreviewEL.scrollLeft += e.deltaY;
+      },
+      { passive: false },
+    );
+
+    levelPreviewEL.addEventListener(
+      'wheel',
+      (e: WheelEvent) => {
+        e.preventDefault();
+        levelPreviewEL.scrollLeft += e.deltaY;
       },
       { passive: false },
     );
@@ -197,15 +214,23 @@ export class CreateLobbyComponent implements AfterViewInit {
       maxPlayersCount = numberOfTeams * teamSize;
     }
 
+    // In case the player is playing multiplayer level mode, we have to explicitly set it
+    const gameMode =
+      this.selectedGameType() === MultiplayerGameType.CUSTOM
+        ? this.selectedMode()
+        : GameMode.TeamLevel;
+
     const request: CreateLobbyRequest = {
       mapId: this.selectedMapId(),
-      gameMode: this.selectedMode(),
+      gameMode,
       teamSize,
       numberOfTeams,
       numberOfBots,
       maxPlayersCount,
       tankType: this.selectedTankType(),
       botDifficulty: this.selectedBotDifficulty() ?? undefined,
+      levelId:
+        this.selectedGameType() === MultiplayerGameType.LEVEL ? this.selectedLevel() : undefined,
     };
 
     this.lobbyService
@@ -216,7 +241,11 @@ export class CreateLobbyComponent implements AfterViewInit {
       });
   }
 
-  public scrollToRight(): void {
+  public mapPreviewScrollToRight(): void {
     this.mapPreviewContainer()?.nativeElement.scrollBy({ left: 300, behavior: 'smooth' });
+  }
+
+  public levelPreviewScrollToRight(): void {
+    this.levelPreviewContainer()?.nativeElement.scrollBy({ left: 300, behavior: 'smooth' });
   }
 }

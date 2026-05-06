@@ -173,6 +173,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return LobbyResponseDto.mapFromEntity(lobby);
     } catch (error) {
       this.logger.log(`User ${userId} disconnected`);
+      console.log(error);
       client.disconnect();
       if (error instanceof WsException) {
         throw error;

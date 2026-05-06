@@ -46,3 +46,8 @@ export interface GameStateResponse {
 export interface GameOverResponse {
   winningTeamId: string;
 }
+
+export enum MultiplayerGameType {
+  CUSTOM = 'Custom ',
+  LEVEL = 'Level',
+}
