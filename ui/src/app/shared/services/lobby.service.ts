@@ -4,8 +4,8 @@ import { io, Socket } from 'socket.io-client';
 import {
   CreateGameResponse,
   CreateLobbyRequest,
+  LobbyCreationOptionsResponseDto,
   LobbyResponse,
-  MapPreviewResponse,
 } from '../models/lobby.model';
 import { environment } from '../../../environments/environment';
 import { interval, Observable, startWith, switchMap } from 'rxjs';
@@ -31,8 +31,10 @@ export class LobbyService {
     );
   }
 
-  public getAvailableMaps(): Observable<MapPreviewResponse[]> {
-    return this.httpClient.get<MapPreviewResponse[]>(`${environment.apiUrl}/lobby/available-maps`);
+  public getLobbyCreationOptions(): Observable<LobbyCreationOptionsResponseDto> {
+    return this.httpClient.get<LobbyCreationOptionsResponseDto>(
+      `${environment.apiUrl}/lobby/lobby-creation-options`,
+    );
   }
 
   connect() {

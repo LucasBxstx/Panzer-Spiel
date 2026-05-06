@@ -4,7 +4,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
 import { LobbyPreviewResponseDto } from './dto/lobby-response.dto';
-import { MapPreviewResponseDto } from '../../../common/dtos/map-preview-response.dto';
+import { LobbyCreationOptionsResponseDto } from '../../../common/dtos/lobby-creation-option-response.dto';
 
 @Controller('lobby')
 export class LobbyController {
@@ -19,8 +19,8 @@ export class LobbyController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
-  @Get('available-maps')
-  getAvailableMaps(): MapPreviewResponseDto[] {
-    return this.lobbyService.getAvailableMaps();
+  @Get('lobby-creation-options')
+  getLobbyCreationOptions(): LobbyCreationOptionsResponseDto {
+    return this.lobbyService.getLobbyCreationOptions();
   }
 }

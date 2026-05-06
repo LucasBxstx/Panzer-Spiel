@@ -15,6 +15,9 @@ import { LobbyPlayer } from '../../common/models/player.model';
 import { MapPreviewResponseDto } from '../../common/dtos/map-preview-response.dto';
 import { findMap, getAllMaps } from '../game/maps/map.utils';
 import { BotDifficulty, BotSetting } from '../../common/models/bot.model';
+import { LobbyCreationOptionsResponseDto } from '../../common/dtos/lobby-creation-option-response.dto';
+import { SelectableTankVariantResponseDto } from '../level/webservice/dto/level-response.dto';
+import { getAllTankVariants } from '../game/tank.utils';
 
 @Injectable()
 export class LobbyService {
@@ -25,10 +28,15 @@ export class LobbyService {
     private readonly userRepository: EntityRepository<User>,
   ) {}
 
-  getAvailableMaps(): MapPreviewResponseDto[] {
+  getLobbyCreationOptions(): LobbyCreationOptionsResponseDto {
     const maps = getAllMaps();
+    const mapPreviews = maps.map((m) => MapPreviewResponseDto.mapFromEntity(m));
 
-    return maps.map((m) => MapPreviewResponseDto.mapFromEntity(m));
+    const selectableTanks = getAllTankVariants().map((v) =>
+      SelectableTankVariantResponseDto.mapToDto(v),
+    );
+
+    return new LobbyCreationOptionsResponseDto(mapPreviews, selectableTanks);
   }
 
   async createLobby(

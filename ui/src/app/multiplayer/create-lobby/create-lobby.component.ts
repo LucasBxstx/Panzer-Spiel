@@ -14,8 +14,8 @@ import {
   BotDifficultyOption,
   CreateLobbyRequest,
   GameModeOption,
-  MapPreviewResponse,
-  TankTypeOption,
+  GameTypeOption,
+  LobbyCreationOptionsResponseDto,
 } from '../../shared/models/lobby.model';
 import { MapPreviewComponent } from '../../shared/components/map-preview/map-preview.component';
 import { GameMode } from '../../shared/models/lobby-preview.model';
@@ -28,6 +28,8 @@ import { NgOptimizedImage } from '@angular/common';
 import { map, merge } from 'rxjs';
 import { BotDifficulty } from '../../shared/models/bot.model';
 import { TankType } from '../../shared/models/tank.model';
+import { MultiplayerGameType } from '../../shared/models/game.model';
+import { TankSelectionComponent } from '../../shared/components/tank-selection/tank-selection.component';
 
 @Component({
   selector: 'app-create-lobby',
@@ -38,6 +40,7 @@ import { TankType } from '../../shared/models/tank.model';
     ChipComponent,
     ReactiveFormsModule,
     NgOptimizedImage,
+    TankSelectionComponent,
   ],
   templateUrl: './create-lobby.component.html',
   styleUrl: './create-lobby.component.scss',
@@ -52,16 +55,28 @@ export class CreateLobbyComponent implements AfterViewInit {
 
   public isAlreadyCreatingLobby = false;
   public readonly selectedMapId = signal<string>('containerhub');
+  public readonly selectedGameType = signal<MultiplayerGameType>(MultiplayerGameType.CUSTOM);
   public readonly selectedMode = signal<GameMode>(GameMode.OneVsOne);
   public readonly selectedBotDifficulty = signal<BotDifficulty | null>(null);
   public readonly selectedTankType = signal<TankType>(TankType.Panther);
 
-  public readonly availableMaps = toSignal<MapPreviewResponse[] | null>(
-    this.lobbyService.getAvailableMaps().pipe(takeUntilDestroyed(this.destroyRef)),
+  public readonly lobbyCreationOptions = toSignal<LobbyCreationOptionsResponseDto | null>(
+    this.lobbyService.getLobbyCreationOptions().pipe(takeUntilDestroyed(this.destroyRef)),
     {
       initialValue: null,
     },
   );
+
+  public readonly availableGameTypes = signal<GameTypeOption[]>([
+    {
+      name: 'Custom Settings',
+      value: MultiplayerGameType.CUSTOM,
+    },
+    {
+      name: 'Level Gameplay',
+      value: MultiplayerGameType.LEVEL,
+    },
+  ]);
 
   public readonly availableModes = signal<GameModeOption[]>([
     {
@@ -97,29 +112,6 @@ export class CreateLobbyComponent implements AfterViewInit {
     },
   ]);
 
-  public readonly availableTankTypes = signal<TankTypeOption[]>([
-    {
-      name: 'Panther',
-      value: TankType.Panther,
-    },
-    {
-      name: 'Razor',
-      value: TankType.Razor,
-    },
-    {
-      name: 'Inferno',
-      value: TankType.Inferno,
-    },
-    {
-      name: 'Reaper',
-      value: TankType.Reaper,
-    },
-    {
-      name: 'Nightshade',
-      value: TankType.Nightshade,
-    },
-  ]);
-
   public readonly formGroup = new FormGroup({
     numberOfTeams: new FormControl<number>(2, {
       validators: [Validators.min(2)],
@@ -139,10 +131,12 @@ export class CreateLobbyComponent implements AfterViewInit {
     merge(
       this.formGroup.valueChanges,
       toObservable(this.selectedMapId),
-      toObservable(this.availableMaps),
+      toObservable(this.lobbyCreationOptions),
     ).pipe(
       map(() => {
-        const map = this.availableMaps()?.find((m) => m.id === this.selectedMapId());
+        const map = this.lobbyCreationOptions()?.mapPreviews?.find(
+          (m) => m.id === this.selectedMapId(),
+        );
         if (!map) return true;
 
         const { teamSize, numberOfTeams, numberOfBots } = this.formGroup.getRawValue();

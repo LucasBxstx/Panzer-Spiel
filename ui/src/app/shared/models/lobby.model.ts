@@ -1,6 +1,8 @@
 import { GameMode } from './lobby-preview.model';
 import { BotDifficulty } from './bot.model';
 import { TankType } from './tank.model';
+import { MultiplayerGameType } from './game.model';
+import { SelectableTankVariantResponse } from './level.model';
 
 export interface CreateLobbyRequest {
   mapId: string;
@@ -11,6 +13,11 @@ export interface CreateLobbyRequest {
   numberOfTeams: number;
   tankType: TankType;
   botDifficulty?: BotDifficulty;
+}
+
+export interface LobbyCreationOptionsResponseDto {
+  mapPreviews: MapPreviewResponse[];
+  selectableTanks: SelectableTankVariantResponse[];
 }
 
 export interface MapPreviewResponse {
@@ -58,4 +65,9 @@ export interface BotDifficultyOption {
 export interface TankTypeOption {
   name: string;
   value: TankType;
+}
+
+export interface GameTypeOption {
+  name: string;
+  value: MultiplayerGameType;
 }
